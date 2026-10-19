@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.projectmobile"
+    namespace = "com.example.snapchatsphlasscreen"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.projectmobile"
+        applicationId = "com.example.snapchatsphlasscreen"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -40,4 +40,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    implementation ("androidx.core:core-splashscreen:1.0.0")
 }
