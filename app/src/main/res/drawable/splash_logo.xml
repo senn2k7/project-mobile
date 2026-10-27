@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Badan logo AI -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M30,57 C30,48 37,41 46,41 L62,41 C71,41 78,48 78,57 L78,68 C78,77 71,84 62,84 L46,84 C37,84 30,77 30,68 Z" />
+
+    <!-- Papan topi wisuda -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M12,38 L54,17 L96,38 L54,59 Z" />
+
+    <!-- Tali topi wisuda -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M88,40 L91,40 L91,62 L88,62 Z" />
+
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M85,64 A5,5 0,1 0,95 64 A5,5 0,1 0,85 64" />
+
+    <!-- Layar AI berwarna putih -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M39,55 L69,55 C72,55 74,58 74,61 L74,66 C74,69 72,72 69,72 L39,72 C36,72 34,69 34,66 L34,61 C34,58 36,55 39,55 Z" />
+
+    <!-- Tiga titik AI -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M42,61 A2.5,2.5 0,1 0,47 61 A2.5,2.5 0,1 0,42 61" />
+
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M51,61 A2.5,2.5 0,1 0,56 61 A2.5,2.5 0,1 0,51 61" />
+
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M60,61 A2.5,2.5 0,1 0,65 61 A2.5,2.5 0,1 0,60 61" />
+
+</vector>

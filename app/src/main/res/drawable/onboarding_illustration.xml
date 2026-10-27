@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="300dp"
+    android:viewportWidth="360"
+    android:viewportHeight="300">
+
+    <!-- Lingkaran latar ilustrasi -->
+    <path
+        android:fillColor="#EAF3FF"
+        android:pathData="M180,10 A155,125 0,1 1,180 260 A155,125 0,1 1,180 10" />
+
+    <!-- Kartu ikon grafik -->
+    <path
+        android:fillColor="#A7CBFF"
+        android:pathData="M45,48 Q45,38 55,38 L80,38 Q90,38 90,48 L90,73 Q90,83 80,83 L55,83 Q45,83 45,73 Z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M55,70 L55,61 M63,70 L63,55 M71,70 L71,60 M79,70 L79,49 M53,57 L63,49 L69,54 L80,43" />
+
+    <!-- Kartu ikon tugas -->
+    <path
+        android:fillColor="#A7CBFF"
+        android:pathData="M275,65 Q275,55 285,55 L310,55 Q320,55 320,65 L320,90 Q320,100 310,100 L285,100 Q275,100 275,90 Z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M290,68 L305,68 L305,89 L290,89 Z M294,64 L301,64 L301,70 L294,70 Z M294,76 L297,79 L302,74 M294,84 L297,84" />
+
+    <!-- Kartu ikon kalender -->
+    <path
+        android:fillColor="#A7CBFF"
+        android:pathData="M25,135 Q25,125 35,125 L60,125 Q70,125 70,135 L70,160 Q70,170 60,170 L35,170 Q25,170 25,160 Z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M36,139 L59,139 L59,159 L36,159 Z M41,135 L41,143 M54,135 L54,143 M36,146 L59,146 M43,151 L43,151 M51,151 L51,151" />
+
+    <!-- Kartu ikon buku -->
+    <path
+        android:fillColor="#A7CBFF"
+        android:pathData="M280,160 Q280,150 290,150 L315,150 Q325,150 325,160 L325,185 Q325,195 315,195 L290,195 Q280,195 280,185 Z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M290,161 Q298,158 303,165 Q308,158 316,161 L316,183 Q308,180 303,187 Q298,180 290,183 Z M303,165 L303,187" />
+
+    <!-- Rambut bagian belakang -->
+    <path
+        android:fillColor="#1D4278"
+        android:pathData="M116,119 C112,81 126,53 151,48 C180,41 201,69 204,108 C207,151 191,183 164,187 C136,186 117,160 116,119 Z" />
+
+    <!-- Leher -->
+    <path
+        android:fillColor="#F6BE9A"
+        android:pathData="M145,153 L145,181 L170,181 L170,153 Z" />
+
+    <!-- Badan dan baju -->
+    <path
+        android:fillColor="#9CCBFF"
+        android:pathData="M122,177 C132,165 143,163 157,163 C175,163 190,170 199,184 L214,239 Q212,252 198,252 L113,252 Q100,250 104,235 Z" />
+
+    <!-- Lengan kiri -->
+    <path
+        android:fillColor="#F6BE9A"
+        android:pathData="M113,184 C105,184 100,191 100,202 L100,234 C100,245 106,250 113,246 C118,244 120,239 120,232 L120,201 C120,192 118,186 113,184 Z" />
+
+    <!-- Lengan kanan -->
+    <path
+        android:fillColor="#F6BE9A"
+        android:pathData="M198,184 C206,184 211,191 211,202 L211,230 C211,239 206,244 199,241 C194,239 192,234 192,227 L192,202 C192,192 193,186 198,184 Z" />
+
+    <!-- Wajah -->
+    <path
+        android:fillColor="#F6BE9A"
+        android:pathData="M127,106 C127,84 140,70 159,70 C178,70 190,85 190,107 C190,132 177,150 159,150 C141,150 127,131 127,106 Z" />
+
+    <!-- Rambut bagian atas -->
+    <path
+        android:fillColor="#1D4278"
+        android:pathData="M122,103 C119,80 133,57 153,56 C171,54 188,72 190,94 C178,90 169,91 157,96 C145,101 134,100 122,103 Z" />
+
+    <!-- Mata -->
+    <path
+        android:fillColor="#19365F"
+        android:pathData="M141,111 A2.5,2.5 0,1 1,146 111 A2.5,2.5 0,1 1,141 111 M171,111 A2.5,2.5 0,1 1,176 111 A2.5,2.5 0,1 1,171 111" />
+
+    <!-- Kaki -->
+    <path
+        android:fillColor="#1D4278"
+        android:pathData="M119,249 L145,249 L145,277 L119,277 Z M159,249 L185,249 L185,277 L159,277 Z" />
+
+    <!-- Laptop -->
+    <path
+        android:fillColor="#1D4278"
+        android:pathData="M199,202 L287,202 L272,270 L184,270 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M229,232 A4,4 0,1 1,237 232 A4,4 0,1 1,229 232" />
+
+    <!-- Meja -->
+    <path
+        android:fillColor="#A7CBFF"
+        android:pathData="M35,271 L320,271 Q325,271 325,276 L325,281 Q325,286 320,286 L35,286 Q30,286 30,281 L30,276 Q30,271 35,271 Z" />
+
+    <!-- Bagian bawah laptop -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M165,270 L282,270 Q287,270 287,275 Q287,280 282,280 L165,280 Q160,280 160,275 Q160,270 165,270 Z" />
+
+</vector>
