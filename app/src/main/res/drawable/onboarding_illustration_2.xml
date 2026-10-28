@@ -1,102 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="360dp"
-    android:height="300dp"
-    android:viewportWidth="360"
-    android:viewportHeight="300">
+    android:width="330dp"
+    android:height="260dp"
+    android:viewportWidth="330"
+    android:viewportHeight="260">
 
-    <!-- Background Circle -->
+    <!-- Latar oval -->
     <path
         android:fillColor="#EAF3FF"
-        android:pathData="M180,10 A155,125 0,1 1,180 260 A155,125 0,1 1,180 10" />
+        android:pathData="M165,20 A153,113 0 1 1 165,246 A153,113 0 1 1 165,20 Z" />
 
-    <!-- Whiteboard in background -->
+    <!-- Papan tulis -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M110,40 L290,40 Q295,40 295,45 L295,170 Q295,175 290,175 L110,175 Q105,175 105,170 L105,45 Q105,40 110,40 Z" />
-    <path
-        android:strokeColor="#1D5EFF"
+        android:strokeColor="#165DFF"
         android:strokeWidth="3"
+        android:pathData="M108,43.5 H275 A7.5,7.5 0 0 1 282.5,51 V149 A7.5,7.5 0 0 1 275,156.5 H108 A7.5,7.5 0 0 1 100.5,149 V51 A7.5,7.5 0 0 1 108,43.5 Z" />
+
+    <!-- Garis materi -->
+    <path
+        android:strokeColor="#165DFF"
+        android:strokeWidth="5"
         android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:fillColor="#00000000"
-        android:pathData="M110,40 L290,40 Q295,40 295,45 L295,170 Q295,175 290,175 L110,175 Q105,175 105,170 L105,45 Q105,40 110,40 Z" />
-
-    <!-- Whiteboard text lines -->
+        android:pathData="M120.5,64.5 H260.5" />
     <path
-        android:strokeColor="#1D5EFF"
-        android:strokeWidth="4"
+        android:strokeColor="#BBD6FF"
+        android:strokeWidth="5"
         android:strokeLineCap="round"
-        android:fillColor="#00000000"
-        android:pathData="M125,60 L275,60 M125,85 L230,85 M125,110 L250,110 M125,135 L210,135" />
+        android:pathData="M120.5,86.5 H218.5" />
+    <path
+        android:strokeColor="#BBD6FF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M120.5,108.5 H260.5" />
+    <path
+        android:strokeColor="#BBD6FF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M120.5,130.5 H218.5" />
 
-    <!-- Floor line under teacher/students -->
-    <path
-        android:fillColor="#A7CBFF"
-        android:pathData="M125,225 L315,225 Q320,225 320,230 Q320,235 315,235 L125,235 Q120,235 120,230 Q120,225 125,225 Z" />
+    <!-- GURU -->
+    <group
+        android:translateX="17"
+        android:translateY="67">
+        <path
+            android:fillColor="#193F75"
+            android:pathData="M35.2,124.3 H41.8 A8.8,8.8 0 0 1 50.6,133.1 V160.6 A8.8,8.8 0 0 1 41.8,169.4 H35.2 A8.8,8.8 0 0 1 26.4,160.6 V133.1 A8.8,8.8 0 0 1 35.2,124.3 Z" />
+        <path
+            android:fillColor="#193F75"
+            android:pathData="M67.1,124.3 H73.7 A8.8,8.8 0 0 1 82.5,133.1 V160.6 A8.8,8.8 0 0 1 73.7,169.4 H67.1 A8.8,8.8 0 0 1 58.3,160.6 V133.1 A8.8,8.8 0 0 1 67.1,124.3 Z" />
+        <path
+            android:fillColor="#165DFF"
+            android:pathData="M31.9,61.6 H78.1 Q93.5,61.6 93.5,77 L95.81,119.68 Q95.81,139.7 75.79,139.7 H34.21 Q14.19,139.7 14.19,119.68 L16.5,77 Q16.5,61.6 31.9,61.6 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M53.3,47.3 H60 A6,6 0 0 1 66,53.3 V66.6 A6,6 0 0 1 60,72.6 H53.3 A6,6 0 0 1 47.3,66.6 V53.3 A6,6 0 0 1 53.3,47.3 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M38.5,34.1 A18.7,18.7 0 0 1 75.9,34.1 V47.56 C75.9,57.97 66.92,62.7 57.2,62.7 C47.48,62.7 38.5,57.97 38.5,47.56 Z" />
+        <path
+            android:fillColor="#193F75"
+            android:pathData="M29.7,37.31 C29.7,16.7 41.77,0 56.65,0 C71.53,0 83.6,16.7 83.6,37.31 Q56.65,25.65 29.7,37.31 Z" />
+        <path
+            android:fillColor="#19345D"
+            android:pathData="M51.7,35.48 A1.38,1.38 0 1 0 54.45,35.48 A1.38,1.38 0 1 0 51.7,35.48 Z" />
+        <path
+            android:fillColor="#19345D"
+            android:pathData="M66,35.48 A1.38,1.38 0 1 0 68.75,35.48 A1.38,1.38 0 1 0 66,35.48 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M19.25,73.7 H19.25 A8.25,8.25 0 0 1 27.5,81.95 V125.95 A8.25,8.25 0 0 1 19.25,134.2 H19.25 A8.25,8.25 0 0 1 11,125.95 V81.95 A8.25,8.25 0 0 1 19.25,73.7 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M91.85,73.7 H91.85 A8.25,8.25 0 0 1 100.1,81.95 V125.95 A8.25,8.25 0 0 1 91.85,134.2 H91.85 A8.25,8.25 0 0 1 83.6,125.95 V81.95 A8.25,8.25 0 0 1 91.85,73.7 Z" />
+    </group>
 
-    <!-- Teacher (Left big figure) -->
-    <!-- Teacher body -->
-    <path
-        android:fillColor="#1D5EFF"
-        android:pathData="M135,140 C135,130 145,125 160,125 C175,125 185,130 185,140 L195,200 Q195,215 180,215 L140,215 Q125,215 125,200 Z" />
-    <!-- Teacher head -->
-    <path
-        android:fillColor="#F6BE9A"
-        android:pathData="M140,95 C140,78 150,65 160,65 C170,65 180,78 180,95 C180,112 170,125 160,125 C150,125 140,112 140,95 Z" />
-    <!-- Teacher hair -->
-    <path
-        android:fillColor="#1D4278"
-        android:pathData="M138,90 C137,70 148,58 160,57 C172,57 183,70 182,90 C175,85 165,85 160,87 C155,85 145,85 138,90 Z" />
-    <!-- Teacher eyes -->
-    <path
-        android:fillColor="#19365F"
-        android:pathData="M152,98 A2,2 0,1 1,156 98 A2,2 0,1 1,152 98 M164,98 A2,2 0,1 1,168 98 A2,2 0,1 1,164 98" />
-    <!-- Teacher legs -->
-    <path
-        android:fillColor="#1D4278"
-        android:pathData="M138,212 L152,212 L152,228 L138,228 Z M168,212 L182,212 L182,228 L168,228 Z" />
+    <!-- SISWA TENGAH -->
+    <group
+        android:translateX="132"
+        android:translateY="145">
+        <path
+            android:fillColor="#193F75"
+            android:pathData="M23.04,81.36 H27.36 A5.76,5.76 0 0 1 33.12,87.12 V105.12 A5.76,5.76 0 0 1 27.36,110.88 H23.04 A5.76,5.76 0 0 1 17.28,105.12 V87.12 A5.76,5.76 0 0 1 23.04,81.36 Z" />
+        <path
+            android:fillColor="#193F75"
+            android:pathData="M43.92,81.36 H48.24 A5.76,5.76 0 0 1 54,87.12 V105.12 A5.76,5.76 0 0 1 48.24,110.88 H43.92 A5.76,5.76 0 0 1 38.16,105.12 V87.12 A5.76,5.76 0 0 1 43.92,81.36 Z" />
+        <path
+            android:fillColor="#9BC9FA"
+            android:pathData="M20.88,40.32 H51.12 Q61.2,40.32 61.2,50.4 L62.71,78.34 Q62.71,91.44 49.61,91.44 H22.39 Q9.29,91.44 9.29,78.34 L10.8,50.4 Q10.8,40.32 20.88,40.32 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M34.96,30.96 H39.2 A4,4 0 0 1 43.2,34.96 V43.52 A4,4 0 0 1 39.2,47.52 H34.96 A4,4 0 0 1 30.96,43.52 V34.96 A4,4 0 0 1 34.96,30.96 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M25.2,22.32 A12.24,12.24 0 0 1 49.68,22.32 V31.13 C49.68,37.94 43.8,41.04 37.44,41.04 C31.08,41.04 25.2,37.94 25.2,31.13 Z" />
+        <path
+            android:fillColor="#193F75"
+            android:pathData="M19.44,24.42 C19.44,10.93 27.34,0 37.08,0 C46.82,0 54.72,10.93 54.72,24.42 Q37.08,16.79 19.44,24.42 Z" />
+        <path
+            android:fillColor="#19345D"
+            android:pathData="M33.84,23.22 A0.9,0.9 0 1 0 35.64,23.22 A0.9,0.9 0 1 0 33.84,23.22 Z" />
+        <path
+            android:fillColor="#19345D"
+            android:pathData="M43.2,23.22 A0.9,0.9 0 1 0 45,23.22 A0.9,0.9 0 1 0 43.2,23.22 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M12.6,48.24 H12.6 A5.4,5.4 0 0 1 18,53.64 V82.44 A5.4,5.4 0 0 1 12.6,87.84 H12.6 A5.4,5.4 0 0 1 7.2,82.44 V53.64 A5.4,5.4 0 0 1 12.6,48.24 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M60.12,48.24 H60.12 A5.4,5.4 0 0 1 65.52,53.64 V82.44 A5.4,5.4 0 0 1 60.12,87.84 H60.12 A5.4,5.4 0 0 1 54.72,82.44 V53.64 A5.4,5.4 0 0 1 60.12,48.24 Z" />
+    </group>
 
-    <!-- Student 1 (Middle smaller figure) -->
-    <path
-        android:fillColor="#6CA4FF"
-        android:pathData="M425,160 C425,152 432,148 442,148 C452,148 459,152 459,160 L465,205 Q465,215 455,215 L430,215 Q420,215 419,205 Z"
-        android:translateX="-290" />
-    <path
-        android:fillColor="#F6BE9A"
-        android:pathData="M142,128 C142,115 149,105 158,105 C167,105 174,115 174,128 C174,141 167,150 158,150 C149,150 142,141 142,128 Z"
-        android:translateX="280" />
-    <path
-        android:fillColor="#1D4278"
-        android:pathData="M421,155 C420,140 430,132 442,131 C454,132 464,140 463,155 Z"
-        android:translateX="-290" />
-    <path
-        android:fillColor="#19365F"
-        android:pathData="M439,132 A1.5,1.5 0,1 1,442 132 A1.5,1.5 0,1 1,439 132 M447,132 A1.5,1.5 0,1 1,450 132 A1.5,1.5 0,1 1,447 132"
-        android:translateX="-290" />
-    <path
-        android:fillColor="#1D4278"
-        android:pathData="M146,212 L154,212 L154,228 L146,228 Z M158,212 L166,212 L166,228 L158,228 Z"
-        android:translateX="3" />
+    <!-- SISWA KANAN -->
+    <group
+        android:translateX="220"
+        android:translateY="137">
+        <path
+            android:fillColor="#193F75"
+            android:pathData="M25.6,90.4 H30.4 A6.4,6.4 0 0 1 36.8,96.8 V116.8 A6.4,6.4 0 0 1 30.4,123.2 H25.6 A6.4,6.4 0 0 1 19.2,116.8 V96.8 A6.4,6.4 0 0 1 25.6,90.4 Z" />
+        <path
+            android:fillColor="#193F75"
+            android:pathData="M48.8,90.4 H53.6 A6.4,6.4 0 0 1 60,96.8 V116.8 A6.4,6.4 0 0 1 53.6,123.2 H48.8 A6.4,6.4 0 0 1 42.4,116.8 V96.8 A6.4,6.4 0 0 1 48.8,90.4 Z" />
+        <path
+            android:fillColor="#168FF6"
+            android:pathData="M23.2,44.8 H56.8 Q68,44.8 68,56 L69.68,87.04 Q69.68,101.6 55.12,101.6 H24.88 Q10.32,101.6 10.32,87.04 L12,56 Q12,44.8 23.2,44.8 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M38.9,34.4 H43.5 A4.5,4.5 0 0 1 48,38.9 V48.3 A4.5,4.5 0 0 1 43.5,52.8 H38.9 A4.5,4.5 0 0 1 34.4,48.3 V38.9 A4.5,4.5 0 0 1 38.9,34.4 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M28,24.8 A13.6,13.6 0 0 1 55.2,24.8 V34.59 C55.2,42.16 48.67,45.6 41.6,45.6 C34.53,45.6 28,42.16 28,34.59 Z" />
+        <path
+            android:fillColor="#193F75"
+            android:pathData="M21.6,27.14 C21.6,12.15 30.37,0 41.2,0 C52.03,0 60.8,12.15 60.8,27.14 Q41.2,18.66 21.6,27.14 Z" />
+        <path
+            android:fillColor="#19345D"
+            android:pathData="M37.6,25.8 A1,1 0 1 0 39.6,25.8 A1,1 0 1 0 37.6,25.8 Z" />
+        <path
+            android:fillColor="#19345D"
+            android:pathData="M48,25.8 A1,1 0 1 0 50,25.8 A1,1 0 1 0 48,25.8 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M14,53.6 H14 A6,6 0 0 1 20,59.6 V91.6 A6,6 0 0 1 14,97.6 H14 A6,6 0 0 1 8,91.6 V59.6 A6,6 0 0 1 14,53.6 Z" />
+        <path
+            android:fillColor="#F4BD99"
+            android:pathData="M66.8,53.6 H66.8 A6,6 0 0 1 72.8,59.6 V91.6 A6,6 0 0 1 66.8,97.6 H66.8 A6,6 0 0 1 60.8,91.6 V59.6 A6,6 0 0 1 66.8,53.6 Z" />
+    </group>
 
-    <!-- Student 2 (Right smaller figure) -->
+    <!-- Meja -->
     <path
-        android:fillColor="#1D5EFF"
-        android:pathData="M525,155 C525,148 532,144 542,144 C552,144 559,148 559,155 L567,205 Q567,215 557,215 L527,215 Q517,215 517,205 Z"
-        android:translateX="-250" />
-    <path
-        android:fillColor="#F6BE9A"
-        android:pathData="M272,124 C272,112 279,102 288,102 C297,102 304,112 304,124 C304,137 297,146 288,146 C279,146 272,137 272,124 Z"
-        android:translateX="1" />
-    <path
-        android:fillColor="#1D4278"
-        android:pathData="M272,120 C270,105 280,97 288,96 C296,97 306,105 304,120 Z" />
-    <path
-        android:fillColor="#19365F"
-        android:pathData="M283,128 A1.5,1.5 0,1 1,286 128 A1.5,1.5 0,1 1,283 128 M291,128 A1.5,1.5 0,1 1,294 128 A1.5,1.5 0,1 1,291 128" />
-    <path
-        android:fillColor="#1D4278"
-        android:pathData="M265,212 L273,212 L273,228 L265,228 Z M281,212 L289,212 L289,228 L281,228 Z"
-        android:translateX="5" />
+        android:fillColor="#8DBAFF"
+        android:pathData="M114,240 H312 A3,3 0 0 1 315,243 V246 A3,3 0 0 1 312,249 H114 A3,3 0 0 1 111,246 V243 A3,3 0 0 1 114,240 Z" />
 
 </vector>

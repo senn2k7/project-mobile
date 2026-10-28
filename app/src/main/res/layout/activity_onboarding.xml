@@ -2,19 +2,21 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/onboardingRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5FAFF"
-    android:padding="24dp">
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp">
 
-    <!-- Header: Logo dan nama aplikasi -->
+    <!-- Header aplikasi -->
     <ImageView
         android:id="@+id/imgLogo"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
         android:contentDescription="Logo TemanStudi"
-        android:src="@drawable/splash_logo"
         android:scaleType="fitCenter"
+        android:src="@drawable/splash_logo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -22,38 +24,36 @@
         android:id="@+id/txtAppName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="10dp"
         android:text="TemanStudi"
         android:textColor="#19365F"
-        android:textSize="27sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/imgLogo"
         app:layout_constraintTop_toTopOf="@id/imgLogo"
         app:layout_constraintBottom_toBottomOf="@id/imgLogo" />
 
-    <!-- Tombol Lewati -->
     <TextView
         android:id="@+id/btnLewati"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
         android:padding="8dp"
         android:text="Lewati"
         android:textColor="#7186A5"
-        android:textSize="16sp"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackground"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/imgLogo"
         app:layout_constraintBottom_toBottomOf="@id/imgLogo" />
 
-    <!-- Ilustrasi pelajar -->
+    <!-- Ilustrasi: gunakan tinggi nyata agar tidak menghilang -->
     <FrameLayout
         android:id="@+id/illustrationArea"
         android:layout_width="0dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="24dp"
-        android:background="@android:color/transparent"
+        android:layout_height="260dp"
+        android:layout_marginTop="18dp"
         app:layout_constraintTop_toBottomOf="@id/imgLogo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -67,41 +67,41 @@
 
     </FrameLayout>
 
-    <!-- Judul onboarding -->
+    <!-- Judul -->
     <TextView
         android:id="@+id/txtOnboardingTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="22dp"
         android:text="Semua Kebutuhan Belajar dalam Satu Aplikasi"
         android:textColor="#19365F"
-        android:textSize="27sp"
+        android:textSize="26sp"
         android:textStyle="bold"
-        android:lineSpacingExtra="3dp"
+        android:lineSpacingExtra="2dp"
         app:layout_constraintTop_toBottomOf="@id/illustrationArea"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Deskripsi fitur aplikasi -->
+    <!-- Deskripsi -->
     <TextView
         android:id="@+id/txtOnboardingDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="14dp"
         android:text="Akses kelas, materi, tugas, kuis, ujian, presensi, diskusi dan nilai dalam satu platform yang mudah digunakan."
         android:textColor="#7186A5"
-        android:textSize="17sp"
-        android:lineSpacingExtra="5dp"
+        android:textSize="16sp"
+        android:lineSpacingExtra="4dp"
         app:layout_constraintTop_toBottomOf="@id/txtOnboardingTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Indikator tiga halaman onboarding -->
+    <!-- Indikator halaman -->
     <LinearLayout
         android:id="@+id/pageIndicators"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="24dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@id/btnLanjut"
@@ -127,18 +127,19 @@
 
     </LinearLayout>
 
-    <!-- Tombol Lanjut -->
-    <Button
+    <!-- Tombol utama -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnLanjut"
         android:layout_width="0dp"
-        android:layout_height="64dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="12dp"
         android:backgroundTint="#1D5EFF"
         android:text="Lanjut"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:cornerRadius="18dp"
+        app:cornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
