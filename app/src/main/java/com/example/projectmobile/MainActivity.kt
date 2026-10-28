@@ -16,12 +16,11 @@ class MainActivity : AppCompatActivity() {
         // Menampilkan desain splash screen lengkap
         setContentView(R.layout.activity_main)
 
-        // Berpindah ke halaman onboarding setelah 3 detik
+        // Berpindah ke halaman onboarding atau login setelah 3 detik
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(
-                Intent(this, OnboardingActivity::class.java)
-            )
+            val intent = Intent(this, OnboardingActivity::class.java)
+            startActivity(intent)
             finish()
-        },  3000L)
+        }, 3000L)
     }
 }

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="300dp"
+    android:viewportWidth="360"
+    android:viewportHeight="300">
+
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#EAF3FF"
+        android:pathData="M180,10 A155,125 0,1 1,180 260 A155,125 0,1 1,180 10" />
+
+    <!-- Top Antenna -->
+    <path
+        android:strokeColor="#1D5EFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M180,75 L180,50" />
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M180,45 A7,7 0,1 1,180 31 A7,7 0,1 1,180 45" />
+
+    <!-- Robot Ears -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M110,105 Q100,105 100,115 L100,135 Q100,145 110,145 Z" />
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M250,105 Q260,105 260,115 L260,135 Q260,145 250,145 Z" />
+
+    <!-- Robot Head / Outer Box -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#1D5EFF"
+        android:strokeWidth="4"
+        android:pathData="M115,75 L245,75 Q255,75 255,85 L255,155 Q255,165 245,165 L115,165 Q105,165 105,155 L105,85 Q105,75 115,75 Z" />
+
+    <!-- Robot Screen (Inner Face) -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M125,88 L235,88 Q240,88 240,93 L240,147 Q240,152 235,152 L125,152 Q120,152 120,147 L120,93 Q120,88 125,88 Z" />
+
+    <!-- Robot Eyes -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M140,108 A7,7 0,1 1,154 108 A7,7 0,1 1,140 108 M206,108 A7,7 0,1 1,220 108 A7,7 0,1 1,206 108" />
+    <!-- Robot Mouth / Line -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M173,133 L187,133" />
+
+    <!-- Robot Arms -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M105,175 C95,175 90,190 95,205 C100,215 115,215 120,200 Z" />
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M255,175 C265,175 270,190 265,205 C260,215 245,215 240,200 Z" />
+
+    <!-- Robot Body / Chest -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#1D5EFF"
+        android:strokeWidth="4"
+        android:pathData="M135,165 L225,165 Q235,165 235,175 L235,215 Q235,225 225,225 L135,225 Q125,225 125,215 L125,175 Q125,165 135,165 Z" />
+    <!-- Chest Core Diamond -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M180,182 L192,194 L180,206 L168,194 Z" />
+
+    <!-- Chat Bubbles on Top Right -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M225,38 L285,38 Q290,38 290,43 L290,68 Q290,73 285,73 L235,73 L225,83 L230,73 L225,73 Q220,73 220,68 L220,43 Q220,38 225,38 Z" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M233,48 L277,48 M233,60 L260,60" />
+
+    <path
+        android:fillColor="#A7CBFF"
+        android:pathData="M220,88 L280,88 Q285,88 285,93 L285,118 Q285,123 280,123 L220,123 Q215,123 215,118 L215,93 Q215,88 220,88 Z" />
+    <path
+        android:strokeColor="#19365F"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M227,98 L273,98 M227,110 L250,110" />
+
+</vector>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="300dp"
+    android:viewportWidth="360"
+    android:viewportHeight="300">
+
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#EAF3FF"
+        android:pathData="M180,10 A155,125 0,1 1,180 260 A155,125 0,1 1,180 10" />
+
+    <!-- Whiteboard in background -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M110,40 L290,40 Q295,40 295,45 L295,170 Q295,175 290,175 L110,175 Q105,175 105,170 L105,45 Q105,40 110,40 Z" />
+    <path
+        android:strokeColor="#1D5EFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M110,40 L290,40 Q295,40 295,45 L295,170 Q295,175 290,175 L110,175 Q105,175 105,170 L105,45 Q105,40 110,40 Z" />
+
+    <!-- Whiteboard text lines -->
+    <path
+        android:strokeColor="#1D5EFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M125,60 L275,60 M125,85 L230,85 M125,110 L250,110 M125,135 L210,135" />
+
+    <!-- Floor line under teacher/students -->
+    <path
+        android:fillColor="#A7CBFF"
+        android:pathData="M125,225 L315,225 Q320,225 320,230 Q320,235 315,235 L125,235 Q120,235 120,230 Q120,225 125,225 Z" />
+
+    <!-- Teacher (Left big figure) -->
+    <!-- Teacher body -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M135,140 C135,130 145,125 160,125 C175,125 185,130 185,140 L195,200 Q195,215 180,215 L140,215 Q125,215 125,200 Z" />
+    <!-- Teacher head -->
+    <path
+        android:fillColor="#F6BE9A"
+        android:pathData="M140,95 C140,78 150,65 160,65 C170,65 180,78 180,95 C180,112 170,125 160,125 C150,125 140,112 140,95 Z" />
+    <!-- Teacher hair -->
+    <path
+        android:fillColor="#1D4278"
+        android:pathData="M138,90 C137,70 148,58 160,57 C172,57 183,70 182,90 C175,85 165,85 160,87 C155,85 145,85 138,90 Z" />
+    <!-- Teacher eyes -->
+    <path
+        android:fillColor="#19365F"
+        android:pathData="M152,98 A2,2 0,1 1,156 98 A2,2 0,1 1,152 98 M164,98 A2,2 0,1 1,168 98 A2,2 0,1 1,164 98" />
+    <!-- Teacher legs -->
+    <path
+        android:fillColor="#1D4278"
+        android:pathData="M138,212 L152,212 L152,228 L138,228 Z M168,212 L182,212 L182,228 L168,228 Z" />
+
+    <!-- Student 1 (Middle smaller figure) -->
+    <path
+        android:fillColor="#6CA4FF"
+        android:pathData="M425,160 C425,152 432,148 442,148 C452,148 459,152 459,160 L465,205 Q465,215 455,215 L430,215 Q420,215 419,205 Z"
+        android:translateX="-290" />
+    <path
+        android:fillColor="#F6BE9A"
+        android:pathData="M142,128 C142,115 149,105 158,105 C167,105 174,115 174,128 C174,141 167,150 158,150 C149,150 142,141 142,128 Z"
+        android:translateX="280" />
+    <path
+        android:fillColor="#1D4278"
+        android:pathData="M421,155 C420,140 430,132 442,131 C454,132 464,140 463,155 Z"
+        android:translateX="-290" />
+    <path
+        android:fillColor="#19365F"
+        android:pathData="M439,132 A1.5,1.5 0,1 1,442 132 A1.5,1.5 0,1 1,439 132 M447,132 A1.5,1.5 0,1 1,450 132 A1.5,1.5 0,1 1,447 132"
+        android:translateX="-290" />
+    <path
+        android:fillColor="#1D4278"
+        android:pathData="M146,212 L154,212 L154,228 L146,228 Z M158,212 L166,212 L166,228 L158,228 Z"
+        android:translateX="3" />
+
+    <!-- Student 2 (Right smaller figure) -->
+    <path
+        android:fillColor="#1D5EFF"
+        android:pathData="M525,155 C525,148 532,144 542,144 C552,144 559,148 559,155 L567,205 Q567,215 557,215 L527,215 Q517,215 517,205 Z"
+        android:translateX="-250" />
+    <path
+        android:fillColor="#F6BE9A"
+        android:pathData="M272,124 C272,112 279,102 288,102 C297,102 304,112 304,124 C304,137 297,146 288,146 C279,146 272,137 272,124 Z"
+        android:translateX="1" />
+    <path
+        android:fillColor="#1D4278"
+        android:pathData="M272,120 C270,105 280,97 288,96 C296,97 306,105 304,120 Z" />
+    <path
+        android:fillColor="#19365F"
+        android:pathData="M283,128 A1.5,1.5 0,1 1,286 128 A1.5,1.5 0,1 1,283 128 M291,128 A1.5,1.5 0,1 1,294 128 A1.5,1.5 0,1 1,291 128" />
+    <path
+        android:fillColor="#1D4278"
+        android:pathData="M265,212 L273,212 L273,228 L265,228 Z M281,212 L289,212 L289,228 L281,228 Z"
+        android:translateX="5" />
+
+</vector>

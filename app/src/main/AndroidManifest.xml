@@ -17,6 +17,11 @@
             android:name=".OnboardingActivity"
             android:exported="false" />
 
+        <!-- Halaman Login -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+
         <!-- Halaman utama untuk memulai aplikasi -->
         <activity
             android:name=".MainActivity"
