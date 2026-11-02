@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/modeRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5FAFF"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Header / Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Pilih Mode Pembelajaran"
+        android:textColor="#19365F"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Pilih cara belajar yang sesuai dengan kebutuhanmu"
+        android:textColor="#7186A5"
+        android:textSize="16sp" />
+
+    <!-- Card Institusi -->
+    <LinearLayout
+        android:id="@+id/cardInstitusi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_mode_unselected"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mode Institusi"
+            android:textColor="#19365F"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Terhubung dengan sekolah, kampus, atau organisasi pembelajaran resmi."
+            android:textColor="#7186A5"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <!-- Card Mandiri -->
+    <LinearLayout
+        android:id="@+id/cardMandiri"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_mode_unselected"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kelas Mandiri"
+            android:textColor="#19365F"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Belajar secara mandiri sesuai minat, topik, dan kecepatan belajarmu sendiri."
+            android:textColor="#7186A5"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Tombol Lanjutkan -->
+    <TextView
+        android:id="@+id/btnLanjutkan"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginBottom="24dp"
+        android:background="#1D5EFF"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:text="Lanjutkan"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

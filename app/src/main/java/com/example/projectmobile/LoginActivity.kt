@@ -1,5 +1,6 @@
 package com.example.snapchatsphlasscreen
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -34,11 +35,15 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, "Email dan Password harus diisi", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Berhasil masuk!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, ModePembelajaranActivity::class.java))
+                finish()
             }
         }
 
         btnGoogleLogin.setOnClickListener {
             Toast.makeText(this, "Masuk dengan Google...", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, ModePembelajaranActivity::class.java))
+            finish()
         }
 
         txtForgotPassword.setOnClickListener {

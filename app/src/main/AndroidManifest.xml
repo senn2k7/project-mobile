@@ -22,6 +22,31 @@
             android:name=".LoginActivity"
             android:exported="false" />
 
+        <!-- Halaman Mode Pembelajaran -->
+        <activity
+            android:name=".ModePembelajaranActivity"
+            android:exported="false" />
+
+        <!-- Halaman Pilih Peran -->
+        <activity
+            android:name=".PilihPeranActivity"
+            android:exported="false" />
+
+        <!-- Lengkapi Profil Pengajar Mandiri -->
+        <activity
+            android:name=".LengkapiProfilPengajarActivity"
+            android:exported="false" />
+
+        <!-- Lengkapi Profil Pelajar Mandiri -->
+        <activity
+            android:name=".LengkapiProfilPelajarActivity"
+            android:exported="false" />
+
+        <!-- Halaman Utama (Home) -->
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false" />
+
         <!-- Halaman utama untuk memulai aplikasi -->
         <activity
             android:name=".MainActivity"
