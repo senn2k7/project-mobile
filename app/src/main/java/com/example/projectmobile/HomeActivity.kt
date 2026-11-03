@@ -1,5 +1,6 @@
 package com.example.snapchatsphlasscreen
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -178,7 +179,15 @@ class HomeActivity : AppCompatActivity() {
         }
 
         // 4. Section: Kelas Saya
-        val kelasHeader = createSectionHeader("Kelas Saya")
+        val kelasHeader = createSectionHeader("Kelas Saya", showAction = true, onActionClick = if (role == PilihPeranActivity.ROLE_PENGAJAR) {
+            {
+                val intent = Intent(this, KelasSayaActivity::class.java).apply {
+                    putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, mode)
+                    putExtra(PilihPeranActivity.EXTRA_ROLE, role)
+                }
+                startActivity(intent)
+            }
+        } else null)
         val kelasHeaderParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(24)
         }
@@ -436,7 +445,13 @@ class HomeActivity : AppCompatActivity() {
         contentLayout.addView(aksesContainer, aksesParams)
 
         // Section: Kelas yang Anda Kelola
-        val kelasHeader = createSectionHeader("Kelas yang Anda Kelola")
+        val kelasHeader = createSectionHeader("Kelas yang Anda Kelola", showAction = true, onActionClick = {
+            val intent = Intent(this, KelasSayaActivity::class.java).apply {
+                putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, ModePembelajaranActivity.MODE_MANDIRI)
+                putExtra(PilihPeranActivity.EXTRA_ROLE, PilihPeranActivity.ROLE_PENGAJAR)
+            }
+            startActivity(intent)
+        })
         val kelasHeaderParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(24)
         }
@@ -566,7 +581,7 @@ class HomeActivity : AppCompatActivity() {
         return wrapper
     }
 
-    private fun createSectionHeader(title: String, showAction: Boolean = true): View {
+    private fun createSectionHeader(title: String, showAction: Boolean = true, onActionClick: (() -> Unit)? = null): View {
         val header = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -585,6 +600,11 @@ class HomeActivity : AppCompatActivity() {
                 text = "Lihat Semua >"
                 textSize = 13f
                 setTextColor(Color.rgb(33, 96, 245))
+                if (onActionClick != null) {
+                    isClickable = true
+                    isFocusable = true
+                    setOnClickListener { onActionClick() }
+                }
             }
             header.addView(actionTv)
         }

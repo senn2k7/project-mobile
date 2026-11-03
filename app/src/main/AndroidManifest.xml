@@ -32,6 +32,36 @@
             android:name=".PilihPeranActivity"
             android:exported="false" />
 
+        <!-- Halaman Daftar Kelas Saya (Pengajar) -->
+        <activity
+            android:name=".KelasSayaActivity"
+            android:exported="false" />
+
+        <!-- Halaman Detail Kelas (Pengajar Institusi) -->
+        <activity
+            android:name=".DetailKelasActivity"
+            android:exported="false" />
+
+        <!-- Halaman Buat Kuis (Pengajar Institusi) -->
+        <activity
+            android:name=".BuatKuisActivity"
+            android:exported="false" />
+
+        <!-- Halaman Daftar Tugas (Pengajar Institusi) -->
+        <activity
+            android:name=".TugasActivity"
+            android:exported="false" />
+
+        <!-- Halaman Detail Tugas (Pengajar Institusi) -->
+        <activity
+            android:name=".DetailTugasActivity"
+            android:exported="false" />
+
+        <!-- Halaman Pengumpulan Tugas (Pengajar Institusi) -->
+        <activity
+            android:name=".PengumpulanTugasActivity"
+            android:exported="false" />
+
         <!-- Lengkapi Profil Pengajar Mandiri -->
         <activity
             android:name=".LengkapiProfilPengajarActivity"
