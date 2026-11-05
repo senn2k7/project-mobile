@@ -1,4 +1,4 @@
-package com.example.snapchatsphlasscreen
+﻿package com.example.snapchatsphlasscreen
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,14 +13,25 @@ class MainActivity : AppCompatActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        // Menampilkan desain splash screen lengkap
         setContentView(R.layout.activity_main)
 
-        // Berpindah ke halaman onboarding atau login setelah 3 detik
         Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, OnboardingActivity::class.java)
+
+            val session = SessionManager.getSession(this)
+
+            val intent = if (session != null) {
+                Intent(this, ModePembelajaranActivity::class.java).apply {
+                    putExtra("USER_ID", session.userId)
+                    putExtra("USER_NAME", session.nama)
+                    putExtra("USER_EMAIL", session.email)
+                }
+            } else {
+                Intent(this, OnboardingActivity::class.java)
+            }
+
             startActivity(intent)
             finish()
+
         }, 3000L)
     }
 }
