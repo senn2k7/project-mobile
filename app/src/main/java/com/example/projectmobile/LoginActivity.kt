@@ -1,4 +1,4 @@
-﻿package com.example.snapchatsphlasscreen
+package com.example.snapchatsphlasscreen
 
 import android.content.Intent
 import android.os.Bundle
@@ -75,7 +75,7 @@ class LoginActivity : AppCompatActivity() {
                         if (response.optBoolean("success")) {
                             val data = response.optJSONObject("data")
 
-                            if (data == null || data.optString("token").isEmpty()) {
+                            if (data == null || data.optString("token").isEmpty() || data.optString("firebase_custom_token").isEmpty()) {
                                 Toast.makeText(
                                     this@LoginActivity,
                                     "Respons server tidak lengkap.",
@@ -88,6 +88,7 @@ class LoginActivity : AppCompatActivity() {
                             val nama = data.optString("nama")
                             val email = data.optString("email")
                             val token = data.optString("token")
+                            val firebaseCustomToken = data.optString("firebase_custom_token")
 
                             try {
                                 SessionManager.saveSession(
@@ -112,7 +113,7 @@ class LoginActivity : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            openLearningMode(userId, nama, email)
+                            completeLoginWithFirebase(userId, nama, email, firebaseCustomToken)
 
                         } else {
                             Toast.makeText(
@@ -268,7 +269,7 @@ class LoginActivity : AppCompatActivity() {
 
                     val data = response.optJSONObject("data")
 
-                    if (data == null || data.optString("token").isEmpty()) {
+                    if (data == null || data.optString("token").isEmpty() || data.optString("firebase_custom_token").isEmpty()) {
                         Toast.makeText(
                             this@LoginActivity,
                             "Respons server tidak lengkap.",
@@ -281,6 +282,7 @@ class LoginActivity : AppCompatActivity() {
                     val nama = data.optString("nama")
                     val email = data.optString("email")
                     val token = data.optString("token")
+                            val firebaseCustomToken = data.optString("firebase_custom_token")
 
                     try {
                         SessionManager.saveSession(
@@ -305,7 +307,7 @@ class LoginActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    openLearningMode(userId, nama, email)
+                    completeLoginWithFirebase(userId, nama, email, firebaseCustomToken)
                 }
 
                 override fun onError(message: String) {
@@ -322,6 +324,35 @@ class LoginActivity : AppCompatActivity() {
         )
     }
 
+    private fun completeLoginWithFirebase(
+        userId: Int,
+        nama: String,
+        email: String,
+        firebaseCustomToken: String
+    ) {
+        FirebaseAuthManager.signInWithCustomToken(
+            customToken = firebaseCustomToken,
+            onSuccess = {
+                Toast.makeText(
+                    this@LoginActivity,
+                    "Firebase berhasil terhubung.",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                openLearningMode(userId, nama, email)
+            },
+            onFailure = { message ->
+                FirebaseAuthManager.signOut()
+                SessionManager.clearSession(this@LoginActivity)
+
+                Toast.makeText(
+                    this@LoginActivity,
+                    "Autentikasi Firebase gagal: $message",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        )
+    }
     private fun openLearningMode(
         userId: Int,
         nama: String,

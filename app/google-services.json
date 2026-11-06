@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "828951043706",
+    "project_id": "temanstudi-68987",
+    "storage_bucket": "temanstudi-68987.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828951043706:android:c4aa1869985d3de05725c3",
+        "android_client_info": {
+          "package_name": "com.example.snapchatsphlasscreen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgMY4ug__QT82nwG_nkui3t4ZEJsTZWlM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
