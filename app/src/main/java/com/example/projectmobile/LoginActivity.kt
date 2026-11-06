@@ -144,19 +144,11 @@ class LoginActivity : AppCompatActivity() {
         }
 
         txtForgotPassword.setOnClickListener {
-            Toast.makeText(
-                this,
-                "Fitur lupa password belum tersedia.",
-                Toast.LENGTH_SHORT
-            ).show()
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
 
         txtRegister.setOnClickListener {
-            Toast.makeText(
-                this,
-                "Fitur pendaftaran akun belum tersedia.",
-                Toast.LENGTH_SHORT
-            ).show()
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 
@@ -282,7 +274,7 @@ class LoginActivity : AppCompatActivity() {
                     val nama = data.optString("nama")
                     val email = data.optString("email")
                     val token = data.optString("token")
-                            val firebaseCustomToken = data.optString("firebase_custom_token")
+                    val firebaseCustomToken = data.optString("firebase_custom_token")
 
                     try {
                         SessionManager.saveSession(
