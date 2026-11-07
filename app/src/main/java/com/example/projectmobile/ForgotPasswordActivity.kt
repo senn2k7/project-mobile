@@ -1,4 +1,4 @@
-package com.example.snapchatsphlasscreen
+﻿package com.example.snapchatsphlasscreen
 
 import android.os.Bundle
 import android.util.Patterns
@@ -22,9 +22,13 @@ class ForgotPasswordActivity : AppCompatActivity() {
         val btnReset = findViewById<Button>(R.id.btnResetPassword)
         val tvBackToLogin = findViewById<TextView>(R.id.tvBackToLogin)
 
-        // Kembali ke halaman login
-        btnBack.setOnClickListener { finish() }
-        tvBackToLogin.setOnClickListener { finish() }
+        btnBack.setOnClickListener {
+            finish()
+        }
+
+        tvBackToLogin.setOnClickListener {
+            finish()
+        }
 
         btnReset.setOnClickListener {
             val email = etEmail.text.toString().trim()
@@ -35,19 +39,36 @@ class ForgotPasswordActivity : AppCompatActivity() {
                     tilEmail.error = "Masukkan email terlebih dahulu"
                     return@setOnClickListener
                 }
+
                 !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
                     tilEmail.error = "Format email tidak valid"
                     return@setOnClickListener
                 }
             }
 
-            // TODO: hubungkan ke API / Firebase untuk benar-benar mengirim email reset
-            Toast.makeText(
-                this,
-                "Instruksi pemulihan telah dikirim ke $email",
-                Toast.LENGTH_LONG
-            ).show()
-            finish()
+            btnReset.isEnabled = false
+
+            FirebaseAuthManager.sendPasswordReset(
+                email = email,
+                onSuccess = {
+                    Toast.makeText(
+                        this,
+                        "Instruksi pemulihan password berhasil dikirim ke email kamu.",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    finish()
+                },
+                onFailure = { error ->
+                    btnReset.isEnabled = true
+
+                    Toast.makeText(
+                        this,
+                        "Gagal mengirim email pemulihan: $error",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
         }
     }
 }

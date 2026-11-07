@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.auth.FirebaseUser
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -21,20 +22,63 @@ class RegisterActivity : AppCompatActivity() {
         val tilEmail = findViewById<TextInputLayout>(R.id.tilEmailRegister)
         val tilPassword = findViewById<TextInputLayout>(R.id.tilPasswordRegister)
         val tilConfirm = findViewById<TextInputLayout>(R.id.tilConfirmRegister)
+
         val etName = findViewById<TextInputEditText>(R.id.etName)
         val etEmail = findViewById<TextInputEditText>(R.id.etEmailRegister)
         val etPassword = findViewById<TextInputEditText>(R.id.etPasswordRegister)
         val etConfirm = findViewById<TextInputEditText>(R.id.etConfirmPasswordRegister)
+
         val btnRegister = findViewById<Button>(R.id.btnRegisterAction)
         val tvLoginLink = findViewById<TextView>(R.id.tvLoginLink)
 
-        // Kembali ke halaman login
-        btnBack.setOnClickListener { finish() }
-        tvLoginLink.setOnClickListener { finish() }
+        // Menyimpan akun yang sudah berhasil dibuat,
+        // agar penyimpanan profil dapat dicoba ulang.
+        var createdUser: FirebaseUser? = null
+
+        btnBack.setOnClickListener {
+            finish()
+        }
+
+        tvLoginLink.setOnClickListener {
+            finish()
+        }
+
+        fun saveProfile(user: FirebaseUser, nama: String, email: String) {
+            btnRegister.isEnabled = false
+            btnRegister.text = "Menyimpan profil..."
+
+            FirebaseManager.saveUserProfile(
+                uid = user.uid,
+                nama = nama,
+                email = email,
+                onSuccess = {
+                    FirebaseAuthManager.signOut()
+
+                    Toast.makeText(
+                        this,
+                        "Registrasi berhasil! Silakan masuk.",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    finish()
+                },
+                onFailure = { error ->
+                    btnRegister.isEnabled = true
+                    btnRegister.text = "Daftar"
+
+                    Toast.makeText(
+                        this,
+                        "Akun berhasil dibuat, tetapi profil gagal disimpan: $error. Tekan Daftar lagi untuk mencoba menyimpan profil.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
+        }
 
         btnRegister.setOnClickListener {
+
             val name = etName.text.toString().trim()
-            val identifier = etEmail.text.toString().trim()
+            val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString()
             val confirm = etConfirm.text.toString()
 
@@ -50,16 +94,11 @@ class RegisterActivity : AppCompatActivity() {
                 valid = false
             }
 
-            if (identifier.isEmpty()) {
-                tilEmail.error = "Email atau nomor telepon harus diisi"
+            if (email.isEmpty()) {
+                tilEmail.error = "Email harus diisi"
                 valid = false
-            } else if (identifier.contains("@")) {
-                if (!Patterns.EMAIL_ADDRESS.matcher(identifier).matches()) {
-                    tilEmail.error = "Format email tidak valid"
-                    valid = false
-                }
-            } else if (identifier.filter { it.isDigit() }.length < 9) {
-                tilEmail.error = "Nomor telepon tidak valid"
+            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                tilEmail.error = "Format email tidak valid"
                 valid = false
             }
 
@@ -75,13 +114,35 @@ class RegisterActivity : AppCompatActivity() {
 
             if (!valid) return@setOnClickListener
 
-            // TODO: hubungkan ke ApiConfig.REGISTER_URL untuk menyimpan akun ke server
-            Toast.makeText(
-                this,
-                "Registrasi berhasil! Silakan masuk.",
-                Toast.LENGTH_LONG
-            ).show()
-            finish()
+            // Jika akun sudah dibuat sebelumnya, ulangi penyimpanan profil.
+            val existingUser = createdUser
+
+            if (existingUser != null) {
+                saveProfile(existingUser, name, email)
+                return@setOnClickListener
+            }
+
+            btnRegister.isEnabled = false
+            btnRegister.text = "Membuat akun..."
+
+            FirebaseAuthManager.createAccount(
+                email = email,
+                password = password,
+                onSuccess = { user ->
+                    createdUser = user
+                    saveProfile(user, name, email)
+                },
+                onFailure = { error ->
+                    btnRegister.isEnabled = true
+                    btnRegister.text = "Daftar"
+
+                    Toast.makeText(
+                        this,
+                        "Registrasi gagal: $error",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
         }
     }
 }

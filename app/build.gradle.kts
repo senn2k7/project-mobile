@@ -45,6 +45,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
 
     implementation("androidx.core:core-splashscreen:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
 
     // Google Credential Manager
     implementation("androidx.credentials:credentials:1.5.0")

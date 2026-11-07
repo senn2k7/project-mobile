@@ -3,7 +3,6 @@ package com.example.snapchatsphlasscreen
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -13,12 +12,13 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.CustomCredential
 import androidx.credentials.exceptions.GetCredentialException
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
 
@@ -33,22 +33,29 @@ class LoginActivity : AppCompatActivity() {
         val txtRegister = findViewById<TextView>(R.id.txtRegister)
         val etEmail = findViewById<TextInputEditText>(R.id.etEmail)
         val etPassword = findViewById<TextInputEditText>(R.id.etPassword)
-        val cbRememberMe = findViewById<CheckBox>(R.id.cbRememberMe)
 
         btnBack.setOnClickListener {
             finish()
         }
 
-        // LOGIN MANUAL
+        // LOGIN EMAIL DAN PASSWORD
         btnLogin.setOnClickListener {
-            val identifier = etEmail.text.toString().trim()
+            val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString()
-            val rememberMe = cbRememberMe.isChecked
 
-            if (identifier.isEmpty() || password.isEmpty()) {
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(
                     this,
-                    "Email/nomor telepon dan password harus diisi.",
+                    "Email dan password harus diisi.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(
+                    this,
+                    "Format email tidak valid.",
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
@@ -57,121 +64,59 @@ class LoginActivity : AppCompatActivity() {
             btnLogin.isEnabled = false
             btnLogin.text = "Memproses..."
 
-            val request = JSONObject().apply {
-                put("identifier", identifier)
-                put("password", password)
-                put("remember_me", rememberMe)
-            }
+            FirebaseAuthManager.signInWithEmail(
+                email = email,
+                password = password,
+                onSuccess = { user ->
+                    handleAuthenticatedUser(user, btnLogin)
+                },
+                onFailure = { message ->
+                    btnLogin.isEnabled = true
+                    btnLogin.text = "Masuk"
 
-            ApiClient.postJson(
-                ApiConfig.LOGIN_URL,
-                request,
-                object : ApiClient.ApiCallback {
-
-                    override fun onSuccess(response: JSONObject) {
-                        btnLogin.isEnabled = true
-                        btnLogin.text = "Masuk"
-
-                        if (response.optBoolean("success")) {
-                            val data = response.optJSONObject("data")
-
-                            if (data == null || data.optString("token").isEmpty() || data.optString("firebase_custom_token").isEmpty()) {
-                                Toast.makeText(
-                                    this@LoginActivity,
-                                    "Respons server tidak lengkap.",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                return
-                            }
-
-                            val userId = data.optInt("id")
-                            val nama = data.optString("nama")
-                            val email = data.optString("email")
-                            val token = data.optString("token")
-                            val firebaseCustomToken = data.optString("firebase_custom_token")
-
-                            try {
-                                SessionManager.saveSession(
-                                    this@LoginActivity,
-                                    userId,
-                                    nama,
-                                    email,
-                                    token
-                                )
-                            } catch (e: Exception) {
-                                Toast.makeText(
-                                    this@LoginActivity,
-                                    "Sesi gagal disimpan: ${e.message}",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                return
-                            }
-
-                            Toast.makeText(
-                                this@LoginActivity,
-                                "Selamat datang, $nama!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            completeLoginWithFirebase(userId, nama, email, firebaseCustomToken)
-
-                        } else {
-                            Toast.makeText(
-                                this@LoginActivity,
-                                response.optString("message", "Login gagal."),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-
-                    override fun onError(message: String) {
-                        btnLogin.isEnabled = true
-                        btnLogin.text = "Masuk"
-
-                        Toast.makeText(
-                            this@LoginActivity,
-                            message,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
+                    Toast.makeText(
+                        this,
+                        "Login gagal: $message",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             )
         }
 
-        // LOGIN DENGAN GOOGLE
+        // LOGIN GOOGLE
         btnGoogleLogin.setOnClickListener {
-            startGoogleLogin(btnGoogleLogin, cbRememberMe.isChecked)
+            startGoogleLogin(btnGoogleLogin)
         }
 
         txtForgotPassword.setOnClickListener {
-            startActivity(Intent(this, ForgotPasswordActivity::class.java))
+            startActivity(
+                Intent(this, ForgotPasswordActivity::class.java)
+            )
         }
 
         txtRegister.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
+            startActivity(
+                Intent(this, RegisterActivity::class.java)
+            )
         }
     }
 
-    private fun startGoogleLogin(
-        button: MaterialButton,
-        rememberMe: Boolean
-    ) {
+    private fun startGoogleLogin(button: MaterialButton) {
         button.isEnabled = false
         button.text = "Menghubungkan Google..."
 
         lifecycleScope.launch {
             try {
-                val googleIdOption = GetGoogleIdOption.Builder()
-                    .setFilterByAuthorizedAccounts(false)
-                    .setServerClientId(ApiConfig.GOOGLE_WEB_CLIENT_ID)
-                    .setAutoSelectEnabled(false)
-                    .build()
+                val googleOption = GetSignInWithGoogleOption.Builder(
+                    getString(R.string.default_web_client_id)
+                ).build()
 
                 val request = GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIdOption)
+                    .addCredentialOption(googleOption)
                     .build()
 
-                val credentialManager = CredentialManager.create(this@LoginActivity)
+                val credentialManager =
+                    CredentialManager.create(this@LoginActivity)
 
                 val result = credentialManager.getCredential(
                     this@LoginActivity,
@@ -182,25 +127,34 @@ class LoginActivity : AppCompatActivity() {
 
                 if (
                     credential is CustomCredential &&
-                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                    credential.type ==
+                    GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                 ) {
                     val googleCredential =
                         GoogleIdTokenCredential.createFrom(credential.data)
 
-                    sendGoogleTokenToServer(
-                        googleCredential.idToken,
-                        rememberMe,
-                        button
+                    button.text = "Memverifikasi akun..."
+
+                    FirebaseAuthManager.signInWithGoogle(
+                        idToken = googleCredential.idToken,
+                        onSuccess = { user ->
+                            handleAuthenticatedUser(user, button)
+                        },
+                        onFailure = { message ->
+                            button.isEnabled = true
+                            button.text = "Masuk dengan Google"
+
+                            Toast.makeText(
+                                this@LoginActivity,
+                                "Login Google gagal: $message",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     )
                 } else {
-                    button.isEnabled = true
-                    button.text = "Masuk dengan Google"
-
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Jenis kredensial Google tidak dikenali.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    throw IllegalStateException(
+                        "Kredensial Google tidak dikenali."
+                    )
                 }
 
             } catch (e: GetCredentialException) {
@@ -209,7 +163,7 @@ class LoginActivity : AppCompatActivity() {
 
                 Toast.makeText(
                     this@LoginActivity,
-                    "Login Google dibatalkan atau gagal: ${e.message}",
+                    "Gagal memilih akun Google: ${e.message}",
                     Toast.LENGTH_LONG
                 ).show()
 
@@ -219,134 +173,92 @@ class LoginActivity : AppCompatActivity() {
 
                 Toast.makeText(
                     this@LoginActivity,
-                    "Terjadi kesalahan: ${e.message}",
+                    "Login Google gagal: ${e.message}",
                     Toast.LENGTH_LONG
                 ).show()
             }
         }
     }
-
-    private fun sendGoogleTokenToServer(
-        idToken: String,
-        rememberMe: Boolean,
-        button: MaterialButton
+    private fun handleAuthenticatedUser(
+        user: FirebaseUser,
+        button: Button
     ) {
-        button.text = "Memverifikasi akun..."
+        val uid = user.uid
+        val email = user.email.orEmpty()
 
-        val request = JSONObject().apply {
-            put("id_token", idToken)
-            put("remember_me", rememberMe)
+        val namaDefault = user.displayName
+            ?: email.substringBefore("@")
+
+        if (email.isBlank()) {
+            button.isEnabled = true
+            button.text = "Masuk"
+
+            Toast.makeText(
+                this,
+                "Email akun tidak ditemukan.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
         }
 
-        ApiClient.postJson(
-            ApiConfig.GOOGLE_LOGIN_URL,
-            request,
-            object : ApiClient.ApiCallback {
+        button.text = "Memeriksa profil..."
 
-                override fun onSuccess(response: JSONObject) {
-                    button.isEnabled = true
-                    button.text = "Masuk dengan Google"
+        FirebaseManager.ensureUserProfile(
+            uid = uid,
+            nama = namaDefault,
+            email = email,
+            onSuccess = {
+                loadUserProfile(uid, namaDefault, email, button)
+            },
+            onFailure = { message ->
+                button.isEnabled = true
+                button.text = "Masuk"
 
-                    if (!response.optBoolean("success")) {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            response.optString(
-                                "message",
-                                "Login Google gagal."
-                            ),
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return
-                    }
-
-                    val data = response.optJSONObject("data")
-
-                    if (data == null || data.optString("token").isEmpty() || data.optString("firebase_custom_token").isEmpty()) {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Respons server tidak lengkap.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return
-                    }
-
-                    val userId = data.optInt("id")
-                    val nama = data.optString("nama")
-                    val email = data.optString("email")
-                    val token = data.optString("token")
-                    val firebaseCustomToken = data.optString("firebase_custom_token")
-
-                    try {
-                        SessionManager.saveSession(
-                            this@LoginActivity,
-                            userId,
-                            nama,
-                            email,
-                            token
-                        )
-                    } catch (e: Exception) {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Sesi gagal disimpan: ${e.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return
-                    }
-
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Login Google berhasil. Selamat datang, $nama!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    completeLoginWithFirebase(userId, nama, email, firebaseCustomToken)
-                }
-
-                override fun onError(message: String) {
-                    button.isEnabled = true
-                    button.text = "Masuk dengan Google"
-
-                    Toast.makeText(
-                        this@LoginActivity,
-                        message,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+                Toast.makeText(
+                    this,
+                    "Gagal memeriksa profil: $message",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         )
     }
 
-    private fun completeLoginWithFirebase(
-        userId: Int,
-        nama: String,
+    private fun loadUserProfile(
+        uid: String,
+        namaDefault: String,
         email: String,
-        firebaseCustomToken: String
+        button: Button
     ) {
-        FirebaseAuthManager.signInWithCustomToken(
-            customToken = firebaseCustomToken,
-            onSuccess = {
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                val nama = document.getString("nama")
+                    ?: namaDefault
+
                 Toast.makeText(
-                    this@LoginActivity,
-                    "Firebase berhasil terhubung.",
+                    this,
+                    "Selamat datang, $nama!",
                     Toast.LENGTH_SHORT
                 ).show()
 
-                openLearningMode(userId, nama, email)
-            },
-            onFailure = { message ->
-                FirebaseAuthManager.signOut()
-                SessionManager.clearSession(this@LoginActivity)
+                openLearningMode(uid, nama, email)
+            }
+            .addOnFailureListener { error ->
+                button.isEnabled = true
+                button.text = "Masuk"
 
                 Toast.makeText(
-                    this@LoginActivity,
-                    "Autentikasi Firebase gagal: $message",
+                    this,
+                    "Gagal mengambil profil: ${error.message}",
                     Toast.LENGTH_LONG
                 ).show()
             }
-        )
     }
+
     private fun openLearningMode(
-        userId: Int,
+        uid: String,
         nama: String,
         email: String
     ) {
@@ -354,7 +266,7 @@ class LoginActivity : AppCompatActivity() {
             this,
             ModePembelajaranActivity::class.java
         ).apply {
-            putExtra("USER_ID", userId)
+            putExtra("USER_ID", uid)
             putExtra("USER_NAME", nama)
             putExtra("USER_EMAIL", email)
         }

@@ -1,6 +1,8 @@
 package com.example.snapchatsphlasscreen
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 
 object FirebaseAuthManager {
 
@@ -8,28 +10,105 @@ object FirebaseAuthManager {
         FirebaseAuth.getInstance()
     }
 
-    fun signOut() {
-        auth.signOut()
-    }
+    val currentUser: FirebaseUser?
+        get() = auth.currentUser
 
-    fun signInWithCustomToken(
-        customToken: String,
-        onSuccess: () -> Unit,
+    fun createAccount(
+        email: String,
+        password: String,
+        onSuccess: (FirebaseUser) -> Unit,
         onFailure: (String) -> Unit
     ) {
-        if (customToken.isBlank()) {
-            onFailure("Firebase Custom Token kosong.")
+        if (email.isBlank() || password.isBlank()) {
+            onFailure("Email dan password harus diisi.")
             return
         }
 
-        auth.signInWithCustomToken(customToken)
+        auth.createUserWithEmailAndPassword(email.trim(), password)
+            .addOnSuccessListener { result ->
+                val user = result.user
+                if (user != null) {
+                    onSuccess(user)
+                } else {
+                    onFailure("Akun berhasil diproses, tetapi data pengguna tidak ditemukan.")
+                }
+            }
+            .addOnFailureListener { error ->
+                onFailure(error.message ?: "Registrasi gagal.")
+            }
+    }
+
+    fun signInWithEmail(
+        email: String,
+        password: String,
+        onSuccess: (FirebaseUser) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        if (email.isBlank() || password.isBlank()) {
+            onFailure("Email dan password harus diisi.")
+            return
+        }
+
+        auth.signInWithEmailAndPassword(email.trim(), password)
+            .addOnSuccessListener { result ->
+                val user = result.user
+                if (user != null) {
+                    onSuccess(user)
+                } else {
+                    onFailure("Data pengguna tidak ditemukan.")
+                }
+            }
+            .addOnFailureListener { error ->
+                onFailure(error.message ?: "Login gagal.")
+            }
+    }
+
+    fun signInWithGoogle(
+        idToken: String,
+        onSuccess: (FirebaseUser) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        if (idToken.isBlank()) {
+            onFailure("Google ID Token kosong.")
+            return
+        }
+
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+
+        auth.signInWithCredential(credential)
+            .addOnSuccessListener { result ->
+                val user = result.user
+                if (user != null) {
+                    onSuccess(user)
+                } else {
+                    onFailure("Data pengguna Google tidak ditemukan.")
+                }
+            }
+            .addOnFailureListener { error ->
+                onFailure(error.message ?: "Login Google gagal.")
+            }
+    }
+
+    fun sendPasswordReset(
+        email: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        if (email.isBlank()) {
+            onFailure("Email harus diisi.")
+            return
+        }
+
+        auth.sendPasswordResetEmail(email.trim())
             .addOnSuccessListener {
                 onSuccess()
             }
             .addOnFailureListener { error ->
-                onFailure(
-                    error.message ?: "Autentikasi Firebase gagal."
-                )
+                onFailure(error.message ?: "Gagal mengirim email pemulihan.")
             }
+    }
+
+    fun signOut() {
+        auth.signOut()
     }
 }

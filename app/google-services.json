@@ -12,7 +12,12 @@
           "package_name": "com.example.snapchatsphlasscreen"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "828951043706-a39cslaslfk5cds9g4rrnde77pfkankk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAgMY4ug__QT82nwG_nkui3t4ZEJsTZWlM"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "828951043706-a39cslaslfk5cds9g4rrnde77pfkankk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
