@@ -273,6 +273,12 @@ class DetailKelasActivity : AppCompatActivity() {
             gravity = Gravity.CENTER
             background = roundedBackground(Color.rgb(232, 242, 255), 12)
             setPadding(dp(16), dp(12), dp(16), dp(12))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                val intent = Intent(this@DetailKelasActivity, PresensiManualActivity::class.java)
+                startActivity(intent)
+            }
         }
         presensiRow.addView(btnPresensiManual, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
@@ -366,6 +372,22 @@ class DetailKelasActivity : AppCompatActivity() {
                 isFocusable = true
                 setOnClickListener {
                     val intent = Intent(this@DetailKelasActivity, BuatKuisActivity::class.java)
+                    startActivity(intent)
+                }
+            } else if (title == "Lihat Hasil") {
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    val intent = Intent(this@DetailKelasActivity, NilaiHasilKuisActivity::class.java)
+                    startActivity(intent)
+                }
+            } else if (title == "Diskusi") {
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    val intent = Intent(this@DetailKelasActivity, DiskusiActivity::class.java).apply {
+                        putExtra(DiskusiActivity.EXTRA_COURSE_NAME, intent.getStringExtra(EXTRA_CLASS_NAME) ?: "Pemrograman Mobile")
+                    }
                     startActivity(intent)
                 }
             }

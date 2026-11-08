@@ -1,5 +1,6 @@
 package com.example.snapchatsphlasscreen
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -330,7 +331,11 @@ class BuatKuisActivity : AppCompatActivity() {
             setPadding(dp(16), dp(14), dp(16), dp(14))
             isClickable = true
             isFocusable = true
-            setOnClickListener { finish() }
+            setOnClickListener {
+                val intent = Intent(this@BuatKuisActivity, KuisBerhasilActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
         val buParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(28)

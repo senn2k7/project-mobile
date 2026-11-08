@@ -64,6 +64,31 @@
             android:name=".PengumpulanTugasActivity"
             android:exported="false" />
 
+        <!-- Halaman Kuis Berhasil Diunggah (Pengajar Institusi) -->
+        <activity
+            android:name=".KuisBerhasilActivity"
+            android:exported="false" />
+
+        <!-- Halaman Nilai dan Hasil Kuis (Pengajar Institusi) -->
+        <activity
+            android:name=".NilaiHasilKuisActivity"
+            android:exported="false" />
+
+        <!-- Halaman Detail Hasil Kuis (Pengajar Institusi) -->
+        <activity
+            android:name=".DetailHasilKuisActivity"
+            android:exported="false" />
+
+        <!-- Halaman Diskusi Kelas (Pengajar Institusi) -->
+        <activity
+            android:name=".DiskusiActivity"
+            android:exported="false" />
+
+        <!-- Halaman Presensi Manual (Pengajar Institusi) -->
+        <activity
+            android:name=".PresensiManualActivity"
+            android:exported="false" />
+
         <!-- Lengkapi Profil Pengajar Mandiri -->
         <activity
             android:name=".LengkapiProfilPengajarActivity"
