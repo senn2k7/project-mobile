@@ -1,6 +1,8 @@
 package com.example.snapchatsphlasscreen
 
+import android.content.Intent
 import android.graphics.Color
+import android.widget.Toast
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -629,6 +631,38 @@ class PengumpulanTugasActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             setPadding(dp(4), dp(6), dp(4), dp(6))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                when (label) {
+                    "Beranda" -> {
+                        val intent = Intent(this@PengumpulanTugasActivity, HomeActivity::class.java).apply {
+                            putExtra(PilihPeranActivity.EXTRA_ROLE, PilihPeranActivity.ROLE_PENGAJAR)
+                            putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, ModePembelajaranActivity.MODE_INSTITUSI)
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
+                    }
+                    "Kelas" -> {
+                        val intent = Intent(this@PengumpulanTugasActivity, KelasSayaActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
+                    }
+                    "Tugas", "Aktivitas" -> {
+                        val intent = Intent(this@PengumpulanTugasActivity, TugasActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
+                    }
+                    "AI" -> {
+                        Toast.makeText(this@PengumpulanTugasActivity, "Membuka Asisten AI TemanStudi...", Toast.LENGTH_SHORT).show()
+                    }
+                    "Profil" -> {
+                        Toast.makeText(this@PengumpulanTugasActivity, "Membuka Profil Pengajar...", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
 
         val iconTv = TextView(this).apply {

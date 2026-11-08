@@ -1,6 +1,4 @@
-# Task List - Institutional Teacher "Presensi Manual" (Manual Attendance) Activity & Navigation
+# Task List - Bottom Navigation Bar Functionality Across Activities
 
-- [x] Task 1: Create `PresensiManualActivity.kt` matching the manual attendance UI mockup with an empty student list container
-- [x] Task 2: Register `PresensiManualActivity` in `AndroidManifest.xml`
-- [x] Task 3: Update `DetailKelasActivity.kt` to launch `PresensiManualActivity` when clicking the "Presensi Manual" button
-- [x] Task 4: Verify the build and functionality
+- [x] Task 1: Update `createBottomNav()` in all relevant activities (`KelasSayaActivity`, `DetailKelasActivity`, `TugasActivity`, `DetailTugasActivity`, `PengumpulanTugasActivity`, `BuatKuisActivity`, `NilaiHasilKuisActivity`) with click handlers for Beranda, Kelas, Tugas, AI, and Profil
+- [x] Task 2: Verify the build and functionality
