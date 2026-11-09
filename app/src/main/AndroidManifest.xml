@@ -122,6 +122,44 @@
         <activity android:name=".RegisterActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ForgotPasswordActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
 
+
+        <!-- Profil dan pengaturan -->
+        <activity
+            android:name=".ProfilMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfilSayaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditProfilActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".KeamananActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".NotifikasiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TampilanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".KebijakanPrivasiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TentangActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BantuanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".InformasiInstitusiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".KeluarActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

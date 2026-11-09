@@ -351,7 +351,7 @@ class KelasSayaActivity : AppCompatActivity() {
                         Toast.makeText(this@KelasSayaActivity, "Membuka Asisten AI TemanStudi...", Toast.LENGTH_SHORT).show()
                     }
                     "Profil" -> {
-                        Toast.makeText(this@KelasSayaActivity, "Membuka Profil Pengajar...", Toast.LENGTH_SHORT).show()
+                        UiKit.openProfile(this@KelasSayaActivity, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_INSTITUSI)
                     }
                 }
             }

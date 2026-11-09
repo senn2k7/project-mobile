@@ -500,7 +500,7 @@ class NilaiHasilKuisActivity : AppCompatActivity() {
                         Toast.makeText(this@NilaiHasilKuisActivity, "Membuka Asisten AI TemanStudi...", Toast.LENGTH_SHORT).show()
                     }
                     "Profil" -> {
-                        Toast.makeText(this@NilaiHasilKuisActivity, "Membuka Profil Pengajar...", Toast.LENGTH_SHORT).show()
+                        UiKit.openProfile(this@NilaiHasilKuisActivity, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_INSTITUSI)
                     }
                 }
             }

@@ -129,7 +129,7 @@ class BuatKuisActivity : AppCompatActivity() {
 
         // 5. Instruksi
         contentLayout.addView(createFieldLabel("Instruksi"), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(16) })
-        
+
         val instructionBox = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = roundedBackground(Color.WHITE, 12, Color.rgb(220, 231, 244), 1)
@@ -455,7 +455,7 @@ class BuatKuisActivity : AppCompatActivity() {
                         Toast.makeText(this@BuatKuisActivity, "Membuka Asisten AI TemanStudi...", Toast.LENGTH_SHORT).show()
                     }
                     "Profil" -> {
-                        Toast.makeText(this@BuatKuisActivity, "Membuka Profil Pengajar...", Toast.LENGTH_SHORT).show()
+                        UiKit.openProfile(this@BuatKuisActivity, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_INSTITUSI)
                     }
                 }
             }

@@ -536,7 +536,7 @@ class DetailTugasActivity : AppCompatActivity() {
                         Toast.makeText(this@DetailTugasActivity, "Membuka Asisten AI TemanStudi...", Toast.LENGTH_SHORT).show()
                     }
                     "Profil" -> {
-                        Toast.makeText(this@DetailTugasActivity, "Membuka Profil Pengajar...", Toast.LENGTH_SHORT).show()
+                        UiKit.openProfile(this@DetailTugasActivity, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_INSTITUSI)
                     }
                 }
             }

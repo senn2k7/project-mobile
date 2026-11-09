@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeStore.applySaved(this)
         installSplashScreen()
         super.onCreate(savedInstanceState)
 

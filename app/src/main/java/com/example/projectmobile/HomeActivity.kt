@@ -73,6 +73,9 @@ class HomeActivity : AppCompatActivity() {
             gravity = Gravity.CENTER
             background = roundedBackground(Color.rgb(215, 230, 255), 24)
         }
+        avatarView.isClickable = true
+        avatarView.isFocusable = true
+        avatarView.setOnClickListener { UiKit.openProfile(this, role, mode) }
         headerLayout.addView(avatarView, LinearLayout.LayoutParams(dp(48), dp(48)))
 
         // Greeting text
@@ -317,6 +320,9 @@ class HomeActivity : AppCompatActivity() {
             gravity = Gravity.CENTER
             background = roundedBackground(Color.rgb(215, 230, 255), 24)
         }
+        avatarView.isClickable = true
+        avatarView.isFocusable = true
+        avatarView.setOnClickListener { UiKit.openProfile(this, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_MANDIRI) }
         headerLayout.addView(avatarView, LinearLayout.LayoutParams(dp(48), dp(48)))
 
         val greetingTextLayout = LinearLayout(this).apply {
@@ -1058,6 +1064,15 @@ class HomeActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             setPadding(dp(4), dp(6), dp(4), dp(6))
+            if (label == "Profil") {
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    val navRole = this@HomeActivity.intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+                    val navMode = this@HomeActivity.intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+                    UiKit.openProfile(this@HomeActivity, navRole, navMode)
+                }
+            }
         }
 
         val iconTv = TextView(this).apply {
