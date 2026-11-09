@@ -1,4 +1,4 @@
-package com.example.snapchatsphlasscreen
+package com.example.projectmobile
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,6 +16,7 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.example.projectmobile.R
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch

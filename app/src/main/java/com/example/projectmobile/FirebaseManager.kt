@@ -1,4 +1,4 @@
-﻿package com.example.snapchatsphlasscreen
+﻿package com.example.projectmobile
 
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore

@@ -1,4 +1,4 @@
-package com.example.snapchatsphlasscreen
+package com.example.projectmobile
 
 import android.content.Intent
 import android.graphics.Color
@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.example.projectmobile.R
 
 class ModePembelajaranActivity : AppCompatActivity() {
 

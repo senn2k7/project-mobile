@@ -1,4 +1,4 @@
-package com.example.snapchatsphlasscreen
+package com.example.projectmobile
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser

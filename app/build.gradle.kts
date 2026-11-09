@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.snapchatsphlasscreen"
+    namespace = "com.example.projectmobile"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.snapchatsphlasscreen"
+        applicationId = "com.example.projectmobile"
         minSdk = 24
         targetSdk = 37
         versionCode = 1

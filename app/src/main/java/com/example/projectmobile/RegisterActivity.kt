@@ -1,4 +1,4 @@
-package com.example.snapchatsphlasscreen
+package com.example.projectmobile
 
 import android.os.Bundle
 import android.util.Patterns
@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.projectmobile.R
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseUser

@@ -1,4 +1,4 @@
-package com.example.snapchatsphlasscreen
+package com.example.projectmobile
 
 import android.graphics.Color
 import android.graphics.Typeface
