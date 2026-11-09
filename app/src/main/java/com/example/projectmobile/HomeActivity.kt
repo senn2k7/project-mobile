@@ -182,15 +182,21 @@ class HomeActivity : AppCompatActivity() {
         }
 
         // 4. Section: Kelas Saya
-        val kelasHeader = createSectionHeader("Kelas Saya", showAction = true, onActionClick = if (role == PilihPeranActivity.ROLE_PENGAJAR) {
-            {
+        val kelasHeader = createSectionHeader("Kelas Saya", showAction = true, onActionClick = {
+            if (role == PilihPeranActivity.ROLE_PENGAJAR) {
                 val intent = Intent(this, KelasSayaActivity::class.java).apply {
                     putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, mode)
                     putExtra(PilihPeranActivity.EXTRA_ROLE, role)
                 }
                 startActivity(intent)
+            } else if (role == PilihPeranActivity.ROLE_PELAJAR && mode == ModePembelajaranActivity.MODE_INSTITUSI) {
+                val intent = Intent(this, KelasPelajarInstitusiActivity::class.java).apply {
+                    putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, mode)
+                    putExtra(PilihPeranActivity.EXTRA_ROLE, role)
+                }
+                startActivity(intent)
             }
-        } else null)
+        })
         val kelasHeaderParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(24)
         }
@@ -1064,13 +1070,45 @@ class HomeActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             setPadding(dp(4), dp(6), dp(4), dp(6))
-            if (label == "Profil") {
-                isClickable = true
-                isFocusable = true
-                setOnClickListener {
-                    val navRole = this@HomeActivity.intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
-                    val navMode = this@HomeActivity.intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
-                    UiKit.openProfile(this@HomeActivity, navRole, navMode)
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                val navRole = this@HomeActivity.intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+                val navMode = this@HomeActivity.intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+                when (label) {
+                    "Beranda" -> {
+                        val intent = Intent(this@HomeActivity, HomeActivity::class.java).apply {
+                            putExtra(PilihPeranActivity.EXTRA_ROLE, navRole)
+                            putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, navMode)
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
+                    }
+                    "Kelas" -> {
+                        val intent = Intent(this@HomeActivity, KelasSayaActivity::class.java).apply {
+                            putExtra(PilihPeranActivity.EXTRA_ROLE, navRole)
+                            putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, navMode)
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
+                    }
+                    "Tugas", "Aktivitas" -> {
+                        val intent = Intent(this@HomeActivity, TugasActivity::class.java).apply {
+                            putExtra(PilihPeranActivity.EXTRA_ROLE, navRole)
+                            putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, navMode)
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
+                    }
+                    "AI" -> {
+                        val intent = Intent(this@HomeActivity, AiAssistantActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
+                    }
+                    "Profil" -> {
+                        UiKit.openProfile(this@HomeActivity, navRole, navMode)
+                    }
                 }
             }
         }

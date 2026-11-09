@@ -497,7 +497,10 @@ class NilaiHasilKuisActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                     "AI" -> {
-                        Toast.makeText(this@NilaiHasilKuisActivity, "Membuka Asisten AI TemanStudi...", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this@NilaiHasilKuisActivity, AiAssistantActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
                     }
                     "Profil" -> {
                         UiKit.openProfile(this@NilaiHasilKuisActivity, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_INSTITUSI)

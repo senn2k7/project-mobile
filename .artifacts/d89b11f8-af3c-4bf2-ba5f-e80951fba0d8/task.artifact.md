@@ -1,4 +1,6 @@
-# Task List - Bottom Navigation Bar Functionality Across Activities
+# Task List - Student Institutional Tasks List Activity & Navigation
 
-- [x] Task 1: Update `createBottomNav()` in all relevant activities (`KelasSayaActivity`, `DetailKelasActivity`, `TugasActivity`, `DetailTugasActivity`, `PengumpulanTugasActivity`, `BuatKuisActivity`, `NilaiHasilKuisActivity`) with click handlers for Beranda, Kelas, Tugas, AI, and Profil
-- [x] Task 2: Verify the build and functionality
+- [x] Task 1: Create `TugasPelajarInstitusiActivity.kt` matching the student tasks list UI mockup with an empty task list container
+- [x] Task 2: Register `TugasPelajarInstitusiActivity` in `AndroidManifest.xml`
+- [x] Task 3: Update `DetailKelasPelajarInstitusiActivity.kt` to launch `TugasPelajarInstitusiActivity` when clicking the "Tugas" tab
+- [x] Task 4: Verify the build and functionality

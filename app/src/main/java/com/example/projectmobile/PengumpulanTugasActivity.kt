@@ -656,7 +656,10 @@ class PengumpulanTugasActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                     "AI" -> {
-                        Toast.makeText(this@PengumpulanTugasActivity, "Membuka Asisten AI TemanStudi...", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this@PengumpulanTugasActivity, AiAssistantActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
                     }
                     "Profil" -> {
                         UiKit.openProfile(this@PengumpulanTugasActivity, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_INSTITUSI)

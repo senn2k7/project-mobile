@@ -486,7 +486,10 @@ class TugasActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                     "AI" -> {
-                        Toast.makeText(this@TugasActivity, "Membuka Asisten AI TemanStudi...", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this@TugasActivity, AiAssistantActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                        startActivity(intent)
                     }
                     "Profil" -> {
                         Toast.makeText(this@TugasActivity, "Membuka Profil Pengajar...", Toast.LENGTH_SHORT).show()

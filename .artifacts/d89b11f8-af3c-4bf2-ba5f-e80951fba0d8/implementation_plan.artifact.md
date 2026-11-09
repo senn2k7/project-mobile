@@ -1,37 +1,30 @@
-# Implementation Plan - Bottom Navigation Bar Functionality Across Activities
+# Implementation Plan - Student Institutional Tasks List Activity & Navigation
 
-Implement click handlers for all items in the bottom navigation bar (`createBottomNav`) across institutional teacher activities so that tapping icons (Beranda, Kelas, Tugas, AI, Profil) navigates to the respective screens or handles actions smoothly.
+Implement the student institutional tasks list screen (`TugasPelajarInstitusiActivity`) matching the UI mockup with empty task container (ready for database population), filter tabs ("Semua", "Belum Dikerjakan", "Selesai"), and wire up the "Tugas" tab in `DetailKelasPelajarInstitusiActivity` to open it, strictly for institutional students without affecting teacher UI.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - Add functional click listeners to each bottom navigation item across activities (`KelasSayaActivity`, `DetailKelasActivity`, `TugasActivity`, `DetailTugasActivity`, `PengumpulanTugasActivity`, `BuatKuisActivity`, `NilaiHasilKuisActivity`, `DetailHasilKuisActivity`, `DiskusiActivity`, `PresensiManualActivity`).
-> - Tapping **Beranda** (🏠) -> goes to `HomeActivity`.
-> - Tapping **Kelas** (📚) -> goes to `KelasSayaActivity`.
-> - Tapping **Tugas / Aktivitas** (📋) -> goes to `TugasActivity`.
-> - Tapping **AI** (🤖) or **Profil** (👤) -> provides navigation or responsive feedback (Toast/intent).
+> - A new `TugasPelajarInstitusiActivity` will be created programmatically in Kotlin matching the student tasks list UI mockup.
+> - Clicking the "Tugas" tab in `DetailKelasPelajarInstitusiActivity` will launch `TugasPelajarInstitusiActivity`.
+> - The UI includes: Header ("Tugas"), filter tabs ("Semua", "Belum Dikerjakan", "Selesai"), an empty task list container (as requested, left empty for database population), and student bottom navigation.
 
 ## Proposed Changes
 
-### Bottom Navigation Wiring
+### Student Institutional Tasks List Feature
 
-#### [MODIFY] [KelasSayaActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/KelasSayaActivity.kt)
-#### [MODIFY] [DetailKelasActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/DetailKelasActivity.kt)
-#### [MODIFY] [TugasActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/TugasActivity.kt)
-#### [MODIFY] [DetailTugasActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/DetailTugasActivity.kt)
-#### [MODIFY] [PengumpulanTugasActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/PengumpulanTugasActivity.kt)
-#### [MODIFY] [BuatKuisActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/BuatKuisActivity.kt)
-#### [MODIFY] [NilaiHasilKuisActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/NilaiHasilKuisActivity.kt)
-#### [MODIFY] [DetailHasilKuisActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/DetailHasilKuisActivity.kt)
-#### [MODIFY] [DiskusiActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/DiskusiActivity.kt)
-#### [MODIFY] [PresensiManualActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/PresensiManualActivity.kt)
+#### [NEW] [TugasPelajarInstitusiActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/TugasPelajarInstitusiActivity.kt)
+- Create `TugasPelajarInstitusiActivity` programmatically matching the UI mockup:
+  - Header with back button (`‹`), title "Tugas", options menu (`⋮`).
+  - Filter tabs ("Semua", "Belum Dikerjakan", "Selesai").
+  - Empty task list container (left empty for future database population).
+  - Student bottom navigation bar.
 
-- Update `createBottomNav()` in each activity to accept click actions and handle navigation:
-  - 🏠 Beranda -> `HomeActivity`
-  - 📚 Kelas -> `KelasSayaActivity`
-  - 📋 Tugas -> `TugasActivity`
-  - 🤖 AI -> Toast/Feedback
-  - 👤 Profil -> Toast/Feedback
+#### [MODIFY] [AndroidManifest.xml](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/AndroidManifest.xml)
+- Register `TugasPelajarInstitusiActivity`.
+
+#### [MODIFY] [DetailKelasPelajarInstitusiActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/DetailKelasPelajarInstitusiActivity.kt)
+- Wire up the "Tugas" tab click listener to launch `TugasPelajarInstitusiActivity`.
 
 ## Verification Plan
 
@@ -39,4 +32,4 @@ Implement click handlers for all items in the bottom navigation bar (`createBott
 - Run Gradle build: `gradle_build("app:assembleDebug")`.
 
 ### Manual Verification
-- Test tapping each bottom navigation item across different screens to ensure correct navigation and responsiveness.
+- Deploy and test tapping the "Tugas" tab in `DetailKelasPelajarInstitusiActivity`, verifying that `TugasPelajarInstitusiActivity` opens with filter tabs and an empty task list, without touching teacher UI.

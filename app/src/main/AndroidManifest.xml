@@ -38,6 +38,21 @@
             android:name=".KelasSayaActivity"
             android:exported="false" />
 
+        <!-- Halaman Daftar Kelas Saya (Pelajar Institusi) -->
+        <activity
+            android:name=".KelasPelajarInstitusiActivity"
+            android:exported="false" />
+
+        <!-- Halaman Detail Kelas (Pelajar Institusi) -->
+        <activity
+            android:name=".DetailKelasPelajarInstitusiActivity"
+            android:exported="false" />
+
+        <!-- Halaman Daftar Tugas (Pelajar Institusi) -->
+        <activity
+            android:name=".TugasPelajarInstitusiActivity"
+            android:exported="false" />
+
         <!-- Halaman Detail Kelas (Pengajar Institusi) -->
         <activity
             android:name=".DetailKelasActivity"
@@ -86,6 +101,11 @@
         <!-- Halaman Presensi Manual (Pengajar Institusi) -->
         <activity
             android:name=".PresensiManualActivity"
+            android:exported="false" />
+
+        <!-- Halaman Kelola AI Asisten (Chatbot) -->
+        <activity
+            android:name=".AiAssistantActivity"
             android:exported="false" />
 
         <!-- Lengkapi Profil Pengajar Mandiri -->
