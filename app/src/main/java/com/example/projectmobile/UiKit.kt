@@ -523,17 +523,41 @@ object UiKit {
                 }
                 activity.startActivity(intent)
             }
-            "Kelas" -> activity.startActivity(
-                Intent(activity, KelasSayaActivity::class.java).apply {
+            "Kelas" -> {
+                if (ProfileStore.isTeacher(role) && mode == ModePembelajaranActivity.MODE_MANDIRI) {
+                    val intent = withProfile(Intent(activity, KelasMandiriPengajarActivity::class.java), role, mode).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    activity.startActivity(intent)
+                } else if (!ProfileStore.isTeacher(role) && mode == ModePembelajaranActivity.MODE_MANDIRI) {
+                    val intent = withProfile(Intent(activity, DaftarKelasActivity::class.java), role, mode).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    activity.startActivity(intent)
+                } else {
+                    activity.startActivity(
+                        Intent(activity, KelasSayaActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                    )
+                }
+            }
+            "Tugas", "Aktivitas" -> {
+                if (!ProfileStore.isTeacher(role) && mode == ModePembelajaranActivity.MODE_MANDIRI) {
+                    activity.startActivity(withProfile(Intent(activity, TugasPelajarActivity::class.java), role, mode))
+                } else {
+                    activity.startActivity(
+                        Intent(activity, TugasActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        }
+                    )
+                }
+            }
+            "AI" -> activity.startActivity(
+                Intent(activity, AiAssistantActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }
             )
-            "Tugas", "Aktivitas" -> activity.startActivity(
-                Intent(activity, TugasActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-            )
-            "AI" -> toast(activity, "Membuka Asisten AI TemanStudi...")
             "Profil" -> openProfile(activity, role, mode)
         }
     }

@@ -26,6 +26,16 @@ class HomeActivity : AppCompatActivity() {
         setContentView(createDashboard(role, mode))
     }
 
+    // Segarkan Beranda pelajar mandiri setelah bergabung / keluar dari kelas.
+    override fun onResume() {
+        super.onResume()
+        val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+        val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+        if (mode == ModePembelajaranActivity.MODE_MANDIRI) {
+            setContentView(createDashboard(role, mode))
+        }
+    }
+
     private fun createDashboard(role: String, mode: String): View {
         if (role == PilihPeranActivity.ROLE_PENGAJAR && mode == ModePembelajaranActivity.MODE_MANDIRI) {
             return createTeacherMandiriDashboard()
@@ -171,8 +181,8 @@ class HomeActivity : AppCompatActivity() {
             statsContainer.addView(createStatCard("👥", "86", "Pelajar", Color.rgb(76, 175, 80)), createStatCardParams())
         } else if (mode == ModePembelajaranActivity.MODE_MANDIRI) {
             // Student Mandiri Stats: 3 cards (0, 0, 0)
-            statsContainer.addView(createStatCard("🏫", "0", "Kelas Aktif", Color.rgb(33, 96, 245)), createStatCardParams())
-            statsContainer.addView(createStatCard("📄", "0", "Tugas", Color.rgb(255, 152, 0)), createStatCardParams())
+            statsContainer.addView(createStatCard("🏫", "${ClassStore.joined(this).size}", "Kelas Aktif", Color.rgb(33, 96, 245)), createStatCardParams())
+            statsContainer.addView(createStatCard("📄", "${TaskStore.pendingCount(this)}", "Tugas", Color.rgb(255, 152, 0)), createStatCardParams())
             statsContainer.addView(createStatCard("📋", "0", "Kuis", Color.rgb(103, 58, 183)), createStatCardParams())
         } else {
             // Student Institusi Stats: 3 cards
@@ -195,6 +205,8 @@ class HomeActivity : AppCompatActivity() {
                     putExtra(PilihPeranActivity.EXTRA_ROLE, role)
                 }
                 startActivity(intent)
+            } else if (role == PilihPeranActivity.ROLE_PELAJAR && mode == ModePembelajaranActivity.MODE_MANDIRI) {
+                UiKit.open(this, DaftarKelasActivity::class.java, role, mode)
             }
         })
         val kelasHeaderParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
@@ -207,7 +219,21 @@ class HomeActivity : AppCompatActivity() {
             contentLayout.addView(createTeacherClassCard("Sistem Cerdas", "Universitas • Kelas B", "32 pelajar", "🤖"))
             contentLayout.addView(createTeacherClassCard("Basis Data", "Universitas • Kelas C", "26 pelajar", "🗄️"))
         } else if (mode == ModePembelajaranActivity.MODE_MANDIRI) {
-            contentLayout.addView(createMandiriEmptyClassCard())
+            val joinedClasses = ClassStore.joined(this)
+            if (joinedClasses.isEmpty()) {
+                contentLayout.addView(createMandiriEmptyClassCard())
+            } else {
+                for (joinedClass in joinedClasses) {
+                    val joinedCard = ClassUi.homeCard(this, joinedClass) {
+                        val detail = UiKit.withProfile(Intent(this, DetailKelasPelajarActivity::class.java), role, mode)
+                        detail.putExtra(DetailKelasPelajarActivity.EXTRA_CODE, joinedClass.code)
+                        startActivity(detail)
+                    }
+                    contentLayout.addView(joinedCard, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        topMargin = dp(8)
+                    })
+                }
+            }
         } else {
             contentLayout.addView(createStudentClassCard("Pemrograman Mobile", "Dr. Budi Santoso", 65, "Pertemuan 2: UI Android", "Besok, 10:00"))
             contentLayout.addView(createStudentClassCard("Sistem Cerdas", "Dr. Rina Wati", 40, "Pertemuan 1: Pengenalan AI", "Jumat, 08:00"))
@@ -425,6 +451,7 @@ class HomeActivity : AppCompatActivity() {
             isClickable = true
             isFocusable = true
         }
+        btnBuatKelasBaru.setOnClickListener { openBuatKelas() }
         val bcnParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(16)
         }
@@ -450,25 +477,26 @@ class HomeActivity : AppCompatActivity() {
             topMargin = dp(12)
         }
 
-        aksesContainer.addView(createAksesCepatCard("➕", "Buat Kelas"), createStatCardParams())
-        aksesContainer.addView(createAksesCepatCard("🔗", "Bagikan Kode"), createStatCardParams())
-        aksesContainer.addView(createAksesCepatCard("📄", "Kelola Materi"), createStatCardParams())
+        aksesContainer.addView(createAksesCepatCard("➕", "Buat Kelas") { openBuatKelas() }, createStatCardParams())
+        aksesContainer.addView(createAksesCepatCard("🔗", "Bagikan Kode") { bagikanKode() }, createStatCardParams())
+        aksesContainer.addView(createAksesCepatCard("📄", "Kelola Materi") { kelolaMateri() }, createStatCardParams())
 
         contentLayout.addView(aksesContainer, aksesParams)
 
         // Section: Kelas yang Anda Kelola
         val kelasHeader = createSectionHeader("Kelas yang Anda Kelola", showAction = true, onActionClick = {
-            val intent = Intent(this, KelasSayaActivity::class.java).apply {
-                putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, ModePembelajaranActivity.MODE_MANDIRI)
-                putExtra(PilihPeranActivity.EXTRA_ROLE, PilihPeranActivity.ROLE_PENGAJAR)
-            }
-            startActivity(intent)
+            openKelasMandiri()
         })
         val kelasHeaderParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(24)
         }
         contentLayout.addView(kelasHeader, kelasHeaderParams)
-        contentLayout.addView(createMandiriTeacherEmptyClassCard())
+        val myClasses = TeacherClassStore.all(this)
+        if (myClasses.isEmpty()) {
+            contentLayout.addView(createMandiriTeacherEmptyClassCard())
+        } else {
+            myClasses.take(3).forEach { contentLayout.addView(createTeacherClassCard(it)) }
+        }
 
         scrollView.addView(contentLayout)
         rootLayout.addView(scrollView)
@@ -480,7 +508,7 @@ class HomeActivity : AppCompatActivity() {
         return rootLayout
     }
 
-    private fun createAksesCepatCard(icon: String, label: String): View {
+    private fun createAksesCepatCard(icon: String, label: String, onClick: (() -> Unit)? = null): View {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(12), dp(14), dp(12), dp(14))
@@ -523,6 +551,80 @@ class HomeActivity : AppCompatActivity() {
         }
         card.addView(labelTv, labelParams)
 
+        if (onClick != null) {
+            card.isClickable = true
+            card.isFocusable = true
+            card.setOnClickListener { onClick() }
+        }
+
+        return card
+    }
+
+    private fun openBuatKelas() {
+        UiKit.open(this, BuatKelasActivity::class.java, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_MANDIRI)
+    }
+
+    private fun openKelasMandiri() {
+        UiKit.open(this, KelasMandiriPengajarActivity::class.java, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_MANDIRI)
+    }
+
+    private fun openKelasDetail(c: TeacherClass) {
+        val next = UiKit.withProfile(
+            Intent(this, KelasBerhasilActivity::class.java),
+            PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_MANDIRI
+        )
+        next.putExtra(KelasBerhasilActivity.EXTRA_CODE, c.code)
+        startActivity(next)
+    }
+
+    private fun bagikanKode() {
+        val list = TeacherClassStore.all(this)
+        if (list.isEmpty()) {
+            UiKit.toast(this, "Buat kelas terlebih dahulu")
+        } else if (list.size == 1) {
+            TeacherClassStore.share(this, list[0])
+        } else {
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Bagikan kode kelas")
+                .setItems(list.map { "${it.name} (${it.code})" }.toTypedArray()) { _, i ->
+                    TeacherClassStore.share(this, list[i])
+                }
+                .show()
+        }
+    }
+
+    private fun kelolaMateri() {
+        if (TeacherClassStore.count(this) == 0) {
+            UiKit.toast(this, "Buat kelas terlebih dahulu")
+        } else {
+            openKelasMandiri()
+        }
+    }
+
+    private fun createTeacherClassCard(c: TeacherClass): View {
+        val card = UiKit.card(this).apply {
+            setPadding(dp(16), dp(14), dp(16), dp(14))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { openKelasDetail(c) }
+        }
+        val head = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        head.addView(UiKit.badge(this, TeacherClassStore.iconFor(c.topic), Color.WHITE, UiKit.PRIMARY, 48, 12, 24))
+        val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        col.addView(UiKit.tv(this, c.name, 15f, UiKit.NAVY, true))
+        col.addView(
+            UiKit.tv(this, "Kode: ${c.code}  •  0/${c.capacity} peserta", 12.5f, UiKit.MUTED),
+            UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 4)
+        )
+        head.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 12, weight = 1f))
+        head.addView(UiKit.icon(this, R.drawable.ic_chevron_right, 22, UiKit.MUTED), LinearLayout.LayoutParams(dp(22), dp(22)))
+        card.addView(head)
+        card.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { topMargin = dp(12) }
         return card
     }
 
@@ -580,6 +682,7 @@ class HomeActivity : AppCompatActivity() {
         val bParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(20)
         }
+        btnBuat.setOnClickListener { openBuatKelas() }
         card.addView(btnBuat, bParams)
 
         val wrapper = LinearLayout(this).apply {
@@ -723,6 +826,9 @@ class HomeActivity : AppCompatActivity() {
             setPadding(dp(24), dp(14), dp(24), dp(14))
             isClickable = true
             isFocusable = true
+            setOnClickListener {
+                UiKit.open(this@HomeActivity, GabungKelasActivity::class.java, PilihPeranActivity.ROLE_PELAJAR, ModePembelajaranActivity.MODE_MANDIRI)
+            }
         }
         val bParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(20)
@@ -1085,6 +1191,14 @@ class HomeActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                     "Kelas" -> {
+                        if (navRole == PilihPeranActivity.ROLE_PELAJAR && navMode == ModePembelajaranActivity.MODE_MANDIRI) {
+                            UiKit.open(this@HomeActivity, DaftarKelasActivity::class.java, navRole, navMode)
+                            return@setOnClickListener
+                        }
+                        if (navRole == PilihPeranActivity.ROLE_PENGAJAR && navMode == ModePembelajaranActivity.MODE_MANDIRI) {
+                            openKelasMandiri()
+                            return@setOnClickListener
+                        }
                         val intent = Intent(this@HomeActivity, KelasSayaActivity::class.java).apply {
                             putExtra(PilihPeranActivity.EXTRA_ROLE, navRole)
                             putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, navMode)
@@ -1093,6 +1207,10 @@ class HomeActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                     "Tugas", "Aktivitas" -> {
+                        if (navRole == PilihPeranActivity.ROLE_PELAJAR && navMode == ModePembelajaranActivity.MODE_MANDIRI) {
+                            UiKit.open(this@HomeActivity, TugasPelajarActivity::class.java, navRole, navMode)
+                            return@setOnClickListener
+                        }
                         val intent = Intent(this@HomeActivity, TugasActivity::class.java).apply {
                             putExtra(PilihPeranActivity.EXTRA_ROLE, navRole)
                             putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, navMode)

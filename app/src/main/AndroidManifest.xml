@@ -179,6 +179,46 @@
             android:name=".KeluarActivity"
             android:exported="false" />
 
+
+        <!-- Alur pelajar mode mandiri (tahap 2A) -->
+        <activity
+            android:name=".GabungKelasActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DaftarKelasActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DetailKelasPelajarActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DetailMateriActivity"
+            android:exported="false" />
+
+
+        <!-- Tugas pelajar mode mandiri (tahap 2B) -->
+        <activity
+            android:name=".TugasPelajarActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DetailTugasPelajarActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".TugasBerhasilActivity"
+            android:exported="false" />
+
+        <!-- Pengajar mode mandiri (tahap 3A) -->
+        <activity
+            android:name=".BuatKelasActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".KelasBerhasilActivity"
+            android:exported="false" />
+        <activity
+            android:name=".KelasMandiriPengajarActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
