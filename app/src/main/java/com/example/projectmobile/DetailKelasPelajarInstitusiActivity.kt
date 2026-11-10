@@ -342,6 +342,25 @@ class DetailKelasPelajarInstitusiActivity : AppCompatActivity() {
                     val intent = Intent(this@DetailKelasPelajarInstitusiActivity, TugasPelajarInstitusiActivity::class.java)
                     startActivity(intent)
                 }
+            } else if (title == "Kuis") {
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    val intent = Intent(this@DetailKelasPelajarInstitusiActivity, DetailKuisPelajarInstitusiActivity::class.java).apply {
+                        putExtra(DetailKuisPelajarInstitusiActivity.EXTRA_QUIZ_TITLE, "Kuis Sistem Cerdas")
+                        putExtra(DetailKuisPelajarInstitusiActivity.EXTRA_MEETING, "Pertemuan 2")
+                    }
+                    startActivity(intent)
+                }
+            } else if (title == "Diskusi") {
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    val intent = Intent(this@DetailKelasPelajarInstitusiActivity, DiskusiPelajarInstitusiActivity::class.java).apply {
+                        putExtra(DiskusiPelajarInstitusiActivity.EXTRA_COURSE_NAME, "Pemrograman Mobile")
+                    }
+                    startActivity(intent)
+                }
             }
         }
     }

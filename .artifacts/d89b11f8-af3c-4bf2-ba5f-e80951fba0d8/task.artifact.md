@@ -1,6 +1,6 @@
-# Task List - Student Institutional Tasks List Activity & Navigation
+# Task List - Student Institutional Discussion Activity & Navigation
 
-- [x] Task 1: Create `TugasPelajarInstitusiActivity.kt` matching the student tasks list UI mockup with an empty task list container
-- [x] Task 2: Register `TugasPelajarInstitusiActivity` in `AndroidManifest.xml`
-- [x] Task 3: Update `DetailKelasPelajarInstitusiActivity.kt` to launch `TugasPelajarInstitusiActivity` when clicking the "Tugas" tab
+- [x] Task 1: Create `DiskusiPelajarInstitusiActivity.kt` matching the discussion UI mockup with an empty chat message container
+- [x] Task 2: Register `DiskusiPelajarInstitusiActivity` in `AndroidManifest.xml`
+- [x] Task 3: Update `DetailKelasPelajarInstitusiActivity.kt` to launch `DiskusiPelajarInstitusiActivity` when clicking the "Diskusi" tab
 - [x] Task 4: Verify the build and functionality

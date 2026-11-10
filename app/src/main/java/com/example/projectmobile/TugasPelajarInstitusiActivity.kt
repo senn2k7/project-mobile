@@ -15,6 +15,55 @@ import androidx.appcompat.app.AppCompatActivity
 
 class TugasPelajarInstitusiActivity : AppCompatActivity() {
 
+    private data class StudentTask(
+        val title: String,
+        val course: String,
+        val deadline: String,
+        val status: String, // "belum", "menunggu", "selesai", "terlambat"
+        val statusText: String,
+        val statusTextColor: Int,
+        val statusBgColor: Int
+    )
+
+    private val tasksList = listOf(
+        StudentTask(
+            title = "Membuat UI Login Android",
+            course = "Pemrograman Mobile",
+            deadline = "12 Jun 2025, 23:59",
+            status = "belum",
+            statusText = "Belum Dikerjakan",
+            statusTextColor = Color.rgb(244, 67, 54),
+            statusBgColor = Color.rgb(255, 235, 238)
+        ),
+        StudentTask(
+            title = "Analisis Sistem",
+            course = "Sistem Cerdas",
+            deadline = "15 Jun 2025, 23:59",
+            status = "menunggu",
+            statusText = "Menunggu Penilaian",
+            statusTextColor = Color.rgb(255, 152, 0),
+            statusBgColor = Color.rgb(255, 243, 224)
+        ),
+        StudentTask(
+            title = "Laporan Basis Data",
+            course = "Basis Data",
+            deadline = "10 Jun 2025, 23:59",
+            status = "selesai",
+            statusText = "Dinilai (85)",
+            statusTextColor = Color.rgb(46, 125, 50),
+            statusBgColor = Color.rgb(232, 245, 233)
+        ),
+        StudentTask(
+            title = "Tugas Kelompok",
+            course = "Sistem Cerdas",
+            deadline = "10 Jun 2025, 23:59",
+            status = "terlambat",
+            statusText = "Terlambat",
+            statusTextColor = Color.rgb(244, 67, 54),
+            statusBgColor = Color.rgb(255, 235, 238)
+        )
+    )
+
     private lateinit var tabSemua: TextView
     private lateinit var tabBelum: TextView
     private lateinit var tabSelesai: TextView
@@ -133,7 +182,7 @@ class TugasPelajarInstitusiActivity : AppCompatActivity() {
 
         contentLayout.addView(tabsLayout, tabsParams)
 
-        // 3. Tasks Cards Container (Left empty for database population)
+        // 3. Tasks Cards Container
         tasksContainer = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
@@ -142,7 +191,7 @@ class TugasPelajarInstitusiActivity : AppCompatActivity() {
         }
         contentLayout.addView(tasksContainer, tasksParams)
 
-        updateTabStyles()
+        updateTaskList()
 
         scrollView.addView(contentLayout)
         rootLayout.addView(scrollView)
@@ -157,6 +206,7 @@ class TugasPelajarInstitusiActivity : AppCompatActivity() {
     private fun setFilter(filter: String) {
         currentFilter = filter
         updateTabStyles()
+        updateTaskList()
     }
 
     private fun updateTabStyles() {
@@ -192,6 +242,133 @@ class TugasPelajarInstitusiActivity : AppCompatActivity() {
                 tabSelesai.setTypeface(null, Typeface.BOLD)
             }
         }
+    }
+
+    private fun updateTaskList() {
+        tasksContainer.removeAllViews()
+
+        val filtered = when (currentFilter) {
+            "belum" -> tasksList.filter { it.status == "belum" || it.status == "terlambat" }
+            "selesai" -> tasksList.filter { it.status == "selesai" || it.status == "menunggu" }
+            else -> tasksList
+        }
+
+        for (task in filtered) {
+            tasksContainer.addView(createTaskCard(task))
+        }
+    }
+
+    private fun createTaskCard(task: StudentTask): View {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(16), dp(16), dp(16))
+            background = roundedBackground(Color.WHITE, 16, Color.rgb(220, 231, 244), 1)
+            elevation = dp(1).toFloat()
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                val intent = Intent(this@TugasPelajarInstitusiActivity, DetailTugasPelajarInstitusiActivity::class.java).apply {
+                    putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_TASK_TITLE, task.title)
+                    putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_COURSE_NAME, task.course)
+                }
+                startActivity(intent)
+            }
+        }
+
+        val topRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        val iconBox = TextView(this).apply {
+            text = "📄"
+            textSize = 20f
+            gravity = Gravity.CENTER
+            background = roundedBackground(Color.rgb(33, 96, 245), 12)
+        }
+        topRow.addView(iconBox, LinearLayout.LayoutParams(dp(48), dp(48)))
+
+        val textCol = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(14), 0, 0, 0)
+        }
+
+        val titleTv = TextView(this).apply {
+            text = task.title
+            textSize = 16f
+            setTextColor(Color.rgb(25, 54, 95))
+            setTypeface(null, Typeface.BOLD)
+        }
+        textCol.addView(titleTv)
+
+        val courseTv = TextView(this).apply {
+            text = task.course
+            textSize = 13f
+            setTextColor(Color.rgb(117, 139, 169))
+        }
+        val cParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+            topMargin = dp(2)
+        }
+        textCol.addView(courseTv, cParams)
+
+        topRow.addView(textCol, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+
+        val optionsTv = TextView(this).apply {
+            text = "•••"
+            textSize = 16f
+            setTextColor(Color.rgb(117, 139, 169))
+            gravity = Gravity.CENTER
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                val intent = Intent(this@TugasPelajarInstitusiActivity, DetailTugasPelajarInstitusiActivity::class.java).apply {
+                    putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_TASK_TITLE, task.title)
+                    putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_COURSE_NAME, task.course)
+                }
+                startActivity(intent)
+            }
+        }
+        topRow.addView(optionsTv, LinearLayout.LayoutParams(dp(24), dp(32)))
+
+        card.addView(topRow)
+
+        // Deadline info
+        val deadlineRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        val dParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+            topMargin = dp(12)
+        }
+
+        val deadlineTv = TextView(this).apply {
+            text = "🕒 ${task.deadline}"
+            textSize = 12f
+            setTextColor(Color.rgb(117, 139, 169))
+        }
+        deadlineRow.addView(deadlineTv, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+
+        val badge = TextView(this).apply {
+            text = task.statusText
+            textSize = 11f
+            setTypeface(null, Typeface.BOLD)
+            setTextColor(task.statusTextColor)
+            background = roundedBackground(task.statusBgColor, 8)
+            setPadding(dp(10), dp(4), dp(10), dp(4))
+        }
+        deadlineRow.addView(badge)
+
+        card.addView(deadlineRow, dParams)
+
+        val wrapper = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dp(12)
+            }
+            layoutParams = lp
+            addView(card)
+        }
+        return wrapper
     }
 
     private fun createBottomNav(): View {

@@ -1,23 +1,22 @@
-# Walkthrough - Student Institutional Tasks List Activity & Navigation
+# Walkthrough - Student Institutional Discussion Activity & Navigation
 
-Implemented the student institutional tasks list screen (`TugasPelajarInstitusiActivity`) with filter tabs ("Semua", "Belum Dikerjakan", "Selesai") and an empty task list container (ready for database population), and wired up navigation from the "Tugas" tab in `DetailKelasPelajarInstitusiActivity` strictly for institutional students without modifying teacher UI.
+Implemented the student institutional discussion screen (`DiskusiPelajarInstitusiActivity`) with an empty chat message container (ready for dynamic message bubbles from the database), and wired up navigation from the "Diskusi" tab in `DetailKelasPelajarInstitusiActivity` strictly for institutional students without modifying teacher UI.
 
 ## Changes Made
 
-### Student Institutional Tasks List Feature
+### Student Institutional Discussion Feature
 
-#### [NEW] [TugasPelajarInstitusiActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/TugasPelajarInstitusiActivity.kt)
-- Created `TugasPelajarInstitusiActivity` programmatically matching the UI mockup:
-  - Header with back button (`‹`), title "Tugas", options menu (`⋮`).
-  - Filter tabs ("Semua", "Belum Dikerjakan", "Selesai") with active state switching.
-  - Empty task list container (left empty as requested for future automatic population from the student database).
-  - Student bottom navigation bar with functional navigation.
+#### [NEW] [DiskusiPelajarInstitusiActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/DiskusiPelajarInstitusiActivity.kt)
+- Created `DiskusiPelajarInstitusiActivity` programmatically matching the UI mockup:
+  - Header with back button (`‹`), title "Diskusi Pemrograman Mobile", subtitle "28 peserta", options menu (`⋮`).
+  - Empty chat message container (left empty as requested, ready to display message bubbles dynamically when messages are sent/received via the database).
+  - Bottom message input bar (emoji icon, attachment icon, "Tulis pesan..." input field, send button).
 
 #### [MODIFY] [AndroidManifest.xml](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/AndroidManifest.xml)
-- Registered `TugasPelajarInstitusiActivity`.
+- Registered `DiskusiPelajarInstitusiActivity`.
 
 #### [MODIFY] [DetailKelasPelajarInstitusiActivity.kt](file:///C:/Users/Huseinnn/AndroidStudioProjects/projectMobile/app/src/main/java/com/example/projectmobile/DetailKelasPelajarInstitusiActivity.kt)
-- Wired up the "Tugas" tab click listener to launch `TugasPelajarInstitusiActivity`.
+- Wired up the "Diskusi" tab click listener to launch `DiskusiPelajarInstitusiActivity`.
 
 ## Verification Results
 

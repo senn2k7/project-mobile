@@ -48,9 +48,39 @@
             android:name=".DetailKelasPelajarInstitusiActivity"
             android:exported="false" />
 
+        <!-- Halaman Diskusi Kelas (Pelajar Institusi) -->
+        <activity
+            android:name=".DiskusiPelajarInstitusiActivity"
+            android:exported="false" />
+
         <!-- Halaman Daftar Tugas (Pelajar Institusi) -->
         <activity
             android:name=".TugasPelajarInstitusiActivity"
+            android:exported="false" />
+
+        <!-- Halaman Detail Tugas (Pelajar Institusi) -->
+        <activity
+            android:name=".DetailTugasPelajarInstitusiActivity"
+            android:exported="false" />
+
+        <!-- Halaman Tugas Berhasil Dikumpulkan (Pelajar Institusi) -->
+        <activity
+            android:name=".TugasBerhasilPelajarActivity"
+            android:exported="false" />
+
+        <!-- Halaman Detail Kuis (Pelajar Institusi) -->
+        <activity
+            android:name=".DetailKuisPelajarInstitusiActivity"
+            android:exported="false" />
+
+        <!-- Halaman Mulai Kuis (Pelajar Institusi) -->
+        <activity
+            android:name=".MulaiKuisPelajarActivity"
+            android:exported="false" />
+
+        <!-- Halaman Hasil Kuis (Pelajar Institusi) -->
+        <activity
+            android:name=".HasilKuisPelajarActivity"
             android:exported="false" />
 
         <!-- Halaman Detail Kelas (Pengajar Institusi) -->
