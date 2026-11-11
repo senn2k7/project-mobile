@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">TemanStudi</string>
+    <string name="halo_sapaan">Halo, %s! 👋</string>
+    <string name="sub_selamat_belajar">Selamat belajar di TemanStudi</string>
+    <string name="cari_kelas_hint">Cari kelas, materi, atau tugas...</string>
+    <string name="cari_kelas_saya_hint">Cari kelas...</string>
+    <string name="stat_kelas_diampu">Kelas Diampu</string>
+    <string name="stat_tugas_aktif">Tugas Aktif</string>
+    <string name="stat_perlu_dinilai">Perlu Dinilai</string>
+    <string name="stat_pelajar">Pelajar</string>
+    <string name="kelas_saya_title">Kelas Saya</string>
+    <string name="lihat_semua">Lihat Semua ></string>
+    <string name="tab_semua">Semua</string>
+    <string name="tab_institusi">Institusi</string>
+    <string name="tab_semester">Semester ▾</string>
+    <string name="empty_belum_ada_kelas">Belum ada kelas</string>
+    <string name="empty_kelas_tidak_ditemukan">Kelas tidak ditemukan</string>
+    <string name="empty_kelas_subtitle">Kelas yang Anda ampu akan muncul di sini.</string>
 </resources>

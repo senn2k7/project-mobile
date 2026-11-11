@@ -46,6 +46,8 @@ dependencies {
 
     implementation("androidx.core:core-splashscreen:1.0.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 
     // Google Credential Manager
     implementation("androidx.credentials:credentials:1.5.0")

@@ -78,6 +78,14 @@
             android:name=".MulaiKuisPelajarActivity"
             android:exported="false" />
 
+        <!-- Halaman Beranda & Kelas Saya (Pengajar Institusi) -->
+        <activity
+            android:name=".ui.pengajar.institusi.PengajarBerandaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.pengajar.institusi.PengajarKelasSayaActivity"
+            android:exported="false" />
+
         <!-- Halaman Hasil Kuis (Pelajar Institusi) -->
         <activity
             android:name=".HasilKuisPelajarActivity"
