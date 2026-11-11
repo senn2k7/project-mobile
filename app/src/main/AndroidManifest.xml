@@ -249,6 +249,15 @@
             android:name=".KelasMandiriPengajarActivity"
             android:exported="false" />
 
+        <!-- Kelola materi & tugas pengajar mandiri (tahap 3B) -->
+        <activity
+            android:name=".KelolaKelasActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TambahKontenActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>

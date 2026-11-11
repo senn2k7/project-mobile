@@ -570,10 +570,10 @@ class HomeActivity : AppCompatActivity() {
 
     private fun openKelasDetail(c: TeacherClass) {
         val next = UiKit.withProfile(
-            Intent(this, KelasBerhasilActivity::class.java),
+            Intent(this, KelolaKelasActivity::class.java),
             PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_MANDIRI
         )
-        next.putExtra(KelasBerhasilActivity.EXTRA_CODE, c.code)
+        next.putExtra(KelolaKelasActivity.EXTRA_CODE, c.code)
         startActivity(next)
     }
 
@@ -594,8 +594,11 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun kelolaMateri() {
-        if (TeacherClassStore.count(this) == 0) {
+        val list = TeacherClassStore.all(this)
+        if (list.isEmpty()) {
             UiKit.toast(this, "Buat kelas terlebih dahulu")
+        } else if (list.size == 1) {
+            openKelasDetail(list[0])
         } else {
             openKelasMandiri()
         }

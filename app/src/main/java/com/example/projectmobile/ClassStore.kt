@@ -15,7 +15,15 @@ data class ClassInfo(
     val schedule: String
 )
 
-data class Meeting(val number: Int, val title: String, val materials: Int, val date: String)
+data class Meeting(
+    val number: Int,
+    val title: String,
+    val materials: Int,
+    val date: String,
+    val description: String = "",
+    val fileName: String = "",
+    val custom: Boolean = false
+)
 
 /**
  * Data kelas untuk pelajar.
@@ -70,7 +78,9 @@ object ClassStore {
 
     fun joined(ctx: Context): List<ClassInfo> {
         val codes = sp(ctx).getStringSet(KEY_JOINED, emptySet()) ?: emptySet()
-        return joinable.filter { it.code in codes }.sortedBy { it.name }
+        val sample = joinable.filter { it.code in codes }
+        val own = TeacherClassStore.all(ctx).filter { it.code in codes }.map { fromTeacher(ctx, it) }
+        return (sample + own).sortedBy { it.name }
     }
 
     fun isJoined(ctx: Context, code: String): Boolean = joined(ctx).any { it.code == code }
@@ -93,6 +103,44 @@ object ClassStore {
 
     fun byCode(code: String): ClassInfo? =
         (institusiClasses + joinable).firstOrNull { it.code == code }
+
+    // ------------------------------------------------- Kelas buatan pengajar
+
+    /** Kelas mandiri buatan pengajar (di perangkat ini) dalam bentuk ClassInfo. */
+    private fun fromTeacher(ctx: Context, t: TeacherClass): ClassInfo {
+        val first = TeacherClassStore.materials(ctx, t.code).firstOrNull()
+        return ClassInfo(
+            code = t.code,
+            name = t.name,
+            teacher = ProfileStore.get(ctx, PilihPeranActivity.ROLE_PENGAJAR, ProfileStore.NAMA),
+            field = t.topic,
+            participants = 1,
+            type = TYPE_MANDIRI,
+            description = t.description.ifBlank { "Kelas mandiri ${t.name}." },
+            iconRes = TeacherClassStore.iconFor(t.topic),
+            nextMeeting = if (first != null) "Pertemuan 1: ${first.title}" else "Belum ada materi",
+            schedule = "Belum dijadwalkan"
+        )
+    }
+
+    /** Mencari kelas dari kode, termasuk kelas buatan pengajar di perangkat ini. */
+    fun find(ctx: Context, code: String): ClassInfo? =
+        find(code) ?: TeacherClassStore.byCode(ctx, code.trim())?.let { fromTeacher(ctx, it) }
+
+    fun byCode(ctx: Context, code: String): ClassInfo? =
+        byCode(code) ?: TeacherClassStore.byCode(ctx, code)?.let { fromTeacher(ctx, it) }
+
+    fun meetings(ctx: Context, info: ClassInfo): List<Meeting> {
+        val own = TeacherClassStore.byCode(ctx, info.code)
+        if (own != null) {
+            return TeacherClassStore.materials(ctx, own.code).mapIndexed { i, m ->
+                Meeting(i + 1, m.title, 1, TeacherClassStore.formatDate(m.createdAt), m.description, m.fileName, true)
+            }
+        }
+        return meetings(info)
+    }
+
+    fun totalMaterials(ctx: Context, info: ClassInfo): Int = meetings(ctx, info).sumOf { it.materials }
 
     // ----------------------------------------------------------- Pertemuan
 
@@ -132,7 +180,7 @@ object ClassStore {
     }
 
     fun progress(ctx: Context, info: ClassInfo): Int {
-        val list = meetings(info)
+        val list = meetings(ctx, info)
         if (list.isEmpty()) return 0
         val done = list.count { isDone(ctx, info.code, it.number) }
         return done * 100 / list.size
@@ -141,7 +189,7 @@ object ClassStore {
     /** "Selesai", "Sedang" (pertemuan pertama yang belum selesai), atau "Belum". */
     fun statusOf(ctx: Context, info: ClassInfo, meeting: Meeting): String {
         if (isDone(ctx, info.code, meeting.number)) return "Selesai"
-        val firstOpen = meetings(info).firstOrNull { !isDone(ctx, info.code, it.number) }
+        val firstOpen = meetings(ctx, info).firstOrNull { !isDone(ctx, info.code, it.number) }
         return if (firstOpen?.number == meeting.number) "Sedang" else "Belum"
     }
 }

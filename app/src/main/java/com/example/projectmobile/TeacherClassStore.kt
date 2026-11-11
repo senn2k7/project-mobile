@@ -12,6 +12,24 @@ import java.util.Locale
 import org.json.JSONArray
 import org.json.JSONObject
 
+data class TeacherMaterial(
+    val id: String,
+    val classCode: String,
+    val title: String,
+    val description: String,
+    val fileName: String,
+    val createdAt: Long
+)
+
+data class TeacherTask(
+    val id: String,
+    val classCode: String,
+    val title: String,
+    val instructions: String,
+    val deadlineMillis: Long,
+    val createdAt: Long
+)
+
 data class TeacherClass(
     val code: String,
     val name: String,
@@ -167,5 +185,125 @@ object TeacherClassStore {
             putExtra(Intent.EXTRA_TEXT, text)
         }
         activity.startActivity(Intent.createChooser(send, "Bagikan kode kelas"))
+    }
+
+    // ------------------------------------------------------------ Materi & Tugas
+
+    private const val KEY_MATERIALS = "materials"
+    private const val KEY_TASKS = "tasks"
+
+    private fun readMaterials(ctx: Context): MutableList<TeacherMaterial> {
+        val raw = sp(ctx).getString(KEY_MATERIALS, null) ?: return mutableListOf()
+        val out = mutableListOf<TeacherMaterial>()
+        try {
+            val arr = JSONArray(raw)
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                out.add(
+                    TeacherMaterial(
+                        id = o.getString("id"),
+                        classCode = o.getString("classCode"),
+                        title = o.getString("title"),
+                        description = o.optString("description"),
+                        fileName = o.optString("fileName"),
+                        createdAt = o.optLong("createdAt")
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            // data rusak: abaikan
+        }
+        return out
+    }
+
+    private fun writeMaterials(ctx: Context, list: List<TeacherMaterial>) {
+        val arr = JSONArray()
+        for (m in list) {
+            arr.put(
+                JSONObject().apply {
+                    put("id", m.id)
+                    put("classCode", m.classCode)
+                    put("title", m.title)
+                    put("description", m.description)
+                    put("fileName", m.fileName)
+                    put("createdAt", m.createdAt)
+                }
+            )
+        }
+        sp(ctx).edit().putString(KEY_MATERIALS, arr.toString()).apply()
+    }
+
+    private fun readTasks(ctx: Context): MutableList<TeacherTask> {
+        val raw = sp(ctx).getString(KEY_TASKS, null) ?: return mutableListOf()
+        val out = mutableListOf<TeacherTask>()
+        try {
+            val arr = JSONArray(raw)
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                out.add(
+                    TeacherTask(
+                        id = o.getString("id"),
+                        classCode = o.getString("classCode"),
+                        title = o.getString("title"),
+                        instructions = o.optString("instructions"),
+                        deadlineMillis = o.optLong("deadlineMillis"),
+                        createdAt = o.optLong("createdAt")
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            // data rusak: abaikan
+        }
+        return out
+    }
+
+    private fun writeTasks(ctx: Context, list: List<TeacherTask>) {
+        val arr = JSONArray()
+        for (t in list) {
+            arr.put(
+                JSONObject().apply {
+                    put("id", t.id)
+                    put("classCode", t.classCode)
+                    put("title", t.title)
+                    put("instructions", t.instructions)
+                    put("deadlineMillis", t.deadlineMillis)
+                    put("createdAt", t.createdAt)
+                }
+            )
+        }
+        sp(ctx).edit().putString(KEY_TASKS, arr.toString()).apply()
+    }
+
+    /** Materi sebuah kelas, yang paling lama di urutan pertama (Pertemuan 1). */
+    fun materials(ctx: Context, classCode: String): List<TeacherMaterial> =
+        readMaterials(ctx).filter { it.classCode == classCode }.sortedBy { it.createdAt }
+
+    fun addMaterial(ctx: Context, classCode: String, title: String, description: String, fileName: String): TeacherMaterial {
+        val list = readMaterials(ctx)
+        val now = System.currentTimeMillis()
+        val m = TeacherMaterial("M$now", classCode, title, description, fileName, now)
+        list.add(m)
+        writeMaterials(ctx, list)
+        return m
+    }
+
+    fun deleteMaterial(ctx: Context, id: String) {
+        writeMaterials(ctx, readMaterials(ctx).filter { it.id != id })
+    }
+
+    fun tasks(ctx: Context, classCode: String): List<TeacherTask> =
+        readTasks(ctx).filter { it.classCode == classCode }.sortedBy { it.createdAt }
+
+    fun addTask(ctx: Context, classCode: String, title: String, instructions: String, deadlineMillis: Long): TeacherTask {
+        val list = readTasks(ctx)
+        val now = System.currentTimeMillis()
+        val t = TeacherTask("T$now", classCode, title, instructions, deadlineMillis, now)
+        list.add(t)
+        writeTasks(ctx, list)
+        return t
+    }
+
+    fun deleteTask(ctx: Context, id: String) {
+        writeTasks(ctx, readTasks(ctx).filter { it.id != id })
     }
 }

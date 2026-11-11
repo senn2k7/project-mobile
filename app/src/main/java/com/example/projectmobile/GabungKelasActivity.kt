@@ -74,7 +74,7 @@ class GabungKelasActivity : AppCompatActivity() {
             etCode.error = "Masukkan kode kelas"
             return
         }
-        val info = ClassStore.find(code)
+        val info = ClassStore.find(this, code)
         if (info == null) {
             found = null
             resultSection.visibility = View.GONE

@@ -170,13 +170,22 @@ class KelasBerhasilActivity : AppCompatActivity() {
         // Tombol bawah
         val share = UiKit.outlineButton(this, "Bagikan Kode") { TeacherClassStore.share(this, c) }
         if (created) {
-            val start = UiKit.primaryButton(this, "Mulai Kelola Kelas") { goHome() }
+            val start = UiKit.primaryButton(this, "Mulai Kelola Kelas") { openKelola(c) }
             share.layoutParams = UiKit.params(this, UiKit.MATCH, px(56), top = 10)
             root.addView(UiKit.bottomBar(this, start, share))
         } else {
-            root.addView(UiKit.bottomBar(this, share))
+            val kelola = UiKit.primaryButton(this, "Kelola Materi & Tugas") { openKelola(c) }
+            share.layoutParams = UiKit.params(this, UiKit.MATCH, px(56), top = 10)
+            root.addView(UiKit.bottomBar(this, kelola, share))
         }
         return root
+    }
+
+    private fun openKelola(c: TeacherClass) {
+        val next = UiKit.withProfile(Intent(this, KelolaKelasActivity::class.java), role, mode)
+        next.putExtra(KelolaKelasActivity.EXTRA_CODE, c.code)
+        startActivity(next)
+        finish()
     }
 
     private fun goHome() {

@@ -80,8 +80,8 @@ class KelasMandiriPengajarActivity : AppCompatActivity() {
             isClickable = true
             isFocusable = true
             setOnClickListener {
-                val next = UiKit.withProfile(Intent(this@KelasMandiriPengajarActivity, KelasBerhasilActivity::class.java), role, mode)
-                next.putExtra(KelasBerhasilActivity.EXTRA_CODE, c.code)
+                val next = UiKit.withProfile(Intent(this@KelasMandiriPengajarActivity, KelolaKelasActivity::class.java), role, mode)
+                next.putExtra(KelolaKelasActivity.EXTRA_CODE, c.code)
                 startActivity(next)
             }
         }

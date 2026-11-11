@@ -63,6 +63,22 @@ object TaskStore {
         val list = mutableListOf<TaskInfo>()
         for (c in ClassStore.joined(ctx)) {
             if (classCode != null && c.code != classCode) continue
+            if (TeacherClassStore.byCode(ctx, c.code) != null) {
+                for (t in TeacherClassStore.tasks(ctx, c.code)) {
+                    list.add(
+                        TaskInfo(
+                            id = t.id,
+                            classCode = c.code,
+                            className = c.name,
+                            title = t.title,
+                            deadlineMillis = t.deadlineMillis,
+                            instructions = t.instructions.split("\n").map { it.trim() }.filter { it.isNotEmpty() },
+                            attachments = emptyList()
+                        )
+                    )
+                }
+                continue
+            }
             list.add(
                 TaskInfo(
                     id = "${c.code}-T1",

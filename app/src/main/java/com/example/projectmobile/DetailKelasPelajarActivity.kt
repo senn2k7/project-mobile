@@ -27,7 +27,7 @@ class DetailKelasPelajarActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         role = UiKit.roleOf(intent)
         mode = UiKit.modeOf(intent)
-        info = intent.getStringExtra(EXTRA_CODE)?.let { ClassStore.byCode(it) }
+        info = intent.getStringExtra(EXTRA_CODE)?.let { ClassStore.byCode(this, it) }
         if (info == null) {
             UiKit.toast(this, "Kelas tidak ditemukan")
             finish()
@@ -151,7 +151,11 @@ class DetailKelasPelajarActivity : AppCompatActivity() {
             UiKit.tv(this, "Daftar Pertemuan", 17f, UiKit.NAVY, true),
             UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 22, bottom = 10)
         )
-        for (m in ClassStore.meetings(c)) {
+        val meetingList = ClassStore.meetings(this, c)
+        if (meetingList.isEmpty()) {
+            content.addView(UiKit.tv(this, "Pengajar belum menambahkan materi.", 13f, UiKit.MUTED))
+        }
+        for (m in meetingList) {
             content.addView(meetingCard(c, m), UiKit.params(this, UiKit.MATCH, UiKit.WRAP, bottom = 10))
         }
 
@@ -195,6 +199,11 @@ class DetailKelasPelajarActivity : AppCompatActivity() {
     private fun onTab(label: String, c: ClassInfo) {
         when (label) {
             "Materi" -> Unit
+            "Tugas" -> {
+                val next = UiKit.withProfile(Intent(this, TugasPelajarActivity::class.java), role, mode)
+                next.putExtra(TugasPelajarActivity.EXTRA_CODE, c.code)
+                startActivity(next)
+            }
             "Diskusi" -> startActivity(
                 Intent(this, DiskusiActivity::class.java).apply {
                     putExtra(DiskusiActivity.EXTRA_COURSE_NAME, c.name)

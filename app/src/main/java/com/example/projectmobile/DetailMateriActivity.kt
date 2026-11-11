@@ -29,10 +29,10 @@ class DetailMateriActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         role = UiKit.roleOf(intent)
         mode = UiKit.modeOf(intent)
-        val c = intent.getStringExtra(EXTRA_CODE)?.let { ClassStore.byCode(it) }
+        val c = intent.getStringExtra(EXTRA_CODE)?.let { ClassStore.byCode(this, it) }
         val number = intent.getIntExtra(EXTRA_NUMBER, 1)
         info = c
-        meeting = c?.let { ClassStore.meetings(it).firstOrNull { m -> m.number == number } }
+        meeting = c?.let { ClassStore.meetings(this, it).firstOrNull { m -> m.number == number } }
         if (c == null || meeting == null) {
             UiKit.toast(this, "Materi tidak ditemukan")
             finish()
@@ -117,7 +117,7 @@ class DetailMateriActivity : AppCompatActivity() {
             UiKit.tv(this, "File Materi", 16f, UiKit.NAVY, true),
             UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 20, bottom = 4)
         )
-        for (f in files) card.addView(fileRow(f), UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 8))
+        for (f in filesFor(m)) card.addView(fileRow(f), UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 8))
 
         content.addView(card)
         root.addView(scroll, UiKit.scrollParams())
@@ -157,10 +157,23 @@ class DetailMateriActivity : AppCompatActivity() {
     }
 
     private fun intro(m: Meeting): String =
-        if (m.number == 1 && m.title.contains("Android Studio")) {
+        if (m.custom) {
+            m.description.ifBlank { "Materi ${m.title} dari pengajar." }
+        } else if (m.number == 1 && m.title.contains("Android Studio")) {
             "Android Studio adalah Integrated Development Environment (IDE) resmi dari Google untuk mengembangkan aplikasi Android. Dalam pertemuan ini, kita akan mempelajari dasar-dasar Android Studio, struktur proyek, dan konfigurasi awal."
         } else {
             "Pada pertemuan ini kita membahas ${m.title}. Pelajari materi dan file pendukung di bawah, lalu kerjakan latihan yang diberikan pengajar."
+        }
+
+    private fun filesFor(m: Meeting): List<MaterialFile> =
+        if (m.custom) {
+            if (m.fileName.isNotBlank()) {
+                listOf(MaterialFile(m.fileName, "Lampiran pengajar", Color.parseColor("#FF6B7A"), "Buka"))
+            } else {
+                emptyList()
+            }
+        } else {
+            files
         }
 
     private fun fileRow(f: MaterialFile): View {
@@ -187,6 +200,11 @@ class DetailMateriActivity : AppCompatActivity() {
     private fun onTab(label: String, c: ClassInfo) {
         when (label) {
             "Materi" -> Unit
+            "Tugas" -> {
+                val next = UiKit.withProfile(Intent(this, TugasPelajarActivity::class.java), role, mode)
+                next.putExtra(TugasPelajarActivity.EXTRA_CODE, c.code)
+                startActivity(next)
+            }
             "Diskusi" -> startActivity(
                 Intent(this, DiskusiActivity::class.java).apply {
                     putExtra(DiskusiActivity.EXTRA_COURSE_NAME, c.name)
