@@ -1214,6 +1214,10 @@ class HomeActivity : AppCompatActivity() {
                             UiKit.open(this@HomeActivity, TugasPelajarActivity::class.java, navRole, navMode)
                             return@setOnClickListener
                         }
+                        if (navRole == PilihPeranActivity.ROLE_PENGAJAR && navMode == ModePembelajaranActivity.MODE_MANDIRI) {
+                            UiKit.open(this@HomeActivity, TugasMandiriPengajarActivity::class.java, navRole, navMode)
+                            return@setOnClickListener
+                        }
                         val intent = Intent(this@HomeActivity, TugasActivity::class.java).apply {
                             putExtra(PilihPeranActivity.EXTRA_ROLE, navRole)
                             putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, navMode)

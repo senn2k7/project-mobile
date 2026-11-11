@@ -543,7 +543,12 @@ object UiKit {
                 }
             }
             "Tugas", "Aktivitas" -> {
-                if (!ProfileStore.isTeacher(role) && mode == ModePembelajaranActivity.MODE_MANDIRI) {
+                if (ProfileStore.isTeacher(role) && mode == ModePembelajaranActivity.MODE_MANDIRI) {
+                    val intent = withProfile(Intent(activity, TugasMandiriPengajarActivity::class.java), role, mode).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
+                    activity.startActivity(intent)
+                } else if (!ProfileStore.isTeacher(role) && mode == ModePembelajaranActivity.MODE_MANDIRI) {
                     activity.startActivity(withProfile(Intent(activity, TugasPelajarActivity::class.java), role, mode))
                 } else {
                     activity.startActivity(

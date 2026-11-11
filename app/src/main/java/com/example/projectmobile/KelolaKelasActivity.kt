@@ -24,7 +24,7 @@ class KelolaKelasActivity : AppCompatActivity() {
         role = PilihPeranActivity.ROLE_PENGAJAR
         mode = ModePembelajaranActivity.MODE_MANDIRI
         code = intent.getStringExtra(EXTRA_CODE) ?: ""
-        tab = savedInstanceState?.getString(STATE_TAB) ?: TAB_MATERI
+        tab = savedInstanceState?.getString(STATE_TAB) ?: intent.getStringExtra(EXTRA_TAB) ?: TAB_MATERI
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -256,6 +256,7 @@ class KelolaKelasActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_CODE = "extra_kelola_kelas_code"
+        const val EXTRA_TAB = "extra_kelola_kelas_tab"
         private const val STATE_TAB = "state_kelola_tab"
         private const val TAB_MATERI = "Materi"
         private const val TAB_TUGAS = "Tugas"

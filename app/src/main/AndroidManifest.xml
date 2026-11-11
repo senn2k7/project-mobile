@@ -258,6 +258,11 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Menu bawah Tugas pengajar mandiri (tahap 4A) -->
+        <activity
+            android:name=".TugasMandiriPengajarActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
