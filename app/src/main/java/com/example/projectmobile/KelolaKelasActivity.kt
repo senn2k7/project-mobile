@@ -58,6 +58,7 @@ class KelolaKelasActivity : AppCompatActivity() {
     private fun build(c: TeacherClass): View {
         val materials = TeacherClassStore.materials(this, c.code)
         val tasks = TeacherClassStore.tasks(this, c.code)
+        val quizzes = QuizStore.quizzes(this, c.code)
 
         val root = UiKit.root(this)
         root.addView(UiKit.topBar(this, "Kelola Kelas") { finish() })
@@ -76,7 +77,7 @@ class KelolaKelasActivity : AppCompatActivity() {
         top.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 14, weight = 1f))
         header.addView(top)
         header.addView(
-            UiKit.tv(this, "${materials.size} materi  •  ${tasks.size} tugas  •  0/${c.capacity} peserta", 12.5f, UiKit.MUTED),
+            UiKit.tv(this, "${materials.size} materi  •  ${tasks.size} tugas  •  ${quizzes.size} kuis", 12.5f, UiKit.MUTED),
             UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12)
         )
         val actions = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
@@ -101,9 +102,13 @@ class KelolaKelasActivity : AppCompatActivity() {
             background = UiKit.rounded(this@KelolaKelasActivity, UiKit.SOFT, 12)
             setPadding(px(4), px(4), px(4), px(4))
         }
-        for (label in listOf(TAB_MATERI, TAB_TUGAS)) {
+        for (label in listOf(TAB_MATERI, TAB_TUGAS, TAB_KUIS)) {
             val on = label == tab
-            val count = if (label == TAB_MATERI) materials.size else tasks.size
+            val count = when (label) {
+                TAB_MATERI -> materials.size
+                TAB_TUGAS -> tasks.size
+                else -> quizzes.size
+            }
             val t = UiKit.tv(this, "$label ($count)", 13f, if (on) Color.WHITE else UiKit.MUTED, on).apply {
                 gravity = Gravity.CENTER
                 if (on) background = UiKit.rounded(this@KelolaKelasActivity, UiKit.PRIMARY, 10)
@@ -131,6 +136,16 @@ class KelolaKelasActivity : AppCompatActivity() {
             materials.forEachIndexed { i, m ->
                 content.addView(materialCard(i + 1, m), UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12))
             }
+        } else if (tab == TAB_KUIS) {
+            if (quizzes.isEmpty()) {
+                content.addView(
+                    emptyCard("Belum ada kuis", "Buat kuis pilihan ganda agar pelajar bisa menguji pemahaman."),
+                    UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12)
+                )
+            }
+            for (z in quizzes) {
+                content.addView(quizCard(z), UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12))
+            }
         } else {
             if (tasks.isEmpty()) {
                 content.addView(
@@ -147,11 +162,24 @@ class KelolaKelasActivity : AppCompatActivity() {
         root.addView(
             UiKit.bottomBar(
                 this,
-                UiKit.primaryButton(this, if (tab == TAB_MATERI) "+ Tambah Materi" else "+ Tambah Tugas") {
-                    val next = UiKit.withProfile(Intent(this, TambahKontenActivity::class.java), role, mode)
-                    next.putExtra(TambahKontenActivity.EXTRA_CODE, c.code)
-                    next.putExtra(TambahKontenActivity.EXTRA_TYPE, if (tab == TAB_MATERI) TambahKontenActivity.TYPE_MATERI else TambahKontenActivity.TYPE_TUGAS)
-                    startActivity(next)
+                UiKit.primaryButton(
+                    this,
+                    when (tab) {
+                        TAB_MATERI -> "+ Tambah Materi"
+                        TAB_TUGAS -> "+ Tambah Tugas"
+                        else -> "+ Buat Kuis"
+                    }
+                ) {
+                    if (tab == TAB_KUIS) {
+                        val next = UiKit.withProfile(Intent(this, BuatKuisMandiriActivity::class.java), role, mode)
+                        next.putExtra(BuatKuisMandiriActivity.EXTRA_CODE, c.code)
+                        startActivity(next)
+                    } else {
+                        val next = UiKit.withProfile(Intent(this, TambahKontenActivity::class.java), role, mode)
+                        next.putExtra(TambahKontenActivity.EXTRA_CODE, c.code)
+                        next.putExtra(TambahKontenActivity.EXTRA_TYPE, if (tab == TAB_MATERI) TambahKontenActivity.TYPE_MATERI else TambahKontenActivity.TYPE_TUGAS)
+                        startActivity(next)
+                    }
                 }
             )
         )
@@ -226,6 +254,34 @@ class KelolaKelasActivity : AppCompatActivity() {
         return card
     }
 
+    private fun quizCard(z: Quiz): View {
+        val attempt = QuizStore.attempt(this, z.id)
+        val card = UiKit.card(this).apply { setPadding(px(14), px(14), px(14), px(14)) }
+        val head = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        head.addView(UiKit.badge(this, R.drawable.ic_assignment_check, Color.WHITE, UiKit.PRIMARY, 44, 12, 22))
+        val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        col.addView(UiKit.tv(this, z.title, 15f, UiKit.NAVY, true))
+        col.addView(
+            UiKit.tv(this, "${z.questions.size} soal  •  ${z.durationMin} menit  •  Min. ${z.passScore}", 12f, UiKit.MUTED),
+            UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 3)
+        )
+        head.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 12, weight = 1f))
+        head.addView(deleteLabel { confirmDelete("kuis", z.title) { QuizStore.delete(this, z.id) } })
+        card.addView(head)
+        card.addView(
+            UiKit.tv(
+                this,
+                if (attempt == null) "Belum dikerjakan pelajar" else "Dikerjakan  •  nilai ${attempt.percent}",
+                11.5f, UiKit.MUTED
+            ),
+            UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 10)
+        )
+        return card
+    }
+
     private fun taskCard(t: TeacherTask): View {
         val card = UiKit.card(this).apply { setPadding(px(14), px(14), px(14), px(14)) }
         val head = LinearLayout(this).apply {
@@ -260,5 +316,6 @@ class KelolaKelasActivity : AppCompatActivity() {
         private const val STATE_TAB = "state_kelola_tab"
         private const val TAB_MATERI = "Materi"
         private const val TAB_TUGAS = "Tugas"
+        private const val TAB_KUIS = "Kuis"
     }
 }

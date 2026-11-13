@@ -183,7 +183,7 @@ class HomeActivity : AppCompatActivity() {
             // Student Mandiri Stats: 3 cards (0, 0, 0)
             statsContainer.addView(createStatCard("🏫", "${ClassStore.joined(this).size}", "Kelas Aktif", Color.rgb(33, 96, 245)), createStatCardParams())
             statsContainer.addView(createStatCard("📄", "${TaskStore.pendingCount(this)}", "Tugas", Color.rgb(255, 152, 0)), createStatCardParams())
-            statsContainer.addView(createStatCard("📋", "0", "Kuis", Color.rgb(103, 58, 183)), createStatCardParams())
+            statsContainer.addView(createStatCard("📋", "${QuizStore.pendingCount(this)}", "Kuis", Color.rgb(103, 58, 183)), createStatCardParams())
         } else {
             // Student Institusi Stats: 3 cards
             statsContainer.addView(createStatCard("🏫", "3", "Kelas Aktif", Color.rgb(33, 96, 245)), createStatCardParams())

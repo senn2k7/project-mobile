@@ -271,6 +271,24 @@
             android:name=".TugasMandiriPengajarActivity"
             android:exported="false" />
 
+        <!-- Kuis kelas mandiri (tahap 4B) -->
+        <activity
+            android:name=".BuatKuisMandiriActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".KuisPelajarMandiriActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DetailKuisMandiriActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MulaiKuisMandiriActivity"
+            android:exported="false" />
+        <activity
+            android:name=".HasilKuisMandiriActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

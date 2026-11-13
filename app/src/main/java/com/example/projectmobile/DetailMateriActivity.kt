@@ -200,6 +200,11 @@ class DetailMateriActivity : AppCompatActivity() {
     private fun onTab(label: String, c: ClassInfo) {
         when (label) {
             "Materi" -> Unit
+            "Kuis" -> {
+                val next = UiKit.withProfile(Intent(this, KuisPelajarMandiriActivity::class.java), role, mode)
+                next.putExtra(KuisPelajarMandiriActivity.EXTRA_CODE, c.code)
+                startActivity(next)
+            }
             "Tugas" -> {
                 val next = UiKit.withProfile(Intent(this, TugasPelajarActivity::class.java), role, mode)
                 next.putExtra(TugasPelajarActivity.EXTRA_CODE, c.code)

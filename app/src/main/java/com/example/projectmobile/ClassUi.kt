@@ -136,7 +136,7 @@ object ClassUi {
         stat(R.drawable.ic_people, info.participants.toString(), "Peserta")
         stat(R.drawable.ic_folder, ClassStore.totalMaterials(activity, info).toString(), "Materi")
         stat(R.drawable.ic_description, TaskStore.countFor(activity, info.code).toString(), "Tugas")
-        stat(R.drawable.ic_assignment_check, "0", "Kuis")
+        stat(R.drawable.ic_assignment_check, QuizStore.countFor(activity, info.code).toString(), "Kuis")
         card.addView(stats, UiKit.params(activity, UiKit.MATCH, UiKit.WRAP, top = 16))
         return card
     }
