@@ -125,9 +125,9 @@ class TugasMandiriPengajarActivity : AppCompatActivity() {
             isClickable = true
             isFocusable = true
             setOnClickListener {
-                val next = UiKit.withProfile(Intent(this@TugasMandiriPengajarActivity, KelolaKelasActivity::class.java), role, mode)
-                next.putExtra(KelolaKelasActivity.EXTRA_CODE, item.cls.code)
-                next.putExtra(KelolaKelasActivity.EXTRA_TAB, "Tugas")
+                val next = UiKit.withProfile(Intent(this@TugasMandiriPengajarActivity, PenilaianTugasActivity::class.java), role, mode)
+                next.putExtra(PenilaianTugasActivity.EXTRA_CLASS_CODE, item.cls.code)
+                next.putExtra(PenilaianTugasActivity.EXTRA_TASK_ID, t.id)
                 startActivity(next)
             }
         }

@@ -307,6 +307,18 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Nilai & penilaian kelas mandiri (tahap 7A) -->
+        <activity
+            android:name=".PenilaianTugasActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".HasilKuisPengajarActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NilaiPelajarActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

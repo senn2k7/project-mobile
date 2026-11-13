@@ -280,7 +280,16 @@ class KelolaKelasActivity : AppCompatActivity() {
 
     private fun quizCard(z: Quiz): View {
         val attempt = QuizStore.attempt(this, z.id)
-        val card = UiKit.card(this).apply { setPadding(px(14), px(14), px(14), px(14)) }
+        val card = UiKit.card(this).apply {
+            setPadding(px(14), px(14), px(14), px(14))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                val next = UiKit.withProfile(Intent(this@KelolaKelasActivity, HasilKuisPengajarActivity::class.java), role, mode)
+                next.putExtra(HasilKuisPengajarActivity.EXTRA_QUIZ_ID, z.id)
+                startActivity(next)
+            }
+        }
         val head = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -307,7 +316,17 @@ class KelolaKelasActivity : AppCompatActivity() {
     }
 
     private fun taskCard(t: TeacherTask): View {
-        val card = UiKit.card(this).apply { setPadding(px(14), px(14), px(14), px(14)) }
+        val card = UiKit.card(this).apply {
+            setPadding(px(14), px(14), px(14), px(14))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                val next = UiKit.withProfile(Intent(this@KelolaKelasActivity, PenilaianTugasActivity::class.java), role, mode)
+                next.putExtra(PenilaianTugasActivity.EXTRA_CLASS_CODE, code)
+                next.putExtra(PenilaianTugasActivity.EXTRA_TASK_ID, t.id)
+                startActivity(next)
+            }
+        }
         val head = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -331,6 +350,19 @@ class KelolaKelasActivity : AppCompatActivity() {
                 UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 10)
             )
         }
+        val sub = TaskStore.submission(this, t.id)
+        card.addView(
+            UiKit.tv(
+                this,
+                when {
+                    sub == null -> "Belum ada pengumpulan  •  ketuk untuk detail"
+                    sub.score != null -> "Dinilai ${sub.score}  •  ketuk untuk detail"
+                    else -> "1 pengumpulan menunggu penilaian"
+                },
+                11.5f, if (sub != null && sub.score == null) UiKit.PRIMARY else UiKit.MUTED, sub != null && sub.score == null
+            ),
+            UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 10)
+        )
         return card
     }
 

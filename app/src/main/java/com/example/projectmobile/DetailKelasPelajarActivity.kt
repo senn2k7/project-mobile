@@ -214,6 +214,11 @@ class DetailKelasPelajarActivity : AppCompatActivity() {
                 next.putExtra(DiskusiKelasActivity.EXTRA_CODE, c.code)
                 startActivity(next)
             }
+            "Nilai" -> {
+                val next = UiKit.withProfile(Intent(this, NilaiPelajarActivity::class.java), role, mode)
+                next.putExtra(NilaiPelajarActivity.EXTRA_CODE, c.code)
+                startActivity(next)
+            }
             else -> UiKit.toast(this, "Halaman $label akan segera hadir")
         }
     }

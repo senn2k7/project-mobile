@@ -20,7 +20,13 @@ data class TaskInfo(
     val attachments: List<TaskAttachment>
 )
 
-data class Submission(val answer: String, val files: List<String>, val submittedAt: Long, val score: Int?)
+data class Submission(
+    val answer: String,
+    val files: List<String>,
+    val submittedAt: Long,
+    val score: Int?,
+    val feedback: String = ""
+)
 
 /**
  * Data tugas untuk pelajar kelas mandiri.
@@ -133,7 +139,8 @@ object TaskStore {
                 answer = o.optString("answer", ""),
                 files = files,
                 submittedAt = o.optLong("at", 0L),
-                score = if (o.has("score")) o.getInt("score") else null
+                score = if (o.has("score")) o.getInt("score") else null,
+                feedback = o.optString("feedback", "")
             )
         } catch (e: Exception) {
             null
@@ -148,6 +155,20 @@ object TaskStore {
             .put("at", now)
         sp(ctx).edit().putString(KEY_SUB + taskId, o.toString()).apply()
         return now
+    }
+
+    /** Pengajar memberi nilai (0-100) dan catatan pada pengumpulan yang ada. */
+    fun grade(ctx: Context, taskId: String, score: Int, feedback: String): Boolean {
+        val raw = sp(ctx).getString(KEY_SUB + taskId, null) ?: return false
+        return try {
+            val o = JSONObject(raw)
+            o.put("score", score.coerceIn(0, 100))
+            o.put("feedback", feedback)
+            sp(ctx).edit().putString(KEY_SUB + taskId, o.toString()).apply()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun cancel(ctx: Context, taskId: String) {

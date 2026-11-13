@@ -131,7 +131,7 @@ class DetailTugasPelajarActivity : AppCompatActivity() {
                 background = UiKit.rounded(this@DetailTugasPelajarActivity, UiKit.SUCCESS_SOFT, 12)
             }
             banner.addView(UiKit.icon(this, R.drawable.ic_check_circle, 20, UiKit.SUCCESS), LinearLayout.LayoutParams(px(20), px(20)))
-            val msg = if (sub.score != null) "Dinilai: ${sub.score}" else "Dikumpulkan ${TaskStore.format(sub.submittedAt)} · menunggu penilaian"
+            val msg = if (sub.score != null) "Dinilai: ${sub.score}" + (if (sub.feedback.isNotBlank()) "\nCatatan pengajar: ${sub.feedback}" else "") else "Dikumpulkan ${TaskStore.format(sub.submittedAt)} · menunggu penilaian"
             banner.addView(UiKit.tv(this, msg, 13f, UiKit.SUCCESS, true), UiKit.params(this, 0, UiKit.WRAP, start = 10, weight = 1f))
             content.addView(banner, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12))
         }
