@@ -209,11 +209,11 @@ class DetailKelasPelajarActivity : AppCompatActivity() {
                 next.putExtra(TugasPelajarActivity.EXTRA_CODE, c.code)
                 startActivity(next)
             }
-            "Diskusi" -> startActivity(
-                Intent(this, DiskusiActivity::class.java).apply {
-                    putExtra(DiskusiActivity.EXTRA_COURSE_NAME, c.name)
-                }
-            )
+            "Diskusi" -> {
+                val next = UiKit.withProfile(Intent(this, DiskusiKelasActivity::class.java), role, mode)
+                next.putExtra(DiskusiKelasActivity.EXTRA_CODE, c.code)
+                startActivity(next)
+            }
             else -> UiKit.toast(this, "Halaman $label akan segera hadir")
         }
     }

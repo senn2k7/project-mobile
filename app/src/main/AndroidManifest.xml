@@ -289,6 +289,24 @@
             android:name=".HasilKuisMandiriActivity"
             android:exported="false" />
 
+        <!-- Presensi kelas mandiri (tahap 5A) -->
+        <activity
+            android:name=".PresensiPengajarActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PresensiPelajarActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".PresensiBerhasilActivity"
+            android:exported="false" />
+
+        <!-- Diskusi kelas mandiri (tahap 6A) -->
+        <activity
+            android:name=".DiskusiKelasActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>

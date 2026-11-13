@@ -200,6 +200,12 @@ class DetailMateriActivity : AppCompatActivity() {
     private fun onTab(label: String, c: ClassInfo) {
         when (label) {
             "Materi" -> Unit
+            "Presensi" -> {
+                val next = UiKit.withProfile(Intent(this, PresensiPelajarActivity::class.java), role, mode)
+                next.putExtra(PresensiPelajarActivity.EXTRA_CODE, c.code)
+                next.putExtra(PresensiPelajarActivity.EXTRA_NUMBER, meeting?.number ?: 0)
+                startActivity(next)
+            }
             "Kuis" -> {
                 val next = UiKit.withProfile(Intent(this, KuisPelajarMandiriActivity::class.java), role, mode)
                 next.putExtra(KuisPelajarMandiriActivity.EXTRA_CODE, c.code)
@@ -210,11 +216,11 @@ class DetailMateriActivity : AppCompatActivity() {
                 next.putExtra(TugasPelajarActivity.EXTRA_CODE, c.code)
                 startActivity(next)
             }
-            "Diskusi" -> startActivity(
-                Intent(this, DiskusiActivity::class.java).apply {
-                    putExtra(DiskusiActivity.EXTRA_COURSE_NAME, c.name)
-                }
-            )
+            "Diskusi" -> {
+                val next = UiKit.withProfile(Intent(this, DiskusiKelasActivity::class.java), role, mode)
+                next.putExtra(DiskusiKelasActivity.EXTRA_CODE, c.code)
+                startActivity(next)
+            }
             else -> UiKit.toast(this, "Halaman $label akan segera hadir")
         }
     }

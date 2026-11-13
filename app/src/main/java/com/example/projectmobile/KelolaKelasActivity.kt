@@ -87,11 +87,19 @@ class KelolaKelasActivity : AppCompatActivity() {
                 next.putExtra(KelasBerhasilActivity.EXTRA_CODE, c.code)
                 startActivity(next)
             },
-            UiKit.params(this, 0, px(38), end = 6, weight = 1f)
+            UiKit.params(this, 0, px(38), end = 4, weight = 1f)
         )
         actions.addView(
             pill("Bagikan Kode") { TeacherClassStore.share(this, c) },
-            UiKit.params(this, 0, px(38), start = 6, weight = 1f)
+            UiKit.params(this, 0, px(38), start = 4, end = 4, weight = 1f)
+        )
+        actions.addView(
+            pill("Diskusi") {
+                val next = UiKit.withProfile(Intent(this, DiskusiKelasActivity::class.java), role, mode)
+                next.putExtra(DiskusiKelasActivity.EXTRA_CODE, c.code)
+                startActivity(next)
+            },
+            UiKit.params(this, 0, px(38), start = 4, weight = 1f)
         )
         header.addView(actions, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 14))
         content.addView(header)
@@ -250,6 +258,22 @@ class KelolaKelasActivity : AppCompatActivity() {
         card.addView(
             UiKit.tv(this, "$file  •  ${TeacherClassStore.formatDate(m.createdAt)}", 11.5f, UiKit.MUTED),
             UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 8)
+        )
+        val session = AttendanceStore.session(this, code, m.id)
+        val presensiLabel = when {
+            session == null -> "Presensi: Belum dibuka"
+            session.open -> "Presensi: Dibuka"
+            else -> "Presensi: Ditutup"
+        }
+        card.addView(
+            pill(presensiLabel) {
+                val next = UiKit.withProfile(Intent(this, PresensiPengajarActivity::class.java), role, mode)
+                next.putExtra(PresensiPengajarActivity.EXTRA_CLASS_CODE, code)
+                next.putExtra(PresensiPengajarActivity.EXTRA_MATERIAL_ID, m.id)
+                next.putExtra(PresensiPengajarActivity.EXTRA_NUMBER, number)
+                startActivity(next)
+            },
+            UiKit.params(this, UiKit.MATCH, px(38), top = 10)
         )
         return card
     }
