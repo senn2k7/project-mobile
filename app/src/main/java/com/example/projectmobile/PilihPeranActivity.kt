@@ -317,7 +317,15 @@ class PilihPeranActivity : AppCompatActivity() {
             ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN
         ) ?: ModePembelajaranActivity.MODE_INSTITUSI
 
-        val next = Intent(this, HomeActivity::class.java).apply {
+        val tujuan = if (role == ROLE_PENGAJAR &&
+            mode == ModePembelajaranActivity.MODE_INSTITUSI
+        ) {
+            com.example.projectmobile.ui.pengajar.institusi.PengajarBerandaActivity::class.java
+        } else {
+            HomeActivity::class.java
+        }
+
+        val next = Intent(this, tujuan).apply {
             putExtra(
                 ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN,
                 mode

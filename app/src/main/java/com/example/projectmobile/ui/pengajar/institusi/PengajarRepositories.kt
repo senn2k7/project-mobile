@@ -62,6 +62,28 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
         ),
         PengajarKelas(
             id = "2",
+            namaMataKuliah = "Sistem Cerdas",
+            namaKelas = "Kelas B",
+            kodeKelas = "SC2025-B",
+            jenisInstitusi = "Universitas",
+            semester = "Semester 1",
+            ikon = "ic_database",
+            warna = "#1D5EFF",
+            jumlahPelajar = 32
+        ),
+        PengajarKelas(
+            id = "3",
+            namaMataKuliah = "Basis Data",
+            namaKelas = "Kelas C",
+            kodeKelas = "BD2025-C",
+            jenisInstitusi = "Universitas",
+            semester = "Semester 1",
+            ikon = "ic_database",
+            warna = "#1FAF6E",
+            jumlahPelajar = 26
+        ),
+        PengajarKelas(
+            id = "4",
             namaMataKuliah = "Pemrograman Mobile",
             namaKelas = "Kelas B",
             kodeKelas = "PM2025-B",
@@ -72,7 +94,7 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
             jumlahPelajar = 24
         ),
         PengajarKelas(
-            id = "3",
+            id = "5",
             namaMataKuliah = "Sistem Cerdas",
             namaKelas = "Kelas A",
             kodeKelas = "SC2025-A",
@@ -80,29 +102,7 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
             semester = "Semester 1",
             ikon = "ic_database",
             warna = "#1D5EFF",
-            jumlahPelajar = 32
-        ),
-        PengajarKelas(
-            id = "4",
-            namaMataKuliah = "Sistem Cerdas",
-            namaKelas = "Kelas B",
-            kodeKelas = "SC2025-B",
-            jenisInstitusi = "Universitas",
-            semester = "Semester 1",
-            ikon = "ic_database",
-            warna = "#1D5EFF",
             jumlahPelajar = 27
-        ),
-        PengajarKelas(
-            id = "5",
-            namaMataKuliah = "Basis Data",
-            namaKelas = "Kelas A",
-            kodeKelas = "BD2025-A",
-            jenisInstitusi = "Universitas",
-            semester = "Semester 1",
-            ikon = "ic_database",
-            warna = "#1FAF6E",
-            jumlahPelajar = 26
         ),
         PengajarKelas(
             id = "6",
@@ -152,15 +152,12 @@ class FakePengajarNotifikasiRepository : PengajarNotifikasiRepository {
 }
 
 object PengajarRepositoryProvider {
-    fun provideProfilRepo(): PengajarProfilRepository =
-        if (PengajarRepoConfig.useFakeData) FakePengajarProfilRepository() else EmptyPengajarProfilRepository()
+    fun provideProfilRepo(): PengajarProfilRepository = EmptyPengajarProfilRepository()
 
     fun provideKelasRepo(): PengajarKelasRepository =
         if (PengajarRepoConfig.useFakeData) FakePengajarKelasRepository() else EmptyPengajarKelasRepository()
 
-    fun provideStatistikRepo(): PengajarStatistikRepository =
-        if (PengajarRepoConfig.useFakeData) FakePengajarStatistikRepository() else EmptyPengajarStatistikRepository()
+    fun provideStatistikRepo(): PengajarStatistikRepository = EmptyPengajarStatistikRepository()
 
-    fun provideNotifikasiRepo(): PengajarNotifikasiRepository =
-        if (PengajarRepoConfig.useFakeData) FakePengajarNotifikasiRepository() else EmptyPengajarNotifikasiRepository()
+    fun provideNotifikasiRepo(): PengajarNotifikasiRepository = EmptyPengajarNotifikasiRepository()
 }

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">TemanStudi</string>
     <string name="halo_sapaan">Halo, %s! 👋</string>
-    <string name="sub_selamat_belajar">Selamat belajar di TemanStudi</string>
+    <string name="sub_selamat_belajar">Selamat mengajar di TemanStudi</string>
     <string name="cari_kelas_hint">Cari kelas, materi, atau tugas...</string>
     <string name="cari_kelas_saya_hint">Cari kelas...</string>
     <string name="stat_kelas_diampu">Kelas Diampu</string>
