@@ -306,4 +306,19 @@ object TeacherClassStore {
     fun deleteTask(ctx: Context, id: String) {
         writeTasks(ctx, readTasks(ctx).filter { it.id != id })
     }
+
+    // ------------------------------------------------------------ Peserta & hapus kelas
+
+    /** Jumlah pelajar yang bergabung di perangkat ini (0 atau 1 sampai ada server). */
+    fun participantCount(ctx: Context, code: String): Int =
+        if (ClassStore.isJoined(ctx, code)) 1 else 0
+
+    /** Menghapus kelas beserta materi, tugas, dan kuisnya. */
+    fun deleteClass(ctx: Context, code: String) {
+        write(ctx, read(ctx).filter { it.code != code })
+        writeMaterials(ctx, readMaterials(ctx).filter { it.classCode != code })
+        writeTasks(ctx, readTasks(ctx).filter { it.classCode != code })
+        for (z in QuizStore.quizzes(ctx, code)) QuizStore.delete(ctx, z.id)
+        ClassStore.leave(ctx, code)
+    }
 }

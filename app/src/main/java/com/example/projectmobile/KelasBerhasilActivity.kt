@@ -7,6 +7,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
 /**
@@ -165,6 +166,19 @@ class KelasBerhasilActivity : AppCompatActivity() {
         infoCard.addView(detailRow(R.drawable.ic_lock, "Visibilitas", "Dengan Kode"))
         content.addView(infoCard, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 16))
 
+        if (!created) {
+            content.addView(
+                UiKit.tv(this, "Hapus Kelas", 14f, UiKit.DANGER, true).apply {
+                    gravity = Gravity.CENTER
+                    setPadding(px(8), px(14), px(8), px(14))
+                    isClickable = true
+                    isFocusable = true
+                    setOnClickListener { confirmDeleteClass(c) }
+                },
+                UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 8)
+            )
+        }
+
         root.addView(scroll, UiKit.scrollParams())
 
         // Tombol bawah
@@ -179,6 +193,19 @@ class KelasBerhasilActivity : AppCompatActivity() {
             root.addView(UiKit.bottomBar(this, kelola, share))
         }
         return root
+    }
+
+    private fun confirmDeleteClass(c: TeacherClass) {
+        AlertDialog.Builder(this)
+            .setTitle("Hapus kelas?")
+            .setMessage("\"${c.name}\" beserta materi, tugas, dan kuisnya akan dihapus. Tindakan ini tidak bisa dibatalkan.")
+            .setNegativeButton("Batal", null)
+            .setPositiveButton("Hapus") { _, _ ->
+                TeacherClassStore.deleteClass(this, c.code)
+                UiKit.toast(this, "Kelas dihapus")
+                goHome()
+            }
+            .show()
     }
 
     private fun openKelola(c: TeacherClass) {

@@ -162,6 +162,13 @@ class HomeActivity : AppCompatActivity() {
             topMargin = dp(20)
         }
         contentLayout.addView(searchBar, searchParams)
+        if (mode == ModePembelajaranActivity.MODE_MANDIRI && role == PilihPeranActivity.ROLE_PELAJAR) {
+            searchBar.isClickable = true
+            searchBar.isFocusable = true
+            searchBar.setOnClickListener {
+                UiKit.open(this, PencarianPelajarActivity::class.java, PilihPeranActivity.ROLE_PELAJAR, ModePembelajaranActivity.MODE_MANDIRI)
+            }
+        }
 
         // 3. Stat Cards Row
         val statsContainer = LinearLayout(this).apply {
@@ -249,7 +256,24 @@ class HomeActivity : AppCompatActivity() {
             contentLayout.addView(agendaHeader, agendaHeaderParams)
 
             if (mode == ModePembelajaranActivity.MODE_MANDIRI) {
-                contentLayout.addView(createMandiriEmptyAgendaCard())
+                val agenda = AgendaStore.upcoming(this, 4)
+                if (agenda.isEmpty()) {
+                    contentLayout.addView(createMandiriEmptyAgendaCard())
+                } else {
+                    for (a in agenda) {
+                        val color = when (a.kind) {
+                            AgendaStore.KIND_PRESENSI -> Color.rgb(76, 175, 80)
+                            AgendaStore.KIND_TUGAS -> Color.rgb(244, 67, 54)
+                            else -> Color.rgb(33, 96, 245)
+                        }
+                        val icon = when (a.kind) {
+                            AgendaStore.KIND_PRESENSI -> "✅"
+                            AgendaStore.KIND_TUGAS -> "📄"
+                            else -> "📋"
+                        }
+                        contentLayout.addView(createAgendaItem(a.title, a.dateText, color, icon) { openAgenda(a) })
+                    }
+                }
             } else {
                 contentLayout.addView(createAgendaItem("Tugas: Membuat UI Login Android", "12 Jun 2025", Color.rgb(244, 67, 54), "📄"))
                 contentLayout.addView(createAgendaItem("Kuis: Sistem Cerdas", "15 Jun 2025", Color.rgb(33, 96, 245), "📋"))
@@ -619,7 +643,7 @@ class HomeActivity : AppCompatActivity() {
         val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         col.addView(UiKit.tv(this, c.name, 15f, UiKit.NAVY, true))
         col.addView(
-            UiKit.tv(this, "Kode: ${c.code}  •  0/${c.capacity} peserta", 12.5f, UiKit.MUTED),
+            UiKit.tv(this, "Kode: ${c.code}  •  ${TeacherClassStore.participantCount(this, c.code)}/${c.capacity} peserta", 12.5f, UiKit.MUTED),
             UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 4)
         )
         head.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 12, weight = 1f))
@@ -1092,7 +1116,22 @@ class HomeActivity : AppCompatActivity() {
         return cardView
     }
 
-    private fun createAgendaItem(title: String, date: String, badgeColor: Int, icon: String): View {
+    private fun openAgenda(a: AgendaItem) {
+        val role = PilihPeranActivity.ROLE_PELAJAR
+        val mode = ModePembelajaranActivity.MODE_MANDIRI
+        val next = when (a.kind) {
+            AgendaStore.KIND_PRESENSI -> UiKit.withProfile(Intent(this, PresensiPelajarActivity::class.java), role, mode)
+                .putExtra(PresensiPelajarActivity.EXTRA_CODE, a.classCode)
+                .putExtra(PresensiPelajarActivity.EXTRA_NUMBER, a.number)
+            AgendaStore.KIND_TUGAS -> UiKit.withProfile(Intent(this, DetailTugasPelajarActivity::class.java), role, mode)
+                .putExtra(DetailTugasPelajarActivity.EXTRA_TASK_ID, a.refId)
+            else -> UiKit.withProfile(Intent(this, DetailKuisMandiriActivity::class.java), role, mode)
+                .putExtra(DetailKuisMandiriActivity.EXTRA_QUIZ_ID, a.refId)
+        }
+        startActivity(next)
+    }
+
+    private fun createAgendaItem(title: String, date: String, badgeColor: Int, icon: String, onClick: (() -> Unit)? = null): View {
         val item = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -1132,6 +1171,11 @@ class HomeActivity : AppCompatActivity() {
             }
             layoutParams = lp
             addView(item)
+        }
+        if (onClick != null) {
+            itemWrapper.isClickable = true
+            itemWrapper.isFocusable = true
+            itemWrapper.setOnClickListener { onClick() }
         }
         return itemWrapper
     }

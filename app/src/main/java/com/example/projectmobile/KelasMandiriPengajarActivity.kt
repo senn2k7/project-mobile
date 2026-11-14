@@ -114,7 +114,7 @@ class KelasMandiriPengajarActivity : AppCompatActivity() {
         }
         foot.addView(UiKit.icon(this, R.drawable.ic_people, 16, UiKit.MUTED), LinearLayout.LayoutParams(px(16), px(16)))
         foot.addView(
-            UiKit.tv(this, "0 / ${c.capacity} peserta", 12.5f, UiKit.MUTED),
+            UiKit.tv(this, "${TeacherClassStore.participantCount(this, c.code)} / ${c.capacity} peserta", 12.5f, UiKit.MUTED),
             UiKit.params(this, 0, UiKit.WRAP, start = 6, weight = 1f)
         )
         foot.addView(UiKit.tv(this, "Dibuat ${TeacherClassStore.formatDate(c.createdAt)}", 12.5f, UiKit.MUTED))

@@ -319,6 +319,12 @@
             android:name=".NilaiPelajarActivity"
             android:exported="false" />
 
+        <!-- Poles beranda pelajar mandiri (tahap 8A) -->
+        <activity
+            android:name=".PencarianPelajarActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>
