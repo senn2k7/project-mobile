@@ -185,11 +185,11 @@ class KelasBerhasilActivity : AppCompatActivity() {
         val share = UiKit.outlineButton(this, "Bagikan Kode") { TeacherClassStore.share(this, c) }
         if (created) {
             val start = UiKit.primaryButton(this, "Mulai Kelola Kelas") { openKelola(c) }
-            share.layoutParams = UiKit.params(this, UiKit.MATCH, px(56), top = 10)
+            share.layoutParams = UiKit.params(this, UiKit.MATCH, px(52), top = 10)
             root.addView(UiKit.bottomBar(this, start, share))
         } else {
             val kelola = UiKit.primaryButton(this, "Kelola Materi & Tugas") { openKelola(c) }
-            share.layoutParams = UiKit.params(this, UiKit.MATCH, px(56), top = 10)
+            share.layoutParams = UiKit.params(this, UiKit.MATCH, px(52), top = 10)
             root.addView(UiKit.bottomBar(this, kelola, share))
         }
         return root

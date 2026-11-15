@@ -114,6 +114,27 @@ object UiKit {
         setMargins(ctx.px(start), ctx.px(top), ctx.px(end), ctx.px(bottom))
     }
 
+    // Font Inter (opsional). Letakkan Inter-Regular.ttf dan Inter-Bold.ttf di app/src/main/assets/fonts/.
+    // Bila file tidak ada, aplikasi memakai font bawaan Android.
+    private var fontRegular: Typeface? = null
+    private var fontBold: Typeface? = null
+    private var fontsLoaded = false
+
+    private fun loadFonts(ctx: Context) {
+        if (fontsLoaded) return
+        fontsLoaded = true
+        try {
+            fontRegular = Typeface.createFromAsset(ctx.assets, "fonts/Inter-Regular.ttf")
+        } catch (e: Exception) {
+            // file font tidak ada: pakai font bawaan
+        }
+        try {
+            fontBold = Typeface.createFromAsset(ctx.assets, "fonts/Inter-Bold.ttf")
+        } catch (e: Exception) {
+            // file font tidak ada: pakai font bawaan
+        }
+    }
+
     fun tv(
         ctx: Context,
         value: String,
@@ -124,7 +145,25 @@ object UiKit {
         text = value
         textSize = sizeSp
         setTextColor(color)
-        if (bold) setTypeface(null, Typeface.BOLD)
+        loadFonts(ctx)
+        val face = if (bold) fontBold else fontRegular
+        if (face != null) {
+            typeface = face
+        } else if (bold) {
+            setTypeface(null, Typeface.BOLD)
+        }
+    }
+
+    /** Ikon menu bawah (menggantikan emoji), diwarnai biru bila aktif. */
+    fun navIcon(ctx: Context, key: String, selected: Boolean): ImageView {
+        val res = when (key) {
+            "🏠" -> R.drawable.ic_home
+            "📚" -> R.drawable.ic_book
+            "📋" -> R.drawable.ic_assignment_check
+            "🤖" -> R.drawable.ic_bot
+            else -> R.drawable.ic_person
+        }
+        return icon(ctx, res, 24, if (selected) PRIMARY else MUTED)
     }
 
     fun icon(ctx: Context, res: Int, sizeDp: Int, tint: Int): ImageView = ImageView(ctx).apply {
@@ -254,7 +293,7 @@ object UiKit {
             isClickable = true
             isFocusable = true
             setOnClickListener { onClick() }
-            layoutParams = LinearLayout.LayoutParams(MATCH, ctx.px(56))
+            layoutParams = LinearLayout.LayoutParams(MATCH, ctx.px(52))
         }
 
     fun outlineButton(ctx: Context, label: String, onClick: () -> Unit): TextView =
@@ -264,7 +303,7 @@ object UiKit {
             isClickable = true
             isFocusable = true
             setOnClickListener { onClick() }
-            layoutParams = LinearLayout.LayoutParams(MATCH, ctx.px(56))
+            layoutParams = LinearLayout.LayoutParams(MATCH, ctx.px(52))
         }
 
     fun dangerButton(ctx: Context, label: String, onClick: () -> Unit): LinearLayout =
@@ -503,8 +542,8 @@ object UiKit {
                     isClickable = true
                     isFocusable = true
                     setOnClickListener { navigate(activity, label, role, mode) }
-                    addView(TextView(activity).apply { text = emoji; textSize = 18f })
                     val isSel = label == selected
+                    addView(navIcon(activity, emoji, isSel))
                     addView(
                         tv(activity, label, 11f, if (isSel) PRIMARY else MUTED, isSel),
                         params(activity, WRAP, WRAP, top = 2)
@@ -559,7 +598,14 @@ object UiKit {
                 }
             }
             "AI" -> activity.startActivity(
-                Intent(activity, AiAssistantActivity::class.java).apply {
+                withProfile(
+                    Intent(
+                        activity,
+                        if (mode == ModePembelajaranActivity.MODE_MANDIRI) AiAsistenMandiriActivity::class.java
+                        else AiAssistantActivity::class.java
+                    ),
+                    role, mode
+                ).apply {
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }
             )

@@ -325,6 +325,12 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- AI Asisten mode mandiri (tahap 10A) -->
+        <activity
+            android:name=".AiAsistenMandiriActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>

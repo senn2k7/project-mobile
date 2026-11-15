@@ -169,8 +169,8 @@ class MulaiKuisMandiriActivity : AppCompatActivity() {
                 render()
             }
         }
-        row.addView(prev, UiKit.params(this, 0, px(56), end = 6, weight = 1f))
-        row.addView(next, UiKit.params(this, 0, px(56), start = 6, weight = 1f))
+        row.addView(prev, UiKit.params(this, 0, px(52), end = 6, weight = 1f))
+        row.addView(next, UiKit.params(this, 0, px(52), start = 6, weight = 1f))
         root.addView(UiKit.bottomBar(this, row))
         return root
     }

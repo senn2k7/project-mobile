@@ -71,7 +71,7 @@ class TugasBerhasilActivity : AppCompatActivity() {
 
         content.addView(
             UiKit.primaryButton(this, "Kembali ke Beranda") { goHome() },
-            UiKit.params(this, UiKit.MATCH, px(56), top = 24)
+            UiKit.params(this, UiKit.MATCH, px(52), top = 24)
         )
 
         root.addView(scroll, UiKit.scrollParams())

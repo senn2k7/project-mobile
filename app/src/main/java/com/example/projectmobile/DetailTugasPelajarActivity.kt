@@ -227,7 +227,7 @@ class DetailTugasPelajarActivity : AppCompatActivity() {
             }
             btn.addView(UiKit.icon(this, R.drawable.ic_upload, 22, Color.WHITE), LinearLayout.LayoutParams(px(22), px(22)))
             btn.addView(UiKit.tv(this, "Kumpulkan Tugas", 16f, Color.WHITE, true), UiKit.params(this, UiKit.WRAP, UiKit.WRAP, start = 10))
-            btn.layoutParams = LinearLayout.LayoutParams(UiKit.MATCH, px(56))
+            btn.layoutParams = LinearLayout.LayoutParams(UiKit.MATCH, px(52))
             btn
         } else if (sub?.score == null) {
             UiKit.tv(this, "Batalkan Pengumpulan", 16f, UiKit.DANGER, true).apply {
@@ -236,7 +236,7 @@ class DetailTugasPelajarActivity : AppCompatActivity() {
                 isClickable = true
                 isFocusable = true
                 setOnClickListener { confirmCancel(t) }
-                layoutParams = LinearLayout.LayoutParams(UiKit.MATCH, px(56))
+                layoutParams = LinearLayout.LayoutParams(UiKit.MATCH, px(52))
             }
         } else null
         if (bottom != null) root.addView(UiKit.bottomBar(this, bottom))

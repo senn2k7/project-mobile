@@ -48,7 +48,7 @@ class GabungKelasActivity : AppCompatActivity() {
         inputCard.addView(etCode, UiKit.params(this, UiKit.MATCH, px(52), top = 10))
         inputCard.addView(
             UiKit.primaryButton(this, "Verifikasi Kode") { verify() },
-            UiKit.params(this, UiKit.MATCH, px(56), top = 14)
+            UiKit.params(this, UiKit.MATCH, px(52), top = 14)
         )
         inputCard.addView(
             UiKit.infoBox(this, "Pastikan kode kelas sesuai dengan yang diberikan pengajar."),
@@ -148,7 +148,7 @@ class GabungKelasActivity : AppCompatActivity() {
 
         card.addView(
             UiKit.primaryButton(this, "Gabung Kelas") { joinClass() },
-            UiKit.params(this, UiKit.MATCH, px(56), top = 16)
+            UiKit.params(this, UiKit.MATCH, px(52), top = 16)
         )
         resultSection.addView(card)
         resultSection.visibility = View.VISIBLE

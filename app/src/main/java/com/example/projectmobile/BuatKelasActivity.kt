@@ -135,11 +135,11 @@ class BuatKelasActivity : AppCompatActivity() {
         val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         row.addView(
             UiKit.outlineButton(this, "Batal") { finish() },
-            UiKit.params(this, 0, px(56), weight = 1f)
+            UiKit.params(this, 0, px(52), weight = 1f)
         )
         row.addView(
             UiKit.primaryButton(this, if (ed == null) "+ Buat Kelas" else "Simpan Perubahan") { submit() },
-            UiKit.params(this, 0, px(56), start = 12, weight = 2f)
+            UiKit.params(this, 0, px(52), start = 12, weight = 2f)
         )
         root.addView(UiKit.bottomBar(this, row))
         root.addView(UiKit.bottomNav(this, "Kelas", role, mode))

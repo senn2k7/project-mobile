@@ -1270,6 +1270,10 @@ class HomeActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                     "AI" -> {
+                        if (navMode == ModePembelajaranActivity.MODE_MANDIRI) {
+                            UiKit.open(this@HomeActivity, AiAsistenMandiriActivity::class.java, navRole, navMode)
+                            return@setOnClickListener
+                        }
                         val intent = Intent(this@HomeActivity, AiAssistantActivity::class.java).apply {
                             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                         }
@@ -1282,11 +1286,7 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        val iconTv = TextView(this).apply {
-            text = icon
-            textSize = 18f
-        }
-        item.addView(iconTv)
+        item.addView(UiKit.navIcon(this, icon, isSelected))
 
         val labelTv = TextView(this).apply {
             text = label

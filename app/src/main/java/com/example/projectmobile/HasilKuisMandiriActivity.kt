@@ -105,7 +105,7 @@ class HasilKuisMandiriActivity : AppCompatActivity() {
             render()
         }
         val home = UiKit.outlineButton(this, "Kembali ke Beranda") { goHome() }
-        home.layoutParams = UiKit.params(this, UiKit.MATCH, px(56), top = 10)
+        home.layoutParams = UiKit.params(this, UiKit.MATCH, px(52), top = 10)
         root.addView(UiKit.bottomBar(this, review, home))
         return root
     }
