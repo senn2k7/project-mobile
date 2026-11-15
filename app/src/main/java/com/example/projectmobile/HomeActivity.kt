@@ -275,7 +275,7 @@ class HomeActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                contentLayout.addView(createAgendaItem("Tugas: Membuat UI Login Android", "12 Jun 2025", Color.rgb(244, 67, 54), "📄"))
+                contentLayout.addView(createAgendaItem("Tugas: Tugas Mandiri", "12 Jun 2025", Color.rgb(244, 67, 54), "📄"))
                 contentLayout.addView(createAgendaItem("Kuis: Sistem Cerdas", "15 Jun 2025", Color.rgb(33, 96, 245), "📋"))
 
                 // AI Banner

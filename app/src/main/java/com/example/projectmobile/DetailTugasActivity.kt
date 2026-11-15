@@ -21,7 +21,7 @@ class DetailTugasActivity : AppCompatActivity() {
         window.statusBarColor = Color.rgb(245, 250, 255)
         window.navigationBarColor = Color.rgb(245, 250, 255)
 
-        val taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE) ?: "Membuat UI Login Android"
+        val taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE) ?: "Detail Tugas"
         val taskMeeting = intent.getStringExtra(EXTRA_TASK_MEETING) ?: "Pemrograman Mobile • Pertemuan 3"
         val taskStatus = intent.getStringExtra(EXTRA_TASK_STATUS) ?: "Tugas Berlangsung"
         val taskDeadline = intent.getStringExtra(EXTRA_TASK_DEADLINE) ?: "20 Jun 2025, 23.59"
@@ -361,7 +361,7 @@ class DetailTugasActivity : AppCompatActivity() {
             isFocusable = true
             setOnClickListener {
                 val intent = Intent(this@DetailTugasActivity, PengumpulanTugasActivity::class.java).apply {
-                    putExtra(PengumpulanTugasActivity.EXTRA_TASK_TITLE, intent.getStringExtra(EXTRA_TASK_TITLE) ?: "Membuat UI Login Android")
+                    putExtra(PengumpulanTugasActivity.EXTRA_TASK_TITLE, intent.getStringExtra(EXTRA_TASK_TITLE) ?: "Detail Tugas")
                     putExtra(PengumpulanTugasActivity.EXTRA_TASK_MEETING, "Pemrograman Mobile • Pertemuan 3")
                 }
                 startActivity(intent)

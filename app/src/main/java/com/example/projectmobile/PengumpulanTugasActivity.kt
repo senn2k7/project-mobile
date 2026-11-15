@@ -78,7 +78,7 @@ class PengumpulanTugasActivity : AppCompatActivity() {
         window.statusBarColor = Color.rgb(245, 250, 255)
         window.navigationBarColor = Color.rgb(245, 250, 255)
 
-        val taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE) ?: "Membuat UI Login Android"
+        val taskTitle = intent.getStringExtra(EXTRA_TASK_TITLE) ?: "Pengumpulan Tugas"
         val taskMeeting = intent.getStringExtra(EXTRA_TASK_MEETING) ?: "Pemrograman Mobile • Pertemuan 3"
 
         setContentView(createScreen(taskTitle, taskMeeting))

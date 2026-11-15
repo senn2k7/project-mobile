@@ -39,9 +39,8 @@ class PengajarBerandaActivity : AppCompatActivity() {
         val adapter = PengajarKelasAdapter(
             isBeranda = true,
             onItemClick = { kelas ->
-                val intent = Intent(this, DetailKelasActivity::class.java).apply {
-                    putExtra(DetailKelasActivity.EXTRA_CLASS_NAME, kelas.namaMataKuliah)
-                    putExtra(DetailKelasActivity.EXTRA_CLASS_CODE, "${kelas.jenisInstitusi} • ${kelas.namaKelas}")
+                val intent = Intent(this, PengajarDetailKelasActivity::class.java).apply {
+                    putExtra(PengajarDetailKelasActivity.EXTRA_KELAS_ID, kelas.id)
                 }
                 startActivity(intent)
             },

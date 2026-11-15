@@ -1,28 +1,24 @@
-# Catatan Tahap - TemanStudi (Pengajar Mode Institusi)
+# CATATAN_TAHAP.md — Tulis Ulang Layar Detail Kelas Pengajar Institusi
 
-## Status Saat Ini
-- Selesai membangun:
-  1. **Layar Beranda Pengajar** (`PengajarBerandaActivity.kt`, `activity_pengajar_beranda.xml`)
-  2. **Layar Kelas Saya Pengajar** (`PengajarKelasSayaActivity.kt`, `activity_pengajar_kelas_saya.xml`)
-  3. **Tahap A: Fondasi Data Detail Kelas, Tugas, Detail Tugas, & Pengumpulan Tugas** (Models, Repositories [Empty & Fake], Utils, ViewModels + UiState, ViewModelFactories).
+## 1. Status Selesai
+- **Detail Kelas Pengajar** (`PengajarDetailKelasActivity.kt`) telah ditulis ulang dari kode Kotlin prosedural (*createScreen*) menjadi layout XML resmi (`activity_pengajar_detail_kelas.xml`) dengan menggunakan RecyclerView + `PengajarMateriAdapter` (`ListAdapter` + `DiffUtil`) serta item layout `item_materi_pengajar.xml`.
+- Tampilan disesuaikan persis dengan gambar acuan `03-detail-kelas.png`:
+  - Top bar dengan tombol kembali, judul `"Detail Kelas"`, dan menu vertikal 3 titik (`ic_more_vert`).
+  - Kartu header kelas dengan ikon vektor kode (`ic_code`) di dalam kotak biru, nama mata kuliah, institusi, kode kelas, dan info pengajar.
+  - Kartu deskripsi kelas dengan tautan edit.
+  - Tab horizontal scrollable (Materi, Tugas, Lihat Hasil Kuis, Buat Kuis, Diskusi) dan presensi wide pill bar.
+  - Daftar materi dengan ikon vektor berkas, nama file, ukuran, dan menu vertikal.
+  - Tombol aksi utama (*"+ Tambah Materi"* / *"+ Buat Tugas"*) dipin (*pinned*) di bagian bawah layar.
 
-## File Dibuat / Diubah
-- `ui/pengajar/institusi/PengajarModel.kt` (ditambah Kelas.deskripsi, Materi, Tugas, LampiranTugas, PelajarKelas, Pengumpulan, DaftarPengumpulan)
-- `ui/pengajar/institusi/PengajarRepositories.kt` (ditambah interface, Empty, & Fake untuk MateriRepository, TugasRepository, PengumpulanRepository, dan kelasById di KelasRepository)
-- `ui/pengajar/institusi/PengajarUtils.kt` (FileIconMapper, FormatUkuran, FormatTanggal, NameUtils, TaskStatusUtils)
-- `ui/pengajar/institusi/PengajarViewModels.kt` (DetailKelasViewModel, TugasViewModel, DetailTugasViewModel, PengumpulanViewModel + ViewModelFactories)
-- Layouts & Drawables sebelumnya.
-
-## Komponen Reusable
-- **`PengajarKelasAdapter`**: Adapter RecyclerView berbasis `ListAdapter` dan `DiffUtil` untuk kartu kelas.
-- **`PengajarBottomNavHelper`**: Komponen helper navigasi bawah standar.
-- **`FileIconMapper` & `FormatUkuran` & `FormatTanggal` & `NameUtils` & `TaskStatusUtils`**: Utilitas pemetaan ikon file, format ukuran byte, format tanggal Indonesia, inisial & warna avatar, serta kalkulator status tenggat tugas.
-
-## Keputusan & Catatan
-- Semua data default bernilai kosong / zero melalui `Empty...Repository` saat `useFakeData = false`.
-- Fake repository diisi data lengkap sesuai spesifikasi Tahap A (Pemrograman Mobile, Sistem Cerdas, Basis Data, materi, tugas, dan 25 pelajar dengan 18 sudah mengumpulkan & 7 belum).
-- Tidak ada dependency atau import Firebase di UI / ViewModel.
-- Belum ada layout atau Activity baru yang dibuat pada Tahap A (sesuai aturan).
-
-## Daftar TODO Selanjutnya
-- Menunggu instruksi tahap berikutnya untuk implementasi UI Detail Kelas, Tugas, Detail Tugas, dan Pengumpulan Tugas.
+## 2. Definisi Selesai
+a) **Build lancar**: Build sukses (`app:assembleDebug` passed).
+b) **Jalur Navigasi**:
+   - `MainActivity` -> `LoginActivity` -> `PilihPeranActivity` (Pengajar) -> `ModePembelajaranActivity` (Institusi) -> `PengajarBerandaActivity` -> Klik Kartu Kelas -> `PengajarDetailKelasActivity`.
+c) **Bukti Pencarian**: String data dummy hanya ada di `PengajarFakeRepositories.kt` dan kode pelajar (`DAFTAR_PELAJAR_DILARANG`).
+d) **Bukti Sumber Data**:
+   - `PengajarDetailKelasActivity` membaca data kelas dan materi dari `KelasRepository` dan `MateriRepository` lewat `DetailKelasViewModel`.
+e) **Default Repository = Empty**:
+   - `PengajarRepoConfig.useFakeData = false`.
+f) **Layar Lama Pengganti**:
+   - `PengajarDetailKelasActivity` menggunakan layout XML dan tidak lagi membangun tampilan via kode Kotlin prosedural.
+g) **CATATAN_TAHAP.md diperbarui**.
