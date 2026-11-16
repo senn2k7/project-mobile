@@ -10,7 +10,7 @@ interface PengajarProfilRepository {
 }
 
 interface PengajarKelasRepository {
-    fun getKelasList(searchQuery: String = "", filterInstitusi: Boolean = false, semester: String = ""): Flow<List<PengajarKelas>>
+    fun getKelasList(searchQuery: String = "", filterInstitusi: Boolean = false, semester: String = "", guruId: String = ""): Flow<List<PengajarKelas>>
     fun kelasById(id: String): Flow<Kelas?>
 }
 
@@ -56,7 +56,7 @@ class EmptyPengajarProfilRepository : PengajarProfilRepository {
 }
 
 class EmptyPengajarKelasRepository : PengajarKelasRepository {
-    override fun getKelasList(searchQuery: String, filterInstitusi: Boolean, semester: String): Flow<List<PengajarKelas>> = flowOf(emptyList())
+    override fun getKelasList(searchQuery: String, filterInstitusi: Boolean, semester: String, guruId: String): Flow<List<PengajarKelas>> = flowOf(emptyList())
     override fun kelasById(id: String): Flow<Kelas?> = flowOf(null)
 }
 

@@ -213,5 +213,6 @@ sealed class PengajarUiState<out T> {
     object Loading : PengajarUiState<Nothing>()
     data class Success<T>(val data: T) : PengajarUiState<T>()
     object Empty : PengajarUiState<Nothing>()
+    data class CustomEmpty(val message: String) : PengajarUiState<Nothing>()
     data class Error(val message: String) : PengajarUiState<Nothing>()
 }

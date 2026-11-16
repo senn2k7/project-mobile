@@ -71,7 +71,9 @@ class DetailKelasViewModel(
 }
 
 class TugasViewModel(
-    private val kelasId: String,
+    private val rawKelasId: String,
+    private val profilRepo: PengajarProfilRepository = PengajarRepositoryProvider.provideProfilRepo(),
+    private val kelasRepo: KelasRepository = PengajarRepositoryProvider.provideKelasRepo(),
     private val tugasRepo: TugasRepository = PengajarRepositoryProvider.provideTugasRepo()
 ) : ViewModel() {
 
@@ -81,23 +83,66 @@ class TugasViewModel(
     private val _tugasState = MutableStateFlow<PengajarUiState<List<Tugas>>>(PengajarUiState.Loading)
     val tugasState: StateFlow<PengajarUiState<List<Tugas>>> = _tugasState.asStateFlow()
 
+    private val _kelasInfo = MutableStateFlow<Kelas?>(null)
+    val kelasInfo: StateFlow<Kelas?> = _kelasInfo.asStateFlow()
+
     init {
-        loadTugas("SEMUA")
+        loadData("SEMUA")
     }
 
     fun setFilter(filter: String) {
         _filterState.value = filter
-        loadTugas(filter)
+        loadData(filter)
     }
 
-    private fun loadTugas(filter: String) {
+    private fun loadData(filter: String) {
         viewModelScope.launch {
             _tugasState.value = PengajarUiState.Loading
-            tugasRepo.tugasPerKelas(kelasId, filter).collectLatest { list ->
-                if (list.isEmpty()) {
-                    _tugasState.value = PengajarUiState.Empty
+
+            profilRepo.getProfil().collectLatest { profil ->
+                if (profil == null) {
+                    _tugasState.value = PengajarUiState.Error("Sesi pengajar tidak ditemukan")
+                    return@collectLatest
+                }
+                val teacherId = profil.uid
+
+                if (rawKelasId.isBlank()) {
+                    kelasRepo.getKelasList(guruId = teacherId).collectLatest { kelasList ->
+                        if (kelasList.isEmpty()) {
+                            _tugasState.value = PengajarUiState.CustomEmpty("Belum ada kelas")
+                        } else {
+                            val firstKelas = kelasList.sortedBy { it.namaMataKuliah }.first()
+                            kelasRepo.kelasById(firstKelas.id).collectLatest { fullKelas ->
+                                if (fullKelas == null) {
+                                    _tugasState.value = PengajarUiState.Error("Kelas tidak ditemukan")
+                                } else {
+                                    _kelasInfo.value = fullKelas
+                                    tugasRepo.tugasPerKelas(fullKelas.id, filter).collectLatest { tasks ->
+                                        if (tasks.isEmpty()) {
+                                            _tugasState.value = PengajarUiState.CustomEmpty("Belum ada tugas")
+                                        } else {
+                                            _tugasState.value = PengajarUiState.Success(tasks)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 } else {
-                    _tugasState.value = PengajarUiState.Success(list)
+                    kelasRepo.kelasById(rawKelasId).collectLatest { kelas ->
+                        if (kelas == null) {
+                            _tugasState.value = PengajarUiState.Error("Kelas tidak ditemukan")
+                        } else {
+                            _kelasInfo.value = kelas
+                            tugasRepo.tugasPerKelas(rawKelasId, filter).collectLatest { tasks ->
+                                if (tasks.isEmpty()) {
+                                    _tugasState.value = PengajarUiState.CustomEmpty("Belum ada tugas")
+                                } else {
+                                    _tugasState.value = PengajarUiState.Success(tasks)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -121,15 +166,21 @@ class DetailTugasViewModel(
 
     fun loadData() {
         viewModelScope.launch {
+            if (tugasId.isBlank()) {
+                _tugasState.value = PengajarUiState.Error("Tugas tidak ditemukan")
+                _lampiranState.value = PengajarUiState.Empty
+                return@launch
+            }
             tugasRepo.tugasById(tugasId).collectLatest { tugas ->
                 if (tugas != null) {
                     _tugasState.value = PengajarUiState.Success(tugas)
                 } else {
-                    _tugasState.value = PengajarUiState.Empty
+                    _tugasState.value = PengajarUiState.Error("Tugas tidak ditemukan")
                 }
             }
         }
         viewModelScope.launch {
+            if (tugasId.isBlank()) return@launch
             tugasRepo.lampiran(tugasId).collectLatest { list ->
                 if (list.isEmpty()) {
                     _lampiranState.value = PengajarUiState.Empty

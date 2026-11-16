@@ -28,6 +28,7 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
             ikon = "ic_code",
             warna = "#1D5EFF",
             jumlahPelajar = 28,
+            guruId = "teacher_budi",
             deskripsi = "Mata kuliah pengembangan aplikasi Android modern menggunakan Kotlin dan Jetpack."
         ),
         Kelas(
@@ -40,6 +41,7 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
             ikon = "ic_database",
             warna = "#1D5EFF",
             jumlahPelajar = 32,
+            guruId = "teacher_budi",
             deskripsi = "Studi tentang kecerdasan buatan, machine learning, dan sistem pakar."
         ),
         Kelas(
@@ -52,11 +54,12 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
             ikon = "ic_database",
             warna = "#1FAF6E",
             jumlahPelajar = 26,
+            guruId = "teacher_budi",
             deskripsi = "Perancangan database relasional, normalisasi, dan SQL tingkat lanjut."
         )
     )
 
-    override fun getKelasList(searchQuery: String, filterInstitusi: Boolean, semester: String): Flow<List<PengajarKelas>> {
+    override fun getKelasList(searchQuery: String, filterInstitusi: Boolean, semester: String, guruId: String): Flow<List<PengajarKelas>> {
         var filtered: List<PengajarKelas> = allKelas.map { it ->
             PengajarKelas(
                 id = it.id,
@@ -71,6 +74,9 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
                 guruId = it.guruId,
                 arsip = it.arsip
             )
+        }
+        if (guruId.isNotBlank()) {
+            filtered = filtered.filter { it.guruId == guruId }
         }
         if (filterInstitusi) {
             filtered = filtered.filter { it.jenisInstitusi.isNotBlank() }
