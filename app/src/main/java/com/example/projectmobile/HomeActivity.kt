@@ -7,6 +7,8 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -77,12 +79,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         // Avatar placeholder circle
-        val avatarView = TextView(this).apply {
-            text = "👤"
-            textSize = 22f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(215, 230, 255), 24)
-        }
+        val avatarView = vectorBox(R.drawable.ic_person, Color.rgb(33, 96, 245), 26, roundedBackground(Color.rgb(215, 230, 255), 24))
         avatarView.isClickable = true
         avatarView.isFocusable = true
         avatarView.setOnClickListener { UiKit.openProfile(this, role, mode) }
@@ -117,12 +114,7 @@ class HomeActivity : AppCompatActivity() {
         headerLayout.addView(greetingTextLayout, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
         // Notification Bell
-        val bellView = TextView(this).apply {
-            text = "🔔"
-            textSize = 20f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.WHITE, 22, Color.rgb(220, 231, 244), 1)
-        }
+        val bellView = vectorBox(R.drawable.ic_bell, Color.rgb(25, 54, 95), 22, roundedBackground(Color.WHITE, 22, Color.rgb(220, 231, 244), 1))
         headerLayout.addView(bellView, LinearLayout.LayoutParams(dp(44), dp(44)))
 
         contentLayout.addView(headerLayout)
@@ -134,9 +126,10 @@ class HomeActivity : AppCompatActivity() {
             setPadding(dp(16), dp(12), dp(16), dp(12))
             background = roundedBackground(Color.WHITE, 12, Color.rgb(220, 231, 244), 1)
         }
-        val searchIcon = TextView(this).apply {
-            text = "🔍"
-            textSize = 16f
+        val searchIcon = ImageView(this).apply {
+            setImageResource(R.drawable.ic_search)
+            setColorFilter(Color.rgb(117, 139, 169))
+            layoutParams = LinearLayout.LayoutParams(dp(20), dp(20))
         }
         searchBar.addView(searchIcon)
 
@@ -149,12 +142,7 @@ class HomeActivity : AppCompatActivity() {
         searchBar.addView(searchText, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
         if (mode == ModePembelajaranActivity.MODE_MANDIRI && role == PilihPeranActivity.ROLE_PELAJAR) {
-            val filterIcon = TextView(this).apply {
-                text = "☰"
-                textSize = 18f
-                setTextColor(Color.rgb(33, 96, 245))
-                gravity = Gravity.CENTER
-            }
+            val filterIcon = vectorBox(R.drawable.ic_filter, Color.rgb(33, 96, 245), 22, roundedBackground(Color.TRANSPARENT, 0))
             searchBar.addView(filterIcon, LinearLayout.LayoutParams(dp(36), dp(36)))
         }
 
@@ -370,12 +358,7 @@ class HomeActivity : AppCompatActivity() {
             gravity = Gravity.CENTER_VERTICAL
         }
 
-        val avatarView = TextView(this).apply {
-            text = "👤"
-            textSize = 22f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(215, 230, 255), 24)
-        }
+        val avatarView = vectorBox(R.drawable.ic_person, Color.rgb(33, 96, 245), 26, roundedBackground(Color.rgb(215, 230, 255), 24))
         avatarView.isClickable = true
         avatarView.isFocusable = true
         avatarView.setOnClickListener { UiKit.openProfile(this, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_MANDIRI) }
@@ -408,12 +391,7 @@ class HomeActivity : AppCompatActivity() {
 
         headerLayout.addView(greetingTextLayout, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
-        val bellView = TextView(this).apply {
-            text = "🔔"
-            textSize = 20f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.WHITE, 22, Color.rgb(220, 231, 244), 1)
-        }
+        val bellView = vectorBox(R.drawable.ic_bell, Color.rgb(25, 54, 95), 22, roundedBackground(Color.WHITE, 22, Color.rgb(220, 231, 244), 1))
         headerLayout.addView(bellView, LinearLayout.LayoutParams(dp(44), dp(44)))
 
         contentLayout.addView(headerLayout)
@@ -431,12 +409,7 @@ class HomeActivity : AppCompatActivity() {
             gravity = Gravity.CENTER_VERTICAL
         }
 
-        val heroIconBox = TextView(this).apply {
-            text = "🏫"
-            textSize = 22f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(33, 96, 245), 12)
-        }
+        val heroIconBox = vectorBox(R.drawable.ic_institution, Color.WHITE, 26, roundedBackground(Color.rgb(33, 96, 245), 12))
         heroTop.addView(heroIconBox, LinearLayout.LayoutParams(dp(48), dp(48)))
 
         val heroTextCol = LinearLayout(this).apply {
@@ -545,13 +518,7 @@ class HomeActivity : AppCompatActivity() {
             gravity = Gravity.CENTER_VERTICAL
         }
 
-        val iconTv = TextView(this).apply {
-            text = icon
-            textSize = 18f
-            setPadding(dp(8), dp(8), dp(8), dp(8))
-            background = roundedBackground(Color.rgb(232, 242, 255), 8)
-            gravity = Gravity.CENTER
-        }
+        val iconTv = vectorBox(emojiRes(icon), Color.rgb(33, 96, 245), 20, roundedBackground(Color.rgb(232, 242, 255), 8))
         topRow.addView(iconTv, LinearLayout.LayoutParams(dp(36), dp(36)))
 
         val arrowTv = TextView(this).apply {
@@ -664,12 +631,7 @@ class HomeActivity : AppCompatActivity() {
             elevation = dp(1).toFloat()
         }
 
-        val iconBox = TextView(this).apply {
-            text = "🏫"
-            textSize = 32f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(232, 242, 255), 32)
-        }
+        val iconBox = vectorBox(R.drawable.ic_book, Color.rgb(33, 96, 245), 30, roundedBackground(Color.rgb(232, 242, 255), 32))
         card.addView(iconBox, LinearLayout.LayoutParams(dp(64), dp(64)))
 
         val titleTv = TextView(this).apply {
@@ -762,13 +724,7 @@ class HomeActivity : AppCompatActivity() {
             elevation = dp(1).toFloat()
         }
 
-        val iconTv = TextView(this).apply {
-            text = icon
-            textSize = 18f
-            setPadding(dp(8), dp(8), dp(8), dp(8))
-            background = roundedBackground(accentColor, 8)
-            gravity = Gravity.CENTER
-        }
+        val iconTv = vectorBox(emojiRes(icon), Color.WHITE, 20, roundedBackground(accentColor, 8))
         card.addView(iconTv, LinearLayout.LayoutParams(dp(36), dp(36)))
 
         val countTv = TextView(this).apply {
@@ -812,12 +768,7 @@ class HomeActivity : AppCompatActivity() {
             elevation = dp(1).toFloat()
         }
 
-        val iconBox = TextView(this).apply {
-            text = "📖"
-            textSize = 32f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(232, 242, 255), 32)
-        }
+        val iconBox = vectorBox(R.drawable.ic_book, Color.rgb(33, 96, 245), 30, roundedBackground(Color.rgb(232, 242, 255), 32))
         card.addView(iconBox, LinearLayout.LayoutParams(dp(64), dp(64)))
 
         val titleTv = TextView(this).apply {
@@ -882,12 +833,7 @@ class HomeActivity : AppCompatActivity() {
             elevation = dp(1).toFloat()
         }
 
-        val iconBox = TextView(this).apply {
-            text = "📅"
-            textSize = 22f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(232, 242, 255), 24)
-        }
+        val iconBox = vectorBox(R.drawable.ic_calendar, Color.rgb(33, 96, 245), 24, roundedBackground(Color.rgb(232, 242, 255), 24))
         card.addView(iconBox, LinearLayout.LayoutParams(dp(48), dp(48)))
 
         val textCol = LinearLayout(this).apply {
@@ -939,12 +885,7 @@ class HomeActivity : AppCompatActivity() {
             gravity = Gravity.CENTER_VERTICAL
         }
 
-        val iconBox = TextView(this).apply {
-            text = "📚"
-            textSize = 20f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(33, 96, 245), 12)
-        }
+        val iconBox = vectorBox(R.drawable.ic_book, Color.WHITE, 24, roundedBackground(Color.rgb(33, 96, 245), 12))
         topRow.addView(iconBox, LinearLayout.LayoutParams(dp(44), dp(44)))
 
         val textCol = LinearLayout(this).apply {
@@ -1020,7 +961,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         val meetingTv = TextView(this).apply {
-            text = "📖 $meeting"
+            text = meeting
             textSize = 12f
             setTextColor(Color.rgb(117, 139, 169))
         }
@@ -1055,12 +996,7 @@ class HomeActivity : AppCompatActivity() {
             elevation = dp(1).toFloat()
         }
 
-        val iconBox = TextView(this).apply {
-            text = icon
-            textSize = 22f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(33, 96, 245), 12)
-        }
+        val iconBox = vectorBox(emojiRes(icon), Color.WHITE, 26, roundedBackground(Color.rgb(33, 96, 245), 12))
         card.addView(iconBox, LinearLayout.LayoutParams(dp(52), dp(52)))
 
         val textCol = LinearLayout(this).apply {
@@ -1140,12 +1076,7 @@ class HomeActivity : AppCompatActivity() {
             elevation = dp(1).toFloat()
         }
 
-        val iconBox = TextView(this).apply {
-            text = icon
-            textSize = 16f
-            gravity = Gravity.CENTER
-            background = roundedBackground(badgeColor, 8)
-        }
+        val iconBox = vectorBox(emojiRes(icon), Color.WHITE, 18, roundedBackground(badgeColor, 8))
         item.addView(iconBox, LinearLayout.LayoutParams(dp(36), dp(36)))
 
         val titleTv = TextView(this).apply {
@@ -1300,6 +1231,36 @@ class HomeActivity : AppCompatActivity() {
         item.addView(labelTv, labelParams)
 
         return item
+    }
+
+    /** Kotak berlatar berisi satu ikon vektor di tengah (menggantikan emoji). */
+    private fun vectorBox(res: Int, tint: Int, glyphDp: Int, boxBackground: GradientDrawable): FrameLayout {
+        return FrameLayout(this).apply {
+            background = boxBackground
+            addView(
+                ImageView(this@HomeActivity).apply {
+                    setImageResource(res)
+                    setColorFilter(tint)
+                },
+                FrameLayout.LayoutParams(dp(glyphDp), dp(glyphDp), Gravity.CENTER)
+            )
+        }
+    }
+
+    /** Memetakan emoji lama ke ikon vektor yang setara. */
+    private fun emojiRes(emoji: String): Int = when (emoji) {
+        "🏫" -> R.drawable.ic_book
+        "📄" -> R.drawable.ic_description
+        "📋" -> R.drawable.ic_assignment_check
+        "👥" -> R.drawable.ic_people
+        "➕" -> R.drawable.ic_add
+        "🔗" -> R.drawable.ic_share
+        "✅" -> R.drawable.ic_check_circle
+        "💻" -> R.drawable.ic_code
+        "🤖" -> R.drawable.ic_bot
+        "📖", "📚" -> R.drawable.ic_book
+        "📅" -> R.drawable.ic_calendar
+        else -> if (emoji.startsWith("\uD83D\uDDC4")) R.drawable.ic_database else R.drawable.ic_book
     }
 
     private fun createNavParams(): LinearLayout.LayoutParams {

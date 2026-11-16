@@ -231,6 +231,7 @@ object UiKit {
         val root = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(BG)
+            tag = InsetsFixer.HANDLED
         }
         ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
             val bars = insets.getInsets(
