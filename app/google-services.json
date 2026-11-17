@@ -7,12 +7,57 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:828951043706:android:c4aa1869985d3de05725c3",
+        "mobilesdk_app_id": "1:828951043706:android:54748b08881c927d5725c3",
         "android_client_info": {
           "package_name": "com.example.projectmobile"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "828951043706-1phh9mt84nj19tr8ffh2k3uk7pdu1prd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.projectmobile",
+            "certificate_hash": "1829d6ad569c88ef7f3ac305695d47e1b0702b0c"
+          }
+        },
+        {
+          "client_id": "828951043706-a39cslaslfk5cds9g4rrnde77pfkankk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgMY4ug__QT82nwG_nkui3t4ZEJsTZWlM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "828951043706-a39cslaslfk5cds9g4rrnde77pfkankk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828951043706:android:c4aa1869985d3de05725c3",
+        "android_client_info": {
+          "package_name": "com.example.snapchatsphlasscreen"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "828951043706-c79s46jmb64rtgmc4dtie25b8had2be3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.snapchatsphlasscreen",
+            "certificate_hash": "9806f0bb06cf18409fc8c8c2299e3c0c45b34562"
+          }
+        },
         {
           "client_id": "828951043706-a39cslaslfk5cds9g4rrnde77pfkankk.apps.googleusercontent.com",
           "client_type": 3

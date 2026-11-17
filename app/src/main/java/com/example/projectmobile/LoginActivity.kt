@@ -119,10 +119,27 @@ class LoginActivity : AppCompatActivity() {
                 val credentialManager =
                     CredentialManager.create(this@LoginActivity)
 
-                val result = credentialManager.getCredential(
-                    this@LoginActivity,
-                    request
-                )
+                var result: androidx.credentials.GetCredentialResponse? = null
+                var retryCount = 0
+
+                while (result == null) {
+                    try {
+                        result = credentialManager.getCredential(
+                            this@LoginActivity,
+                            request
+                        )
+                    } catch (
+                        error: androidx.credentials.exceptions.GetCredentialInterruptedException
+                    ) {
+                        if (retryCount >= 2) {
+                            throw error
+                        }
+
+                        val delayMs = if (retryCount == 0) 1_000L else 2_000L
+                        retryCount++
+                        kotlinx.coroutines.delay(delayMs)
+                    }
+                }
 
                 val credential = result.credential
 
@@ -141,45 +158,54 @@ class LoginActivity : AppCompatActivity() {
                         onSuccess = { user ->
                             handleAuthenticatedUser(user, button)
                         },
-                        onFailure = { message ->
+                        onFailure = {
                             button.isEnabled = true
                             button.text = "Masuk dengan Google"
 
                             Toast.makeText(
                                 this@LoginActivity,
-                                "Login Google gagal: $message",
+                                "Google belum bisa dihubungkan. Silakan coba lagi.",
                                 Toast.LENGTH_LONG
                             ).show()
                         }
                     )
                 } else {
-                    throw IllegalStateException(
-                        "Kredensial Google tidak dikenali."
-                    )
+                    throw IllegalStateException("Kredensial Google tidak dikenali.")
                 }
 
-            } catch (e: GetCredentialException) {
+            } catch (error: kotlinx.coroutines.CancellationException) {
+                throw error
+
+            } catch (
+                error: androidx.credentials.exceptions.GetCredentialCancellationException
+            ) {
+                // Pengguna membatalkan. Jangan retry dan jangan tampilkan error.
+                button.isEnabled = true
+                button.text = "Masuk dengan Google"
+
+            } catch (error: GetCredentialException) {
                 button.isEnabled = true
                 button.text = "Masuk dengan Google"
 
                 Toast.makeText(
                     this@LoginActivity,
-                    "Gagal memilih akun Google: ${e.message}",
+                    "Google belum bisa dihubungkan. Silakan coba lagi.",
                     Toast.LENGTH_LONG
                 ).show()
 
-            } catch (e: Exception) {
+            } catch (error: Exception) {
                 button.isEnabled = true
                 button.text = "Masuk dengan Google"
 
                 Toast.makeText(
                     this@LoginActivity,
-                    "Login Google gagal: ${e.message}",
+                    "Terjadi kendala. Silakan coba lagi.",
                     Toast.LENGTH_LONG
                 ).show()
             }
         }
     }
+
     private fun handleAuthenticatedUser(
         user: FirebaseUser,
         button: Button
