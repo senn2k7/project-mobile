@@ -31,10 +31,10 @@ class PengajarKuisViewModel(
     private val _durasiMenit = MutableStateFlow(20)
     val durasiMenit: StateFlow<Int> = _durasiMenit.asStateFlow()
 
-    private val _nilaiMinimal = MutableStateFlow(70)
+    private val _nilaiMinimal = MutableStateFlow(0)
     val nilaiMinimal: StateFlow<Int> = _nilaiMinimal.asStateFlow()
 
-    private val _jumlahSoal = MutableStateFlow(10)
+    private val _jumlahSoal = MutableStateFlow(0)
     val jumlahSoal: StateFlow<Int> = _jumlahSoal.asStateFlow()
 
     private val _fileSoal = MutableStateFlow<FileLampiranInput?>(null)
@@ -116,8 +116,8 @@ class PengajarKuisViewModel(
             _errorMessage.value = "Judul kuis wajib diisi."
             return
         }
-        if (_nilaiMinimal.value !in 0..100) {
-            _errorMessage.value = "Nilai minimal harus antara 0 - 100."
+        if (_nilaiMinimal.value !in 1..100) {
+            _errorMessage.value = "Nilai minimal harus antara 1 - 100."
             return
         }
         if (_jumlahSoal.value < 1) {

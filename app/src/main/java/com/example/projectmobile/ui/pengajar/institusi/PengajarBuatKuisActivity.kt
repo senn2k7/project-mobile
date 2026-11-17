@@ -349,11 +349,10 @@ class PengajarBuatKuisActivity : AppCompatActivity() {
             setPadding(dp(8), dp(12), dp(8), dp(12))
             background = UiKit.rounded(this@PengajarBuatKuisActivity, Color.WHITE, 12, Color.parseColor("#DCE7F4"), 1)
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48)).apply { topMargin = dp(4) }
-            setText("70")
             addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    val v = s?.toString()?.toIntOrNull() ?: 70
+                    val v = s?.toString()?.toIntOrNull() ?: 0
                     viewModel.setNilaiMinimal(v)
                 }
                 override fun afterTextChanged(s: Editable?) {}
@@ -375,11 +374,10 @@ class PengajarBuatKuisActivity : AppCompatActivity() {
             setPadding(dp(8), dp(12), dp(8), dp(12))
             background = UiKit.rounded(this@PengajarBuatKuisActivity, Color.WHITE, 12, Color.parseColor("#DCE7F4"), 1)
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48)).apply { topMargin = dp(4) }
-            setText("10")
             addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    val v = s?.toString()?.toIntOrNull() ?: 10
+                    val v = s?.toString()?.toIntOrNull() ?: 0
                     viewModel.setJumlahSoal(v)
                 }
                 override fun afterTextChanged(s: Editable?) {}

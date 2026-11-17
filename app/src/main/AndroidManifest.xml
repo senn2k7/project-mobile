@@ -112,6 +112,29 @@
             android:name=".DetailTugasActivity"
             android:exported="false" />
 
+        <!-- Halaman Pengumpulan Tugas Pengajar (Institusi) -->
+        <activity
+            android:name=".ui.pengajar.institusi.PengajarPengumpulanTugasActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Halaman Tambah Materi / Tugas (Pengajar Institusi) -->
+        <activity
+            android:name=".ui.pengajar.institusi.PengajarTambahKontenActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Halaman Sukses Reusable (Pengajar Institusi) -->
+        <activity
+            android:name=".ui.pengajar.institusi.PengajarSuksesActivity"
+            android:exported="false" />
+
+        <!-- Halaman Buat Kuis (Pengajar Institusi) -->
+        <activity
+            android:name=".ui.pengajar.institusi.PengajarBuatKuisActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Halaman Pengumpulan Tugas (Pengajar Institusi) -->
         <activity
             android:name=".PengumpulanTugasActivity"
@@ -124,13 +147,20 @@
 
         <!-- Halaman Nilai dan Hasil Kuis (Pengajar Institusi) -->
         <activity
+            android:name=".ui.pengajar.institusi.PengajarNilaiHasilKuisActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Halaman Nilai dan Hasil Kuis (Pengajar Institusi) -->
+        <activity
             android:name=".NilaiHasilKuisActivity"
             android:exported="false" />
 
         <!-- Halaman Detail Hasil Kuis (Pengajar Institusi) -->
         <activity
-            android:name=".DetailHasilKuisActivity"
-            android:exported="false" />
+            android:name=".ui.pengajar.institusi.PengajarDetailHasilKuisActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Halaman Diskusi Kelas (Pengajar Institusi) -->
         <activity

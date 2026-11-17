@@ -144,13 +144,10 @@ class PengajarDetailTugasActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         btnLihatPengumpulan.setOnClickListener {
-            // TODO: Sambungkan ulang ke PengajarPengumpulanTugasActivity setelah terdaftar di AndroidManifest.xml
-            @Suppress("UNUSED_VARIABLE")
             val intent = Intent(this, PengajarPengumpulanTugasActivity::class.java).apply {
                 putExtra(PengajarPengumpulanTugasActivity.EXTRA_TUGAS_ID, currentTugasId)
             }
-            // startActivity(intent)
-            Toast.makeText(this, "Pengumpulan Tugas (TODO - belum dikerjakan)", Toast.LENGTH_SHORT).show()
+            startActivity(intent)
         }
 
         btnEditTugas.setOnClickListener {

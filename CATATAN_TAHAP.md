@@ -1,24 +1,17 @@
-# CATATAN_TAHAP.md — Tulis Ulang Layar Detail Tugas Pengajar Institusi
+# CATATAN_TAHAP.md — Laporan Audit Menyeluruh Pengajar Institusi
 
-## 1. Status Selesai
-- **Detail Tugas Pengajar** (`PengajarDetailTugasActivity.kt`) telah ditulis ulang dari kode Kotlin prosedural (*createScreen*) menjadi layout XML resmi (`activity_pengajar_detail_tugas.xml`) dengan menggunakan RecyclerView + `PengajarLampiranAdapter` (`ListAdapter` + `DiffUtil`) serta item layout `item_lampiran_tugas.xml`.
-- Tampilan disesuaikan persis dengan gambar acuan `05-detail-tugas.png`:
-  - Top bar dengan tombol kembali, judul `"Detail Tugas"`, dan menu vertikal 3 titik (`ic_more_vert`).
-  - Kartu header tugas dengan ikon vektor kode (`ic_code`), judul, subjudul pertemuan, dan chip status `"Tugas Berlangsung"`.
-  - Kartu deskripsi tugas dengan teks multiline dan informasi batas pengumpulan serta tipe tugas.
-  - Kartu lampiran tugas dengan RecyclerView untuk berkas lampiran.
-  - Kartu status pengumpulan dengan 2 kartu statistik (Mengumpulkan & Belum Mengumpulkan).
-  - Pinned bottom action bar dengan tombol `"Lihat Pengumpulan"` dan `"Edit Tugas"`.
+## 1. Status Audit Selesai
+- **Audit Checklist BUG_DIKENAL.md**:
+  - Semua 11 activity pengajar institusi (Beranda, Kelas Saya, Detail Kelas, Tugas, Detail Tugas, Pengumpulan Tugas, Tambah Materi/Tugas, Sukses, Buat Kuis, Nilai Hasil Kuis, Detail Hasil Kuis) telah diperiksa dan dipastikan **terdaftar di `AndroidManifest.xml`** dengan benar.
+  - Jembatan sementara (Toast TODO) pada tombol `"Lihat Jawaban"` di `PengajarNilaiHasilKuisActivity` telah disambungkan ulang menjadi `startActivity` ke `PengajarDetailHasilKuisActivity`.
+  - Tidak ada data dummy yang tertinggal di luar file Fake (`PengajarFakeRepositories.kt`).
+  - Tidak ada default senyap yang berbahaya (ID/Intent extra divalidasi dengan benar).
+  - Default repository diatur ke Empty (`PengajarRepoConfig.useFakeData = false`).
+  - Build sukses (`app:assembleDebug` passed).
 
 ## 2. Definisi Selesai
 a) **Build lancar**: Build sukses (`app:assembleDebug` passed).
-b) **Jalur Navigasi**:
-   - `MainActivity` -> `LoginActivity` -> `PilihPeranActivity` (Pengajar) -> `ModePembelajaranActivity` (Institusi) -> `PengajarBerandaActivity` -> Tab Tugas (`TugasActivity`) -> Kartu Tugas -> `PengajarDetailTugasActivity`.
-c) **Bukti Pencarian**: String data dummy hanya ada di `PengajarFakeRepositories.kt` dan kode pelajar (`DAFTAR_PELAJAR_DILARANG`).
-d) **Bukti Sumber Data**:
-   - `PengajarDetailTugasActivity` membaca data tugas dan lampiran dari `TugasRepository` lewat `DetailTugasViewModel`.
-e) **Default Repository = Empty**:
-   - `PengajarRepoConfig.useFakeData = false`.
-f) **Layar Lama Pengganti**:
-   - `PengajarDetailTugasActivity` menggunakan layout XML dan tidak lagi membangun tampilan via kode Kotlin prosedural.
-g) **CATATAN_TAHAP.md diperbarui**.
+b) **Jalur Navigasi**: Seluruh jalur navigasi pengajar institusi (dari Home -> Beranda -> Kelas Saya -> Detail Kelas -> Materi/Tugas/Kuis/Presensi/Nilai/Pengumpulan/Detail Hasil) terhubung tanpa error (`ActivityNotFoundException`).
+c) **Bukti Pencarian**: String data dummy steril dari file produksi non-Fake.
+d) **Default Repository = Empty**: `PengajarRepoConfig.useFakeData = false`.
+e) **CATATAN_TAHAP.md diperbarui**.
