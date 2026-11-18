@@ -49,6 +49,23 @@ object UiKit {
     val SUCCESS_SOFT: Int = Color.parseColor("#E6F7EF")
     val DISABLED: Int = Color.parseColor("#EEF2F8")
 
+    fun getBerandaIntent(context: Activity, role: String? = null, mode: String? = null): Intent {
+        val currentRole = role ?: context.intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+        val currentMode = mode ?: context.intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+
+        val tujuan = if (currentRole == PilihPeranActivity.ROLE_PELAJAR && currentMode == ModePembelajaranActivity.MODE_INSTITUSI) {
+            BerandaPelajarInstitusiActivity::class.java
+        } else {
+            HomeActivity::class.java
+        }
+
+        return Intent(context, tujuan).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(PilihPeranActivity.EXTRA_ROLE, currentRole)
+            putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, currentMode)
+        }
+    }
+
     const val MATCH = ViewGroup.LayoutParams.MATCH_PARENT
     const val WRAP = ViewGroup.LayoutParams.WRAP_CONTENT
 

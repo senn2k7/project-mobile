@@ -94,6 +94,32 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
         return flowOf(filtered)
     }
 
+    override fun getKelasDiikuti(searchQuery: String, pelajarId: String): Flow<List<PengajarKelas>> {
+        var filtered = allKelas.map { it ->
+            PengajarKelas(
+                id = it.id,
+                namaMataKuliah = it.namaMataKuliah,
+                namaKelas = it.namaKelas,
+                kodeKelas = it.kodeKelas,
+                jenisInstitusi = it.jenisInstitusi,
+                semester = it.semester,
+                ikon = it.ikon,
+                warna = it.warna,
+                jumlahPelajar = it.jumlahPelajar,
+                guruId = it.guruId,
+                arsip = it.arsip
+            )
+        }
+        if (searchQuery.isNotBlank()) {
+            filtered = filtered.filter {
+                it.namaMataKuliah.contains(searchQuery, ignoreCase = true) ||
+                        it.namaKelas.contains(searchQuery, ignoreCase = true) ||
+                        it.kodeKelas.contains(searchQuery, ignoreCase = true)
+            }
+        }
+        return flowOf(filtered)
+    }
+
     override fun kelasById(id: String): Flow<Kelas?> {
         val found = allKelas.find { it.id == id }
         return flowOf(found)

@@ -59,3 +59,11 @@ Lalu BERHENTI.
 - Awal tahap: baca ATURAN_AI.md dan CATATAN_TAHAP.md. Berikan rencana file maksimal 10 baris, lalu minta persetujuan.
 - Kerjakan HANYA tahap yang diminta.
 - Kuota/konteks hampir habis: berhenti di titik build hijau dan catat progres di CATATAN_TAHAP.md.
+
+## 9. LINGKUP TAMBAHAN: PELAJAR MODE INSTITUSI (berlaku mulai sesi ini)
+- Pekerjaan sekarang beralih ke UI PELAJAR mode institusi. Semua file berawalan/terkait "Pengajar" (PengajarBerandaActivity, PengajarTugasActivity, dst.) sekarang masuk DAFTAR_PENGAJAR_DILARANG — JANGAN disentuh sama sekali, berlaku kebalikan dari aturan sebelumnya.
+- File pelajar yang sudah ada (TugasPelajarActivity, TugasPelajarInstitusiActivity, DetailTugasPelajarActivity, DetailTugasPelajarInstitusiActivity, DetailKelasPelajarActivity, TugasBerhasilPelajarInstitusi, dll.) sekarang BOLEH diubah/ditulis ulang — ini target kerja.
+- Bottom navigation pelajar: Beranda, Kelas, AI, Aktivitas, Profil — BERBEDA dari bottom navigation pengajar (Beranda, Kelas, Tugas, AI, Profil). Jangan menyalin komponen bottom nav pengajar, buat/pakai yang khusus pelajar (mis. PelajarBottomNavHelper jika belum ada).
+- Semua file baru untuk sesi ini diberi awalan/akhiran "Pelajar" dengan jelas.
+- Fitur AI Asisten (chat): untuk tahap ini HANYA UI shell. Mengirim pesan menambahkan bubble ke daftar chat lokal (tanpa backend AI sungguhan). Tombol lampiran (Foto/Video/Dokumen/Ambil Foto) tampil sesuai desain tapi aksinya Toast TODO (permission kamera/galeri dikerjakan di sesi terpisah nanti). Tombol saran pertanyaan boleh mengisi kotak input saat diklik. Dropdown "Konteks Belajar" boleh TODO untuk ganti materi, tapi WAJIB menampilkan status yang benar: "Belum memilih materi" jika dibuka dari tab AI langsung, atau nama kelas+pertemuan jika dibuka dari Detail Kelas lewat tombol "Tanyakan Materi ke AI" — JANGAN ada default senyap.
+- Fitur Diskusi: dikerjakan sebagai UI statis (daftar pesan dari Fake repository), BELUM real-time, kirim pesan menambah ke list lokal saja.

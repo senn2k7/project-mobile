@@ -339,14 +339,18 @@ class DetailKelasPelajarInstitusiActivity : AppCompatActivity() {
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
-                    val intent = Intent(this@DetailKelasPelajarInstitusiActivity, TugasPelajarInstitusiActivity::class.java)
+                    val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+                    val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+                    val intent = UiKit.withProfile(Intent(this@DetailKelasPelajarInstitusiActivity, TugasPelajarInstitusiActivity::class.java), role, mode)
                     startActivity(intent)
                 }
             } else if (title == "Kuis") {
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
-                    val intent = Intent(this@DetailKelasPelajarInstitusiActivity, DetailKuisPelajarInstitusiActivity::class.java).apply {
+                    val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+                    val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+                    val intent = UiKit.withProfile(Intent(this@DetailKelasPelajarInstitusiActivity, DetailKuisPelajarInstitusiActivity::class.java), role, mode).apply {
                         putExtra(DetailKuisPelajarInstitusiActivity.EXTRA_QUIZ_TITLE, "Kuis Sistem Cerdas")
                         putExtra(DetailKuisPelajarInstitusiActivity.EXTRA_MEETING, "Pertemuan 2")
                     }
@@ -356,7 +360,9 @@ class DetailKelasPelajarInstitusiActivity : AppCompatActivity() {
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
-                    val intent = Intent(this@DetailKelasPelajarInstitusiActivity, DiskusiPelajarInstitusiActivity::class.java).apply {
+                    val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+                    val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+                    val intent = UiKit.withProfile(Intent(this@DetailKelasPelajarInstitusiActivity, DiskusiPelajarInstitusiActivity::class.java), role, mode).apply {
                         putExtra(DiskusiPelajarInstitusiActivity.EXTRA_COURSE_NAME, "Pemrograman Mobile")
                     }
                     startActivity(intent)
@@ -464,11 +470,9 @@ class DetailKelasPelajarInstitusiActivity : AppCompatActivity() {
             setOnClickListener {
                 when (label) {
                     "Beranda" -> {
-                        val intent = Intent(this@DetailKelasPelajarInstitusiActivity, HomeActivity::class.java).apply {
-                            putExtra(PilihPeranActivity.EXTRA_ROLE, PilihPeranActivity.ROLE_PELAJAR)
-                            putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, ModePembelajaranActivity.MODE_INSTITUSI)
-                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        }
+                        val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+                        val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+                        val intent = UiKit.getBerandaIntent(this@DetailKelasPelajarInstitusiActivity, role, mode)
                         startActivity(intent)
                     }
                     "Kelas" -> {

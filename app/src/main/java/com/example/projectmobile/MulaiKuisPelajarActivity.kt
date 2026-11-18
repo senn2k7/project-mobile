@@ -176,7 +176,9 @@ class MulaiKuisPelajarActivity : AppCompatActivity() {
             isClickable = true
             isFocusable = true
             setOnClickListener {
-                val intent = Intent(this@MulaiKuisPelajarActivity, HasilKuisPelajarActivity::class.java)
+                val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+                val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+                val intent = UiKit.withProfile(Intent(this@MulaiKuisPelajarActivity, HasilKuisPelajarActivity::class.java), role, mode)
                 startActivity(intent)
                 finish()
             }

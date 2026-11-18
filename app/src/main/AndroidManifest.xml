@@ -187,6 +187,17 @@
             android:name=".LengkapiProfilPelajarActivity"
             android:exported="false" />
 
+        <!-- Halaman Beranda Pelajar Institusi -->
+        <activity
+            android:name=".BerandaPelajarInstitusiActivity"
+            android:exported="false" />
+
+        <!-- Halaman Kelola AI Asisten Pelajar -->
+        <activity
+            android:name=".KelolaAiAsistenPelajarActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Halaman Utama (Home) -->
         <activity
             android:name=".HomeActivity"

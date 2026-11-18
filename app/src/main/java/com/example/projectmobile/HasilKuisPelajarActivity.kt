@@ -234,11 +234,9 @@ class HasilKuisPelajarActivity : AppCompatActivity() {
             isClickable = true
             isFocusable = true
             setOnClickListener {
-                val intent = Intent(this@HasilKuisPelajarActivity, HomeActivity::class.java).apply {
-                    putExtra(PilihPeranActivity.EXTRA_ROLE, PilihPeranActivity.ROLE_PELAJAR)
-                    putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, ModePembelajaranActivity.MODE_INSTITUSI)
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
+                val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+                val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+                val intent = UiKit.getBerandaIntent(this@HasilKuisPelajarActivity, role, mode)
                 startActivity(intent)
                 finish()
             }
