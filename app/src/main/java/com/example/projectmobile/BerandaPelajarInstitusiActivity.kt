@@ -2,8 +2,12 @@ package com.example.projectmobile
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.view.Gravity
+import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -24,6 +28,7 @@ class BerandaPelajarInstitusiActivity : AppCompatActivity() {
     private lateinit var tvStatTugas: TextView
     private lateinit var tvStatKuis: TextView
     private lateinit var containerKelasPreview: LinearLayout
+    private lateinit var containerAgendaPreview: LinearLayout
     private lateinit var tvLihatSemuaKelas: TextView
     private lateinit var btnMulaiBertanya: TextView
 
@@ -45,6 +50,7 @@ class BerandaPelajarInstitusiActivity : AppCompatActivity() {
         tvStatTugas = findViewById(R.id.tvStatTugas)
         tvStatKuis = findViewById(R.id.tvStatKuis)
         containerKelasPreview = findViewById(R.id.containerKelasPreview)
+        containerAgendaPreview = findViewById(R.id.containerAgendaPreview)
         tvLihatSemuaKelas = findViewById(R.id.tvLihatSemuaKelas)
         btnMulaiBertanya = findViewById(R.id.btnMulaiBertanya)
     }
@@ -73,26 +79,97 @@ class BerandaPelajarInstitusiActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 kelasRepo.getKelasDiikuti("", "pelajar_me").collectLatest { list ->
                     tvStatKelas.text = list.size.toString()
-                    tvStatTugas.text = "2" // Pending tasks mock count
-                    tvStatKuis.text = "1"  // Upcoming quiz mock count
+                    val taskCount = if (list.isEmpty()) 0 else 2
+                    val quizCount = if (list.isEmpty()) 0 else 1
+                    tvStatTugas.text = taskCount.toString()
+                    tvStatKuis.text = quizCount.toString()
 
+                    // 1. Kelas Saya Preview
                     containerKelasPreview.removeAllViews()
-                    val previewList = list.take(3)
-                    for (kelas in previewList) {
-                        val card = layoutInflater.inflate(R.layout.item_kelas_pelajar, containerKelasPreview, false)
-                        card.findViewById<TextView>(R.id.tvNamaMataKuliah).text = kelas.namaMataKuliah
-                        card.findViewById<TextView>(R.id.tvDosenProdi).text = "${kelas.namaKelas} • ${kelas.semester}"
-                        card.findViewById<TextView>(R.id.tvPeserta).text = "${kelas.jumlahPelajar} peserta"
-                        card.setOnClickListener {
-                            val intent = Intent(this@BerandaPelajarInstitusiActivity, DetailKelasPelajarInstitusiActivity::class.java).apply {
-                                putExtra(DetailKelasPelajarInstitusiActivity.EXTRA_CLASS_NAME, kelas.namaMataKuliah)
-                            }
-                            startActivity(intent)
+                    if (list.isEmpty()) {
+                        val emptyTv = TextView(this@BerandaPelajarInstitusiActivity).apply {
+                            text = "Belum ada kelas yang diikuti"
+                            textSize = 14f
+                            setTextColor(Color.parseColor("#7186A5"))
+                            gravity = Gravity.CENTER
+                            setPadding(0, dp(16), 0, dp(16))
                         }
-                        containerKelasPreview.addView(card)
+                        containerKelasPreview.addView(emptyTv)
+                    } else {
+                        val previewList = list.take(3)
+                        for (kelas in previewList) {
+                            val card = layoutInflater.inflate(R.layout.item_kelas_pelajar, containerKelasPreview, false)
+                            card.findViewById<TextView>(R.id.tvNamaMataKuliah).text = kelas.namaMataKuliah
+                            card.findViewById<TextView>(R.id.tvDosenProdi).text = "${kelas.namaKelas} • ${kelas.semester}"
+                            card.findViewById<TextView>(R.id.tvPeserta).text = "${kelas.jumlahPelajar} peserta"
+                            card.setOnClickListener {
+                                val intent = Intent(this@BerandaPelajarInstitusiActivity, DetailKelasPelajarInstitusiActivity::class.java).apply {
+                                    putExtra(DetailKelasPelajarInstitusiActivity.EXTRA_CLASS_NAME, kelas.namaMataKuliah)
+                                }
+                                startActivity(intent)
+                            }
+                            containerKelasPreview.addView(card)
+                        }
+                    }
+
+                    // 2. Agenda Mendatang Preview
+                    containerAgendaPreview.removeAllViews()
+                    if (list.isEmpty()) {
+                        val emptyAgendaTv = TextView(this@BerandaPelajarInstitusiActivity).apply {
+                            text = "Belum ada agenda mendatang"
+                            textSize = 14f
+                            setTextColor(Color.parseColor("#7186A5"))
+                            gravity = Gravity.CENTER
+                            setPadding(0, dp(16), 0, dp(16))
+                        }
+                        containerAgendaPreview.addView(emptyAgendaTv)
+                    } else {
+                        val agendaCard = createAgendaCard("Tugas: Membuat UI Login Android", "12 Jun 2025", false)
+                        containerAgendaPreview.addView(agendaCard)
                     }
                 }
             }
         }
     }
+
+    private fun createAgendaCard(title: String, date: String, isKuis: Boolean): View {
+        val card = androidx.cardview.widget.CardView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                bottomMargin = dp(8)
+            }
+            radius = dp(16).toFloat()
+            cardElevation = dp(1).toFloat()
+            setCardBackgroundColor(Color.WHITE)
+        }
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(14), dp(14), dp(14), dp(14))
+        }
+        val icon = ImageView(this).apply {
+            setImageResource(if (isKuis) R.drawable.ic_code else R.drawable.ic_description)
+            setColorFilter(if (isKuis) Color.parseColor("#8A5CF5") else Color.parseColor("#FB8C00"))
+        }
+        layout.addView(icon, LinearLayout.LayoutParams(dp(24), dp(24)))
+
+        val titleTv = TextView(this).apply {
+            text = title
+            textSize = 14f
+            setTextColor(Color.parseColor("#19365F"))
+            setTypeface(null, Typeface.BOLD)
+        }
+        layout.addView(titleTv, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { leftMargin = dp(12) })
+
+        val dateTv = TextView(this).apply {
+            text = date
+            textSize = 12f
+            setTextColor(Color.parseColor("#7186A5"))
+        }
+        layout.addView(dateTv)
+
+        card.addView(layout)
+        return card
+    }
+
+    private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 }

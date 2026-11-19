@@ -82,81 +82,82 @@
     </LinearLayout>
 
     <!-- Filter Chips -->
-    <HorizontalScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
-        android:scrollbars="none">
+        android:paddingVertical="8dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/chipSemua"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:background="@drawable/bg_tab_selected"
+            android:fontFamily="sans-serif-medium"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:text="Semua"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/chipSemua"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_tab_selected"
-                android:fontFamily="sans-serif-medium"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
-                android:text="Semua"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+        <TextView
+            android:id="@+id/chipInstitusi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/bg_tab_unselected"
+            android:fontFamily="sans-serif-medium"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:text="Institusi"
+            android:textColor="#7186A5"
+            android:textSize="12sp" />
 
-            <TextView
-                android:id="@+id/chipInstitusi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_tab_unselected"
-                android:fontFamily="sans-serif-medium"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
-                android:text="Institusi"
-                android:textColor="#7186A5"
-                android:textSize="12sp" />
+        <TextView
+            android:id="@+id/chipMandiri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/bg_tab_unselected"
+            android:fontFamily="sans-serif-medium"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:text="Mandiri"
+            android:textColor="#7186A5"
+            android:textSize="12sp" />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/chipMandiri"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_tab_unselected"
-                android:fontFamily="sans-serif-medium"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
-                android:text="Mandiri"
-                android:textColor="#7186A5"
-                android:textSize="12sp" />
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <!-- Content RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvKelasPelajar"
+    <!-- Content Container (fills remaining vertical space to pin bottom nav to bottom) -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:padding="16dp"
-        tools:itemCount="3"
-        tools:listitem="@layout/item_kelas_pelajar" />
+        android:padding="16dp">
 
-    <!-- Empty View -->
-    <TextView
-        android:id="@+id/tvEmpty"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="32dp"
-        android:text="Tidak ada kelas ditemukan"
-        android:textColor="#7186A5"
-        android:textSize="14sp"
-        android:visibility="gone" />
+        <!-- Content RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvKelasPelajar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_kelas_pelajar" />
+
+        <!-- Empty View -->
+        <TextView
+            android:id="@+id/tvEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="32dp"
+            android:text="Tidak ada kelas ditemukan"
+            android:textColor="#7186A5"
+            android:textSize="14sp"
+            android:visibility="gone" />
+    </FrameLayout>
 
     <!-- Bottom Nav Container -->
     <FrameLayout
