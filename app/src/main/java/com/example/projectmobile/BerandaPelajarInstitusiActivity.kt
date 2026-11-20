@@ -15,14 +15,27 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.projectmobile.ui.pengajar.institusi.FormatTanggal
 import com.example.projectmobile.ui.pengajar.institusi.KelasRepository
+import com.example.projectmobile.ui.pengajar.institusi.KuisRepository
 import com.example.projectmobile.ui.pengajar.institusi.PengajarRepositoryProvider
+import com.example.projectmobile.ui.pengajar.institusi.TugasRepository
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+
+data class AgendaUiModel(
+    val title: String,
+    val dateText: String,
+    val timestamp: Long,
+    val isKuis: Boolean
+)
 
 class BerandaPelajarInstitusiActivity : AppCompatActivity() {
 
     private val kelasRepo: KelasRepository = PengajarRepositoryProvider.provideKelasRepo()
+    private val tugasRepo: TugasRepository = PengajarRepositoryProvider.provideTugasRepo()
+    private val kuisRepo: KuisRepository = PengajarRepositoryProvider.provideKuisRepo()
 
     private lateinit var tvStatKelas: TextView
     private lateinit var tvStatTugas: TextView
@@ -77,55 +90,74 @@ class BerandaPelajarInstitusiActivity : AppCompatActivity() {
     private fun loadStatsAndClasses() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                kelasRepo.getKelasDiikuti("", "pelajar_me").collectLatest { list ->
-                    tvStatKelas.text = list.size.toString()
-                    val taskCount = if (list.isEmpty()) 0 else 2
-                    val quizCount = if (list.isEmpty()) 0 else 1
-                    tvStatTugas.text = taskCount.toString()
-                    tvStatKuis.text = quizCount.toString()
+                // 1. Load Kelas
+                launch {
+                    kelasRepo.getKelasDiikuti("", "pelajar_me").collectLatest { list ->
+                        tvStatKelas.text = list.size.toString()
 
-                    // 1. Kelas Saya Preview
-                    containerKelasPreview.removeAllViews()
-                    if (list.isEmpty()) {
-                        val emptyTv = TextView(this@BerandaPelajarInstitusiActivity).apply {
-                            text = "Belum ada kelas yang diikuti"
-                            textSize = 14f
-                            setTextColor(Color.parseColor("#7186A5"))
-                            gravity = Gravity.CENTER
-                            setPadding(0, dp(16), 0, dp(16))
-                        }
-                        containerKelasPreview.addView(emptyTv)
-                    } else {
-                        val previewList = list.take(3)
-                        for (kelas in previewList) {
-                            val card = layoutInflater.inflate(R.layout.item_kelas_pelajar, containerKelasPreview, false)
-                            card.findViewById<TextView>(R.id.tvNamaMataKuliah).text = kelas.namaMataKuliah
-                            card.findViewById<TextView>(R.id.tvDosenProdi).text = "${kelas.namaKelas} • ${kelas.semester}"
-                            card.findViewById<TextView>(R.id.tvPeserta).text = "${kelas.jumlahPelajar} peserta"
-                            card.setOnClickListener {
-                                val intent = Intent(this@BerandaPelajarInstitusiActivity, DetailKelasPelajarInstitusiActivity::class.java).apply {
-                                    putExtra(DetailKelasPelajarInstitusiActivity.EXTRA_CLASS_NAME, kelas.namaMataKuliah)
-                                }
-                                startActivity(intent)
+                        containerKelasPreview.removeAllViews()
+                        if (list.isEmpty()) {
+                            val emptyTv = TextView(this@BerandaPelajarInstitusiActivity).apply {
+                                text = "Belum ada kelas yang diikuti"
+                                textSize = 14f
+                                setTextColor(Color.parseColor("#7186A5"))
+                                gravity = Gravity.CENTER
+                                setPadding(0, dp(16), 0, dp(16))
                             }
-                            containerKelasPreview.addView(card)
+                            containerKelasPreview.addView(emptyTv)
+                        } else {
+                            val previewList = list.take(3)
+                            for (kelas in previewList) {
+                                val card = layoutInflater.inflate(R.layout.item_kelas_pelajar, containerKelasPreview, false)
+                                card.findViewById<TextView>(R.id.tvNamaMataKuliah).text = kelas.namaMataKuliah
+                                card.findViewById<TextView>(R.id.tvDosenProdi).text = "${kelas.namaKelas} • ${kelas.semester}"
+                                card.findViewById<TextView>(R.id.tvPeserta).text = "${kelas.jumlahPelajar} peserta"
+                                card.setOnClickListener {
+                                    val intent = Intent(this@BerandaPelajarInstitusiActivity, DetailKelasPelajarInstitusiActivity::class.java).apply {
+                                        putExtra(DetailKelasPelajarInstitusiActivity.EXTRA_CLASS_NAME, kelas.namaMataKuliah)
+                                    }
+                                    startActivity(intent)
+                                }
+                                containerKelasPreview.addView(card)
+                            }
                         }
                     }
+                }
 
-                    // 2. Agenda Mendatang Preview
-                    containerAgendaPreview.removeAllViews()
-                    if (list.isEmpty()) {
-                        val emptyAgendaTv = TextView(this@BerandaPelajarInstitusiActivity).apply {
-                            text = "Belum ada agenda mendatang"
-                            textSize = 14f
-                            setTextColor(Color.parseColor("#7186A5"))
-                            gravity = Gravity.CENTER
-                            setPadding(0, dp(16), 0, dp(16))
+                // 2. Load Tugas & Kuis for Stats & Agenda
+                launch {
+                    combine(
+                        tugasRepo.tugasMendatang("pelajar_me"),
+                        kuisRepo.kuisMendatang("pelajar_me")
+                    ) { tugasList, kuisList ->
+                        tvStatTugas.text = tugasList.size.toString()
+                        tvStatKuis.text = kuisList.size.toString()
+
+                        val agendas = mutableListOf<AgendaUiModel>()
+                        for (t in tugasList) {
+                            agendas.add(AgendaUiModel("Tugas: ${t.judul}", FormatTanggal.formatTanpaTahun(t.tenggat), t.tenggat, false))
                         }
-                        containerAgendaPreview.addView(emptyAgendaTv)
-                    } else {
-                        val agendaCard = createAgendaCard("Tugas: Membuat UI Login Android", "12 Jun 2025", false)
-                        containerAgendaPreview.addView(agendaCard)
+                        for (k in kuisList) {
+                            agendas.add(AgendaUiModel("Kuis: ${k.judul}", FormatTanggal.formatTanpaTahun(k.createdAt + 86400000L * 2), k.createdAt, true))
+                        }
+                        agendas.sortedBy { it.timestamp }
+                    }.collectLatest { agendaList ->
+                        containerAgendaPreview.removeAllViews()
+                        if (agendaList.isEmpty()) {
+                            val emptyAgendaTv = TextView(this@BerandaPelajarInstitusiActivity).apply {
+                                text = "Belum ada agenda mendatang"
+                                textSize = 14f
+                                setTextColor(Color.parseColor("#7186A5"))
+                                gravity = Gravity.CENTER
+                                setPadding(0, dp(16), 0, dp(16))
+                            }
+                            containerAgendaPreview.addView(emptyAgendaTv)
+                        } else {
+                            for (agenda in agendaList.take(3)) {
+                                val card = createAgendaCard(agenda.title, agenda.dateText, agenda.isKuis)
+                                containerAgendaPreview.addView(card)
+                            }
+                        }
                     }
                 }
             }

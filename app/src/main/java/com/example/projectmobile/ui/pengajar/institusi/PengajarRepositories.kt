@@ -25,12 +25,14 @@ interface TugasRepository {
     fun tugasById(id: String): Flow<Tugas?>
     fun lampiran(tugasId: String): Flow<List<LampiranTugas>>
     suspend fun buatTugas(input: InputTugas): Result<String>
+    fun tugasMendatang(pelajarId: String = ""): Flow<List<Tugas>>
 }
 
 interface KuisRepository {
     fun kuisPerKelas(kelasId: String): Flow<List<Kuis>>
     fun kuisById(id: String): Flow<Kuis?>
     suspend fun simpanKuis(input: InputKuis, status: String): Result<String>
+    fun kuisMendatang(pelajarId: String = ""): Flow<List<Kuis>>
 }
 
 interface HasilKuisRepository {
@@ -72,12 +74,14 @@ class EmptyTugasRepository : TugasRepository {
     override fun tugasById(id: String): Flow<Tugas?> = flowOf(null)
     override fun lampiran(tugasId: String): Flow<List<LampiranTugas>> = flowOf(emptyList())
     override suspend fun buatTugas(input: InputTugas): Result<String> = Result.failure(Exception("Belum terhubung ke database"))
+    override fun tugasMendatang(pelajarId: String): Flow<List<Tugas>> = flowOf(emptyList())
 }
 
 class EmptyKuisRepository : KuisRepository {
     override fun kuisPerKelas(kelasId: String): Flow<List<Kuis>> = flowOf(emptyList())
     override fun kuisById(id: String): Flow<Kuis?> = flowOf(null)
     override suspend fun simpanKuis(input: InputKuis, status: String): Result<String> = Result.failure(Exception("Belum terhubung ke database"))
+    override fun kuisMendatang(pelajarId: String): Flow<List<Kuis>> = flowOf(emptyList())
 }
 
 class EmptyHasilKuisRepository : HasilKuisRepository {
@@ -108,10 +112,10 @@ object PengajarRepositoryProvider {
         if (PengajarRepoConfig.useFakeData) FakeMateriRepository() else EmptyMateriRepository()
 
     fun provideTugasRepo(): TugasRepository =
-        if (PengajarRepoConfig.useFakeData) FakeTugasRepository() else EmptyTugasRepository()
+        if (PengajarRepoConfig.useFakeData) FakeTugasRepository(provideKelasRepo()) else EmptyTugasRepository()
 
     fun provideKuisRepo(): KuisRepository =
-        if (PengajarRepoConfig.useFakeData) FakeKuisRepository() else EmptyKuisRepository()
+        if (PengajarRepoConfig.useFakeData) FakeKuisRepository(provideKelasRepo()) else EmptyKuisRepository()
 
     fun provideHasilKuisRepo(): HasilKuisRepository =
         if (PengajarRepoConfig.useFakeData) FakeHasilKuisRepository() else EmptyHasilKuisRepository()

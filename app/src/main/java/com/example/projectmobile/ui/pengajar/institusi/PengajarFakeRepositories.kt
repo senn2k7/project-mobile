@@ -2,6 +2,7 @@ package com.example.projectmobile.ui.pengajar.institusi
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import java.util.Locale
 
 class FakePengajarProfilRepository : PengajarProfilRepository {
@@ -95,6 +96,9 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
     }
 
     override fun getKelasDiikuti(searchQuery: String, pelajarId: String): Flow<List<PengajarKelas>> {
+        if (pelajarId.isBlank()) {
+            return flowOf(emptyList())
+        }
         var filtered = allKelas.map { it ->
             PengajarKelas(
                 id = it.id,
@@ -134,30 +138,6 @@ class FakeMateriRepository : MateriRepository {
             pertemuanKe = 1,
             judul = "Pengenalan Android Studio",
             deskripsi = "Materi dasar pengenalan lingkungan pengembangan Android Studio.",
-            namaFile = "Pengenalan Android Studio.pdf",
-            tipeFile = "application/pdf",
-            ukuranByte = 2450000L,
-            url = "",
-            createdAt = System.currentTimeMillis() - 86400000L * 5
-        ),
-        Materi(
-            id = "m2",
-            kelasId = "1",
-            pertemuanKe = 2,
-            judul = "Struktur Project",
-            deskripsi = "Penjelasan mengenai struktur folder dan file gradle pada project Android.",
-            namaFile = "Struktur Project.zip",
-            tipeFile = "application/zip",
-            ukuranByte = 5200000L,
-            url = "",
-            createdAt = System.currentTimeMillis() - 86400000L * 3
-        ),
-        Materi(
-            id = "m3",
-            kelasId = "1",
-            pertemuanKe = 3,
-            judul = "Modul Pertemuan 1",
-            deskripsi = "Modul praktikum sesi pertama.",
             namaFile = "Modul Pertemuan 1.pdf",
             tipeFile = "application/pdf",
             ukuranByte = 1800000L,
@@ -175,7 +155,9 @@ class FakeMateriRepository : MateriRepository {
     }
 }
 
-class FakeTugasRepository : TugasRepository {
+class FakeTugasRepository(
+    private val kelasRepo: KelasRepository = FakePengajarKelasRepository()
+) : TugasRepository {
     private val currentTime = System.currentTimeMillis()
     private val tugasList = listOf(
         Tugas(
@@ -241,6 +223,19 @@ class FakeTugasRepository : TugasRepository {
             list = list.filter { TaskStatusUtils.hitungStatus(it.tenggat) == "Selesai" }
         }
         return flowOf(list)
+    }
+
+    override fun tugasMendatang(pelajarId: String): Flow<List<Tugas>> {
+        if (pelajarId.isBlank()) {
+            return flowOf(emptyList())
+        }
+        return kelasRepo.getKelasDiikuti("", pelajarId).map { kelasList ->
+            val followedKelasIds = kelasList.map { it.id }
+            val now = System.currentTimeMillis()
+            tugasList.filter { 
+                it.tenggat > now && followedKelasIds.contains(it.kelasId)
+            }.sortedBy { it.tenggat }
+        }
     }
 
     override fun tugasById(id: String): Flow<Tugas?> {
@@ -332,7 +327,10 @@ class FakePengajarNotifikasiRepository : PengajarNotifikasiRepository {
     override fun getUnreadCount(): Flow<Int> = flowOf(2)
 }
 
-class FakeKuisRepository : KuisRepository {
+class FakeKuisRepository(
+    private val kelasRepo: KelasRepository = FakePengajarKelasRepository()
+) : KuisRepository {
+    private val currentTime = System.currentTimeMillis()
     private val kuisList = mutableListOf(
         Kuis(
             id = "k1",
@@ -344,12 +342,27 @@ class FakeKuisRepository : KuisRepository {
             nilaiMinimal = 70,
             jumlahSoal = 10,
             status = "dipublikasikan",
-            createdAt = System.currentTimeMillis() - 86400000L * 2
+            createdAt = currentTime - 86400000L * 2,
+            tenggat = currentTime + 86400000L * 3
         )
     )
 
     override fun kuisPerKelas(kelasId: String): Flow<List<Kuis>> = flowOf(kuisList.filter { it.kelasId == kelasId || kelasId == "1" })
     override fun kuisById(id: String): Flow<Kuis?> = flowOf(kuisList.find { it.id == id })
+    override fun kuisMendatang(pelajarId: String): Flow<List<Kuis>> {
+        if (pelajarId.isBlank()) {
+            return flowOf(emptyList())
+        }
+        return kelasRepo.getKelasDiikuti("", pelajarId).map { kelasList ->
+            val followedKelasIds = kelasList.map { it.id }
+            val now = System.currentTimeMillis()
+            kuisList.filter { 
+                it.status == "dipublikasikan" && 
+                it.tenggat > now && 
+                followedKelasIds.contains(it.kelasId)
+            }.sortedBy { it.tenggat }
+        }
+    }
     override suspend fun simpanKuis(input: InputKuis, status: String): Result<String> {
         val id = "kuis_${System.currentTimeMillis()}"
         kuisList.add(
@@ -371,116 +384,7 @@ class FakeKuisRepository : KuisRepository {
 }
 
 class FakeHasilKuisRepository : HasilKuisRepository {
-    private val soalList = listOf(
-        Soal(
-            id = "s1",
-            kuisId = "k1",
-            nomor = 1,
-            pertanyaan = "Manakah struktur data yang menerapkan prinsip LIFO (Last In First Out)?",
-            opsi = listOf(
-                OpsiSoal("A", "Queue"),
-                OpsiSoal("B", "Stack"),
-                OpsiSoal("C", "Array"),
-                OpsiSoal("D", "Tree")
-            ),
-            kunciJawaban = "B"
-        ),
-        Soal(
-            id = "s2",
-            kuisId = "k1",
-            nomor = 2,
-            pertanyaan = "Kompleksitas waktu pencarian biner (Binary Search) pada array terurut adalah...",
-            opsi = listOf(
-                OpsiSoal("A", "O(n)"),
-                OpsiSoal("B", "O(n log n)"),
-                OpsiSoal("C", "O(log n)"),
-                OpsiSoal("D", "O(1)")
-            ),
-            kunciJawaban = "C"
-        ),
-        Soal(
-            id = "s3",
-            kuisId = "k1",
-            nomor = 3,
-            pertanyaan = "Struktur data linier di mana penambahan dan penghapusan elemen dilakukan pada ujung yang berbeda disebut...",
-            opsi = listOf(
-                OpsiSoal("A", "Stack"),
-                OpsiSoal("B", "Queue"),
-                OpsiSoal("C", "Graph"),
-                OpsiSoal("D", "Tree")
-            ),
-            kunciJawaban = "B"
-        )
-    )
-
-    private val pelajarNames = listOf(
-        "Nadia Putri", "Rizky Pratama", "Siti Aulia", "Andi Saputra",
-        "Dewi Lestari", "Ahmad Fauzi", "Rina Marlina", "Budi Santoso",
-        "Citra Kirana", "Dedi Kurniawan", "Eka Putri", "Fajar Hidayat",
-        "Gita Gutawa", "Hadi Sucipto", "Indah Permata", "Joko Widodo",
-        "Kartika Sari", "Lukman Hakim", "Maya Estianty", "Novan Pratama",
-        "Olivia Zalianty", "Putri Titian", "Qomaruddin", "Rian D'Masiv", "Sinta Bella"
-    )
-
-    override fun hasilPerKuis(kuisId: String, query: String): Flow<List<HasilKuis>> {
-        val list = pelajarNames.mapIndexed { index, name ->
-            val isSelesai = index < 20 // 20 selesai, 5 belum
-            val nilai = if (isSelesai) 70 + (index * 3) % 31 else null
-            val jawaban = soalList.map { soal ->
-                val benar = isSelesai && (index % 2 == 0 || soal.id != "s2")
-                val kode = if (benar) soal.kunciJawaban else if (soal.kunciJawaban == "A") "B" else "A"
-                JawabanSoal(soalId = soal.id, kodeDipilih = kode, benar = benar)
-            }
-            HasilKuis(
-                id = "hk_$index",
-                kuisId = kuisId,
-                kelasId = "1",
-                pelajarId = "p_$index",
-                namaPelajar = name,
-                nim = "105220${String.format(Locale.getDefault(), "%02d", index + 1)}",
-                fotoUrl = "",
-                nilai = if (isSelesai) (nilai?.coerceAtMost(100)) else null,
-                nilaiMaks = 100,
-                status = if (isSelesai) "selesai" else "belum_selesai",
-                durasiPengerjaanMenit = 15 + (index % 6),
-                waktuSelesai = System.currentTimeMillis() - index * 1800000L,
-                jawaban = jawaban
-            )
-        }
-
-        var filtered = list
-        if (query.isNotBlank()) {
-            filtered = filtered.filter { it.namaPelajar.contains(query, ignoreCase = true) }
-        }
-        return flowOf(filtered)
-    }
-
-    override fun hasilById(id: String): Flow<HasilKuis?> {
-        val all = pelajarNames.mapIndexed { index, name ->
-            val isSelesai = index < 20
-            val jawaban = soalList.map { soal ->
-                JawabanSoal(soalId = soal.id, kodeDipilih = soal.kunciJawaban, benar = true)
-            }
-            HasilKuis(
-                id = "hk_$index",
-                kuisId = "k1",
-                kelasId = "1",
-                pelajarId = "p_$index",
-                namaPelajar = name,
-                nim = "105220${String.format(Locale.getDefault(), "%02d", index + 1)}",
-                fotoUrl = "",
-                nilai = 85,
-                nilaiMaks = 100,
-                status = if (isSelesai) "selesai" else "belum_selesai",
-                durasiPengerjaanMenit = 18,
-                waktuSelesai = System.currentTimeMillis(),
-                jawaban = jawaban
-            )
-        }
-        return flowOf(all.find { it.id == id } ?: all.first())
-    }
-
-    override fun soalPerKuis(kuisId: String): Flow<List<Soal>> {
-        return flowOf(soalList)
-    }
+    override fun hasilPerKuis(kuisId: String, query: String): Flow<List<HasilKuis>> = flowOf(emptyList())
+    override fun hasilById(id: String): Flow<HasilKuis?> = flowOf(null)
+    override fun soalPerKuis(kuisId: String): Flow<List<Soal>> = flowOf(emptyList())
 }

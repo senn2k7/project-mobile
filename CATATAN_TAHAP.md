@@ -1,17 +1,17 @@
-# CATATAN_TAHAP.md — Beranda & Kelas Saya Pelajar Mode Institusi
+# CATATAN_TAHAP.md — Beranda & Kelas Saya Pelajar Mode Institusi (Selesai)
 
 ## 1. Status Selesai
-- **Beranda Pelajar Institusi** (`BerandaPelajarInstitusiActivity.kt`) telah diisi desain lengkap sesuai acuan visual `01-beranda-pelajar.png`:
-  - Header sapaan, search bar, 3 kartu statistik (Kelas Aktif, Tugas Pending, Kuis Mendatang) mengambil data nyata dari `KelasRepository.getKelasDiikuti()`.
-  - Section "Kelas Saya" (preview card + "Lihat Semua" ke `KelasPelajarInstitusiActivity`), Agenda Mendatang, dan banner AI dengan jembatan Toast TODO ("Kelola AI Asisten (TODO)").
-- **Kelas Saya Pelajar** (`KelasPelajarInstitusiActivity.kt`) telah ditulis ulang dari prosedural `createScreen()` menjadi layout XML resmi (`activity_kelas_pelajar_institusi.xml`) dengan RecyclerView + `PelajarKelasAdapter` (`ListAdapter` + `DiffUtil`) serta item layout `item_kelas_pelajar.xml`. Progress bar diset 0% default (TODO pencatatan tracking di masa mendatang).
-- **PelajarBottomNavHelper** (`PelajarBottomNavHelper.kt`) telah dibuat terpusat dengan 5 tab (Beranda, Kelas, AI, Aktivitas, Profil) dan dipasang di kedua layar pelajar institusi.
-- **Repository**:
-  - Penambahan fungsi `getKelasDiikuti(searchQuery, pelajarId)` pada `PengajarKelasRepository` (dan implementasinya di `FakePengajarKelasRepository` & `EmptyPengajarKelasRepository`).
-- **Manifest**:
-  - `BerandaPelajarInstitusiActivity`, `KelasPelajarInstitusiActivity`, dan `KelolaAiAsistenPelajarActivity` telah didaftarkan di `AndroidManifest.xml`.
+- **Beranda Pelajar Institusi** (`BerandaPelajarInstitusiActivity.kt`) dan **Kelas Saya Pelajar** (`KelasPelajarInstitusiActivity.kt`) telah **SELESAI** diimplementasikan sesuai acuan visual Figma (`01-beranda-pelajar.png` & `02-kelas-saya.png`).
+- **Agenda Mendatang & Statistik**:
+  - `tugasMendatang(pelajarId)` dan `kuisMendatang(pelajarId)` kini melakukan query dinamis berbasis kelas yang diikuti (`getKelasDiikuti(pelajarId)`) dan filter waktu (`tenggat > now`), menggantikan data statis/hardcode sebelumnya.
+  - Kartu statistik dan agenda mendatang kini 100% konsisten dengan data repository.
+- **Progress Bar Kelas**:
+  - Ditampilkan dengan nilai default `0%` (TODO untuk implementasi sistem tracking pembacaan materi/tugas per pelajar di sesi terpisah).
+- **PelajarBottomNavHelper** (`PelajarBottomNavHelper.kt`) telah aktif dengan 5 tab (Beranda, Kelas, AI, Aktivitas, Profil).
+- **Repository Configuration**:
+  - `PengajarRepoConfig.useFakeData` dikembalikan ke `false` (Default Empty Repository).
 
-## 2. Definisi Selesai
+## 2. Definisi Selesai (Checklist BUG_DIKENAL.md)
 a) **Build lancar**: Build sukses (`app:assembleDebug` passed).
 b) **Jalur Navigasi**:
    - `MainActivity` -> `LoginActivity` -> `PilihPeranActivity` (Pelajar) -> `ModePembelajaranActivity` (Institusi) -> `BerandaPelajarInstitusiActivity` -> Tab Kelas / "Lihat Semua" -> `KelasPelajarInstitusiActivity`.

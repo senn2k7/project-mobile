@@ -90,7 +90,8 @@ data class Kuis(
     val urlFileSoal: String = "",
     val status: String = "dipublikasikan", // "draf" atau "dipublikasikan"
     val createdAt: Long = 0L,
-    val publishedAt: Long = 0L
+    val publishedAt: Long = 0L,
+    val tenggat: Long = 0L
 )
 
 data class OpsiSoal(
