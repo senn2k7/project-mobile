@@ -60,7 +60,9 @@ class KelasPelajarInstitusiActivity : AppCompatActivity() {
         rvKelasPelajar.layoutManager = LinearLayoutManager(this)
         adapter = PelajarKelasAdapter { kelas ->
             val intent = Intent(this, DetailKelasPelajarInstitusiActivity::class.java).apply {
-                putExtra(DetailKelasPelajarInstitusiActivity.EXTRA_CLASS_NAME, kelas.namaMataKuliah)
+                putExtra(DetailKelasPelajarInstitusiActivity.EXTRA_KELAS_ID, kelas.id)
+                putExtra(PilihPeranActivity.EXTRA_ROLE, PilihPeranActivity.ROLE_PELAJAR)
+                putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, ModePembelajaranActivity.MODE_INSTITUSI)
             }
             startActivity(intent)
         }

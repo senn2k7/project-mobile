@@ -114,7 +114,9 @@ class BerandaPelajarInstitusiActivity : AppCompatActivity() {
                                 card.findViewById<TextView>(R.id.tvPeserta).text = "${kelas.jumlahPelajar} peserta"
                                 card.setOnClickListener {
                                     val intent = Intent(this@BerandaPelajarInstitusiActivity, DetailKelasPelajarInstitusiActivity::class.java).apply {
-                                        putExtra(DetailKelasPelajarInstitusiActivity.EXTRA_CLASS_NAME, kelas.namaMataKuliah)
+                                        putExtra(DetailKelasPelajarInstitusiActivity.EXTRA_KELAS_ID, kelas.id)
+                                        putExtra(PilihPeranActivity.EXTRA_ROLE, PilihPeranActivity.ROLE_PELAJAR)
+                                        putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, ModePembelajaranActivity.MODE_INSTITUSI)
                                     }
                                     startActivity(intent)
                                 }

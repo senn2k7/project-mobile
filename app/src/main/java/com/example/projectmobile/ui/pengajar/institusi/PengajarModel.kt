@@ -34,7 +34,11 @@ data class Kelas(
     val jumlahPelajar: Int = 0,
     val guruId: String = "",
     val arsip: Boolean = false,
-    val deskripsi: String = ""
+    val deskripsi: String = "",
+    val dosenPengampu: String = "",
+    val dosenFotoUrl: String = "",
+    val tanggalPertemuan: Long = 0L,
+    val pertemuanKe: Int = 0
 )
 
 data class Materi(

@@ -30,7 +30,10 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
             warna = "#1D5EFF",
             jumlahPelajar = 28,
             guruId = "teacher_budi",
-            deskripsi = "Mata kuliah pengembangan aplikasi Android modern menggunakan Kotlin dan Jetpack."
+            deskripsi = "Mata kuliah pengembangan aplikasi Android modern menggunakan Kotlin dan Jetpack.",
+            dosenPengampu = "Dr. Budi Santoso",
+            tanggalPertemuan = 1747008000000L,
+            pertemuanKe = 1
         ),
         Kelas(
             id = "2",
@@ -43,7 +46,10 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
             warna = "#1D5EFF",
             jumlahPelajar = 32,
             guruId = "teacher_budi",
-            deskripsi = "Studi tentang kecerdasan buatan, machine learning, dan sistem pakar."
+            deskripsi = "Studi tentang kecerdasan buatan, machine learning, dan sistem pakar.",
+            dosenPengampu = "Dr. Rina Wati",
+            tanggalPertemuan = 1747008000000L,
+            pertemuanKe = 2
         ),
         Kelas(
             id = "3",
@@ -56,7 +62,10 @@ class FakePengajarKelasRepository : PengajarKelasRepository {
             warna = "#1FAF6E",
             jumlahPelajar = 26,
             guruId = "teacher_budi",
-            deskripsi = "Perancangan database relasional, normalisasi, dan SQL tingkat lanjut."
+            deskripsi = "Perancangan database relasional, normalisasi, dan SQL tingkat lanjut.",
+            dosenPengampu = "Dr. Ahmad Fauzi",
+            tanggalPertemuan = 1747008000000L,
+            pertemuanKe = 3
         )
     )
 
