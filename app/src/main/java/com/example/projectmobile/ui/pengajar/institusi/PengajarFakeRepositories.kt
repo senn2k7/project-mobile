@@ -452,7 +452,31 @@ class FakeKuisRepository(
 }
 
 class FakeHasilKuisRepository : HasilKuisRepository {
-    override fun hasilPerKuis(kuisId: String, query: String): Flow<List<HasilKuis>> = flowOf(emptyList())
-    override fun hasilById(id: String): Flow<HasilKuis?> = flowOf(null)
-    override fun soalPerKuis(kuisId: String): Flow<List<Soal>> = flowOf(emptyList())
+    private val hasilList = mutableListOf<HasilKuis>()
+    private val soalMap = mutableMapOf<String, List<Soal>>(
+        "k1" to listOf(
+            Soal("s1", "k1", 1, "Manakah yang merupakan Layout dasar di Android?", listOf(OpsiSoal("A", "LinearLayout"), OpsiSoal("B", "CardView"), OpsiSoal("C", "TextView"), OpsiSoal("D", "ImageView")), "A"),
+            Soal("s2", "k1", 2, "Komponen utama untuk menampilkan list reaktif adalah?", listOf(OpsiSoal("A", "ListView"), OpsiSoal("B", "RecyclerView"), OpsiSoal("C", "ScrollView"), OpsiSoal("D", "GridView")), "B"),
+            Soal("s3", "k1", 3, "Arsitektur yang direkomendasikan Google untuk aplikasi Android adalah?", listOf(OpsiSoal("A", "MVC"), OpsiSoal("B", "MVP"), OpsiSoal("C", "MVVM"), OpsiSoal("D", "MVI")), "C"),
+            Soal("s4", "k1", 4, "Bahasa pemrograman utama yang didukung Google untuk Android adalah?", listOf(OpsiSoal("A", "Java"), OpsiSoal("B", "Kotlin"), OpsiSoal("C", "Python"), OpsiSoal("D", "C++")), "B"),
+            Soal("s5", "k1", 5, "Fungsi untuk memulai Activity baru di Android adalah?", listOf(OpsiSoal("A", "startService"), OpsiSoal("B", "startActivity"), OpsiSoal("C", "runActivity"), OpsiSoal("D", "initActivity")), "B")
+        )
+    )
+
+    override fun hasilPerKuis(kuisId: String, query: String): Flow<List<HasilKuis>> = flowOf(hasilList.filter { it.kuisId == kuisId })
+    override fun hasilById(id: String): Flow<HasilKuis?> = flowOf(hasilList.find { it.id == id })
+    override fun soalPerKuis(kuisId: String): Flow<List<Soal>> {
+        val list = soalMap[kuisId] ?: soalMap.values.firstOrNull() ?: emptyList()
+        return flowOf(list.sortedBy { it.nomor })
+    }
+
+    override suspend fun simpanHasilKuis(hasil: HasilKuis): Result<String> {
+        if (hasil.pelajarId.isBlank()) {
+            return Result.failure(Exception("Pelajar tidak teridentifikasi"))
+        }
+        val id = "hasil_${System.currentTimeMillis()}"
+        val finalHasil = hasil.copy(id = id)
+        hasilList.add(finalHasil)
+        return Result.success(id)
+    }
 }

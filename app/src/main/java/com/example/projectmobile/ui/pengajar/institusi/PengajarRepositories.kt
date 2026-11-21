@@ -40,6 +40,7 @@ interface HasilKuisRepository {
     fun hasilPerKuis(kuisId: String, query: String = ""): Flow<List<HasilKuis>>
     fun hasilById(id: String): Flow<HasilKuis?>
     fun soalPerKuis(kuisId: String): Flow<List<Soal>>
+    suspend fun simpanHasilKuis(hasil: HasilKuis): Result<String>
 }
 
 interface PengumpulanRepository {
@@ -92,6 +93,7 @@ class EmptyHasilKuisRepository : HasilKuisRepository {
     override fun hasilPerKuis(kuisId: String, query: String): Flow<List<HasilKuis>> = flowOf(emptyList())
     override fun hasilById(id: String): Flow<HasilKuis?> = flowOf(null)
     override fun soalPerKuis(kuisId: String): Flow<List<Soal>> = flowOf(emptyList())
+    override suspend fun simpanHasilKuis(hasil: HasilKuis): Result<String> = Result.failure(Exception("Belum terhubung ke database"))
 }
 
 class EmptyPengumpulanRepository : PengumpulanRepository {

@@ -42,42 +42,50 @@
         <!-- Halaman Daftar Kelas Saya (Pelajar Institusi) -->
         <activity
             android:name=".KelasPelajarInstitusiActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- Halaman Detail Kelas (Pelajar Institusi) -->
         <activity
             android:name=".DetailKelasPelajarInstitusiActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- Halaman Diskusi Kelas (Pelajar Institusi) -->
         <activity
             android:name=".DiskusiPelajarInstitusiActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- Halaman Daftar Tugas (Pelajar Institusi) -->
         <activity
             android:name=".TugasPelajarInstitusiActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- Halaman Detail Tugas (Pelajar Institusi) -->
         <activity
             android:name=".DetailTugasPelajarInstitusiActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- Halaman Tugas Berhasil Dikumpulkan (Pelajar Institusi) -->
         <activity
             android:name=".TugasBerhasilPelajarActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- Halaman Detail Kuis (Pelajar Institusi) -->
         <activity
             android:name=".DetailKuisPelajarInstitusiActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- Halaman Mulai Kuis (Pelajar Institusi) -->
         <activity
             android:name=".MulaiKuisPelajarActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- Halaman Beranda & Kelas Saya (Pengajar Institusi) -->
         <activity
@@ -90,7 +98,8 @@
         <!-- Halaman Hasil Kuis (Pelajar Institusi) -->
         <activity
             android:name=".HasilKuisPelajarActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- Halaman Detail Kelas (Pengajar Institusi) -->
         <activity
@@ -190,12 +199,14 @@
         <!-- Halaman Beranda Pelajar Institusi -->
         <activity
             android:name=".BerandaPelajarInstitusiActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- Halaman Kelola AI Asisten Pelajar -->
         <activity
             android:name=".KelolaAiAsistenPelajarActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
         <!-- Halaman Utama (Home) -->

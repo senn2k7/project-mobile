@@ -139,7 +139,8 @@ data class HasilKuis(
     val durasiPengerjaanMenit: Int = 0,
     val waktuMulai: Long = 0L,
     val waktuSelesai: Long = 0L,
-    val jawaban: List<JawabanSoal> = emptyList()
+    val jawaban: List<JawabanSoal> = emptyList(),
+    val lulus: Boolean = false
 )
 
 data class PelajarKelas(
