@@ -26,6 +26,7 @@ interface TugasRepository {
     fun lampiran(tugasId: String): Flow<List<LampiranTugas>>
     suspend fun buatTugas(input: InputTugas): Result<String>
     fun tugasMendatang(pelajarId: String = ""): Flow<List<Tugas>>
+    fun tugasUntukPelajar(pelajarId: String = ""): Flow<List<Tugas>>
 }
 
 interface KuisRepository {
@@ -43,6 +44,8 @@ interface HasilKuisRepository {
 
 interface PengumpulanRepository {
     fun statusPengumpulan(tugasId: String, query: String = "", filterStatus: String = "SEMUA"): Flow<DaftarPengumpulan>
+    suspend fun kumpulkanTugas(tugasId: String, pelajarId: String, jawabanText: String, lampiran: FileLampiranInput?): Result<String>
+    fun getPengumpulanPelajar(pelajarId: String = ""): Flow<List<Pengumpulan>>
 }
 
 interface PengajarStatistikRepository {
@@ -75,6 +78,7 @@ class EmptyTugasRepository : TugasRepository {
     override fun lampiran(tugasId: String): Flow<List<LampiranTugas>> = flowOf(emptyList())
     override suspend fun buatTugas(input: InputTugas): Result<String> = Result.failure(Exception("Belum terhubung ke database"))
     override fun tugasMendatang(pelajarId: String): Flow<List<Tugas>> = flowOf(emptyList())
+    override fun tugasUntukPelajar(pelajarId: String): Flow<List<Tugas>> = flowOf(emptyList())
 }
 
 class EmptyKuisRepository : KuisRepository {
@@ -92,6 +96,8 @@ class EmptyHasilKuisRepository : HasilKuisRepository {
 
 class EmptyPengumpulanRepository : PengumpulanRepository {
     override fun statusPengumpulan(tugasId: String, query: String, filterStatus: String): Flow<DaftarPengumpulan> = flowOf(DaftarPengumpulan())
+    override suspend fun kumpulkanTugas(tugasId: String, pelajarId: String, jawabanText: String, lampiran: FileLampiranInput?): Result<String> = Result.failure(Exception("Belum terhubung ke database"))
+    override fun getPengumpulanPelajar(pelajarId: String): Flow<List<Pengumpulan>> = flowOf(emptyList())
 }
 
 class EmptyPengajarStatistikRepository : PengajarStatistikRepository {
@@ -103,27 +109,37 @@ class EmptyPengajarNotifikasiRepository : PengajarNotifikasiRepository {
 }
 
 object PengajarRepositoryProvider {
-    fun provideProfilRepo(): PengajarProfilRepository = EmptyPengajarProfilRepository()
+    private val fakeProfilRepo by lazy { FakePengajarProfilRepository() }
+    private val fakeKelasRepo by lazy { FakePengajarKelasRepository() }
+    private val fakeMateriRepo by lazy { FakeMateriRepository() }
+    private val fakeTugasRepo by lazy { FakeTugasRepository(fakeKelasRepo) }
+    private val fakeKuisRepo by lazy { FakeKuisRepository(fakeKelasRepo) }
+    private val fakeHasilKuisRepo by lazy { FakeHasilKuisRepository() }
+    private val fakePengumpulanRepo by lazy { FakePengumpulanRepository() }
+    private val fakeStatistikRepo by lazy { FakePengajarStatistikRepository() }
+    private val fakeNotifikasiRepo by lazy { FakePengajarNotifikasiRepository() }
+
+    fun provideProfilRepo(): PengajarProfilRepository = fakeProfilRepo
 
     fun provideKelasRepo(): KelasRepository =
-        if (PengajarRepoConfig.useFakeData) FakePengajarKelasRepository() else EmptyPengajarKelasRepository()
+        if (PengajarRepoConfig.useFakeData) fakeKelasRepo else EmptyPengajarKelasRepository()
 
     fun provideMateriRepo(): MateriRepository =
-        if (PengajarRepoConfig.useFakeData) FakeMateriRepository() else EmptyMateriRepository()
+        if (PengajarRepoConfig.useFakeData) fakeMateriRepo else EmptyMateriRepository()
 
     fun provideTugasRepo(): TugasRepository =
-        if (PengajarRepoConfig.useFakeData) FakeTugasRepository(provideKelasRepo()) else EmptyTugasRepository()
+        if (PengajarRepoConfig.useFakeData) fakeTugasRepo else EmptyTugasRepository()
 
     fun provideKuisRepo(): KuisRepository =
-        if (PengajarRepoConfig.useFakeData) FakeKuisRepository(provideKelasRepo()) else EmptyKuisRepository()
+        if (PengajarRepoConfig.useFakeData) fakeKuisRepo else EmptyKuisRepository()
 
     fun provideHasilKuisRepo(): HasilKuisRepository =
-        if (PengajarRepoConfig.useFakeData) FakeHasilKuisRepository() else EmptyHasilKuisRepository()
+        if (PengajarRepoConfig.useFakeData) fakeHasilKuisRepo else EmptyHasilKuisRepository()
 
     fun providePengumpulanRepo(): PengumpulanRepository =
-        if (PengajarRepoConfig.useFakeData) FakePengumpulanRepository() else EmptyPengumpulanRepository()
+        if (PengajarRepoConfig.useFakeData) fakePengumpulanRepo else EmptyPengumpulanRepository()
 
-    fun provideStatistikRepo(): PengajarStatistikRepository = EmptyPengajarStatistikRepository()
+    fun provideStatistikRepo(): PengajarStatistikRepository = fakeStatistikRepo
 
-    fun provideNotifikasiRepo(): PengajarNotifikasiRepository = EmptyPengajarNotifikasiRepository()
+    fun provideNotifikasiRepo(): PengajarNotifikasiRepository = fakeNotifikasiRepo
 }

@@ -1,5 +1,13 @@
 package com.example.projectmobile.ui.pengajar.institusi
 
+sealed class PengajarUiState<out T> {
+    object Loading : PengajarUiState<Nothing>()
+    data class Success<out T>(val data: T) : PengajarUiState<Nothing>()
+    object Empty : PengajarUiState<Nothing>()
+    data class CustomEmpty(val message: String) : PengajarUiState<Nothing>()
+    data class Error(val message: String) : PengajarUiState<Nothing>()
+}
+
 data class PengajarProfilGuru(
     val uid: String = "",
     val nama: String = "",
@@ -51,7 +59,6 @@ data class Materi(
     val tipeFile: String = "",
     val ukuranByte: Long = 0L,
     val url: String = "",
-    val status: String = "dipublikasikan",
     val createdAt: Long = 0L
 )
 
@@ -130,6 +137,7 @@ data class HasilKuis(
     val nilaiMaks: Int = 100,
     val status: String = "selesai", // "selesai" atau "belum_selesai"
     val durasiPengerjaanMenit: Int = 0,
+    val waktuMulai: Long = 0L,
     val waktuSelesai: Long = 0L,
     val jawaban: List<JawabanSoal> = emptyList()
 )
@@ -151,7 +159,9 @@ data class Pengumpulan(
     val namaFile: String = "",
     val tipeFile: String = "",
     val ukuranByte: Long = 0L,
-    val url: String = ""
+    val url: String = "",
+    val jawabanText: String = "",
+    val nilai: Int? = null
 )
 
 data class DaftarPengumpulan(
@@ -178,11 +188,11 @@ data class InputMateri(
 
 data class InputTugas(
     val kelasId: String = "",
-    val pertemuanKe: Int = 1,
     val judul: String = "",
     val deskripsi: String = "",
-    val tenggat: Long = 0L,
+    val pertemuanKe: Int = 1,
     val tipe: String = "individu",
+    val tenggat: Long = 0L,
     val lampiranList: List<FileLampiranInput> = emptyList()
 )
 
@@ -204,20 +214,3 @@ data class PengajarStatistikBeranda(
     val perluDinilai: Int = 0,
     val totalPelajar: Int = 0
 )
-
-data class PengajarNotifikasi(
-    val id: String = "",
-    val userId: String = "",
-    val judul: String = "",
-    val isi: String = "",
-    val dibaca: Boolean = false,
-    val createdAt: Long = 0L
-)
-
-sealed class PengajarUiState<out T> {
-    object Loading : PengajarUiState<Nothing>()
-    data class Success<T>(val data: T) : PengajarUiState<T>()
-    object Empty : PengajarUiState<Nothing>()
-    data class CustomEmpty(val message: String) : PengajarUiState<Nothing>()
-    data class Error(val message: String) : PengajarUiState<Nothing>()
-}

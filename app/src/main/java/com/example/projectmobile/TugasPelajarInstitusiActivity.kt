@@ -2,471 +2,158 @@ package com.example.projectmobile
 
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.ScrollView
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.projectmobile.ui.pengajar.institusi.PengajarRepositoryProvider
+import com.example.projectmobile.ui.pengajar.institusi.PengumpulanRepository
+import com.example.projectmobile.ui.pengajar.institusi.TugasRepository
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
 class TugasPelajarInstitusiActivity : AppCompatActivity() {
 
-    private data class StudentTask(
-        val title: String,
-        val course: String,
-        val deadline: String,
-        val status: String, // "belum", "menunggu", "selesai", "terlambat"
-        val statusText: String,
-        val statusTextColor: Int,
-        val statusBgColor: Int
-    )
+    private val tugasRepo: TugasRepository = PengajarRepositoryProvider.provideTugasRepo()
+    private val pengumpulanRepo: PengumpulanRepository = PengajarRepositoryProvider.providePengumpulanRepo()
 
-    private val tasksList = listOf(
-        StudentTask(
-            title = "Membuat UI Login Android",
-            course = "Pemrograman Mobile",
-            deadline = "12 Jun 2025, 23:59",
-            status = "belum",
-            statusText = "Belum Dikerjakan",
-            statusTextColor = Color.rgb(244, 67, 54),
-            statusBgColor = Color.rgb(255, 235, 238)
-        ),
-        StudentTask(
-            title = "Analisis Sistem",
-            course = "Sistem Cerdas",
-            deadline = "15 Jun 2025, 23:59",
-            status = "menunggu",
-            statusText = "Menunggu Penilaian",
-            statusTextColor = Color.rgb(255, 152, 0),
-            statusBgColor = Color.rgb(255, 243, 224)
-        ),
-        StudentTask(
-            title = "Laporan Basis Data",
-            course = "Basis Data",
-            deadline = "10 Jun 2025, 23:59",
-            status = "selesai",
-            statusText = "Dinilai (85)",
-            statusTextColor = Color.rgb(46, 125, 50),
-            statusBgColor = Color.rgb(232, 245, 233)
-        ),
-        StudentTask(
-            title = "Tugas Kelompok",
-            course = "Sistem Cerdas",
-            deadline = "10 Jun 2025, 23:59",
-            status = "terlambat",
-            statusText = "Terlambat",
-            statusTextColor = Color.rgb(244, 67, 54),
-            statusBgColor = Color.rgb(255, 235, 238)
-        )
-    )
-
+    private lateinit var rvTugasPelajar: RecyclerView
+    private lateinit var tvEmpty: TextView
     private lateinit var tabSemua: TextView
     private lateinit var tabBelum: TextView
     private lateinit var tabSelesai: TextView
-    private lateinit var tasksContainer: LinearLayout
+    private lateinit var adapter: PelajarTugasAdapter
 
     private var currentFilter = "semua" // "semua", "belum", "selesai"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         window.statusBarColor = Color.rgb(245, 250, 255)
         window.navigationBarColor = Color.rgb(245, 250, 255)
 
-        setContentView(createScreen())
+        setContentView(R.layout.activity_tugas_pelajar_institusi)
+
+        bindViews()
+        setupRecyclerView()
+        setupBottomNav()
+        setupListeners()
+        loadTugas()
     }
 
-    private fun createScreen(): View {
-        val bgColor = Color.rgb(245, 250, 255)
+    private fun bindViews() {
+        findViewById<ImageView>(R.id.btnBack).setOnClickListener { finish() }
+        findViewById<ImageView>(R.id.btnMenu).setOnClickListener {}
 
-        val rootLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundColor(bgColor)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-            )
-        }
-
-        // Main Scrollable Content
-        val scrollView = ScrollView(this).apply {
-            setBackgroundColor(bgColor)
-            isFillViewport = true
-            clipToPadding = false
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
-        }
-
-        val contentLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(16), dp(16), dp(24))
-            setBackgroundColor(bgColor)
-        }
-
-        // 1. Header Top (Back button, Title "Tugas", Options menu)
-        val headerLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-
-        val backButton = TextView(this).apply {
-            text = "‹"
-            textSize = 36f
-            setTextColor(Color.rgb(25, 54, 95))
-            gravity = Gravity.CENTER
-            includeFontPadding = false
-            setOnClickListener { finish() }
-        }
-        headerLayout.addView(backButton, LinearLayout.LayoutParams(dp(32), dp(44)))
-
-        val headerTitle = TextView(this).apply {
-            text = "Tugas"
-            textSize = 20f
-            setTextColor(Color.rgb(25, 54, 95))
-            setTypeface(null, Typeface.BOLD)
-            setPadding(dp(8), 0, 0, 0)
-        }
-        headerLayout.addView(headerTitle, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-
-        val optionsMenu = TextView(this).apply {
-            text = "⋮"
-            textSize = 20f
-            setTextColor(Color.rgb(25, 54, 95))
-            gravity = Gravity.CENTER
-        }
-        headerLayout.addView(optionsMenu, LinearLayout.LayoutParams(dp(36), dp(36)))
-
-        contentLayout.addView(headerLayout)
-
-        // 2. Filter Tabs Row (Semua, Belum Dikerjakan, Selesai)
-        val tabsLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(4), dp(4), dp(4), dp(4))
-            background = roundedBackground(Color.rgb(232, 240, 252), 12)
-        }
-        val tabsParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48)).apply {
-            topMargin = dp(16)
-        }
-
-        tabSemua = TextView(this).apply {
-            text = "Semua"
-            textSize = 12f
-            gravity = Gravity.CENTER
-            setOnClickListener { setFilter("semua") }
-        }
-        tabsLayout.addView(tabSemua, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f))
-
-        tabBelum = TextView(this).apply {
-            text = "Belum Dikerjakan"
-            textSize = 12f
-            gravity = Gravity.CENTER
-            setOnClickListener { setFilter("belum") }
-        }
-        tabsLayout.addView(tabBelum, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f))
-
-        tabSelesai = TextView(this).apply {
-            text = "Selesai"
-            textSize = 12f
-            gravity = Gravity.CENTER
-            setOnClickListener { setFilter("selesai") }
-        }
-        tabsLayout.addView(tabSelesai, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f))
-
-        contentLayout.addView(tabsLayout, tabsParams)
-
-        // 3. Tasks Cards Container
-        tasksContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-        val tasksParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-            topMargin = dp(16)
-        }
-        contentLayout.addView(tasksContainer, tasksParams)
-
-        updateTaskList()
-
-        scrollView.addView(contentLayout)
-        rootLayout.addView(scrollView)
-
-        // 4. Student Bottom Navigation Bar
-        val bottomNav = createBottomNav()
-        rootLayout.addView(bottomNav)
-
-        return rootLayout
+        rvTugasPelajar = findViewById(R.id.rvTugasPelajar)
+        tvEmpty = findViewById(R.id.tvEmpty)
+        tabSemua = findViewById(R.id.tabSemua)
+        tabBelum = findViewById(R.id.tabBelum)
+        tabSelesai = findViewById(R.id.tabSelesai)
     }
 
-    private fun setFilter(filter: String) {
-        currentFilter = filter
-        updateTabStyles()
-        updateTaskList()
-    }
-
-    private fun updateTabStyles() {
-        val activeBg = roundedBackground(Color.rgb(33, 96, 245), 10)
-        val inactiveBg = roundedBackground(Color.TRANSPARENT, 10)
-
-        tabSemua.background = inactiveBg
-        tabSemua.setTextColor(Color.rgb(117, 139, 169))
-        tabSemua.setTypeface(null, Typeface.NORMAL)
-
-        tabBelum.background = inactiveBg
-        tabBelum.setTextColor(Color.rgb(117, 139, 169))
-        tabBelum.setTypeface(null, Typeface.NORMAL)
-
-        tabSelesai.background = inactiveBg
-        tabSelesai.setTextColor(Color.rgb(117, 139, 169))
-        tabSelesai.setTypeface(null, Typeface.NORMAL)
-
-        when (currentFilter) {
-            "semua" -> {
-                tabSemua.background = activeBg
-                tabSemua.setTextColor(Color.WHITE)
-                tabSemua.setTypeface(null, Typeface.BOLD)
+    private fun setupRecyclerView() {
+        rvTugasPelajar.layoutManager = LinearLayoutManager(this)
+        adapter = PelajarTugasAdapter { tugas ->
+            val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+            val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+            val intent = UiKit.withProfile(Intent(this, DetailTugasPelajarInstitusiActivity::class.java), role, mode).apply {
+                putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_TUGAS_ID, tugas.id)
+                putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_TASK_TITLE, tugas.judul)
+                putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_COURSE_NAME, "Pemrograman Mobile")
             }
-            "belum" -> {
-                tabBelum.background = activeBg
-                tabBelum.setTextColor(Color.WHITE)
-                tabBelum.setTypeface(null, Typeface.BOLD)
-            }
-            "selesai" -> {
-                tabSelesai.background = activeBg
-                tabSelesai.setTextColor(Color.WHITE)
-                tabSelesai.setTypeface(null, Typeface.BOLD)
-            }
+            startActivity(intent)
+        }
+        rvTugasPelajar.adapter = adapter
+    }
+
+    private fun setupBottomNav() {
+        val bottomNavContainer = findViewById<FrameLayout>(R.id.bottomNavContainer)
+        bottomNavContainer.addView(PelajarBottomNavHelper.create(this, "Aktivitas"))
+    }
+
+    private fun setupListeners() {
+        tabSemua.setOnClickListener {
+            currentFilter = "semua"
+            updateTabUI()
+            loadTugas()
+        }
+        tabBelum.setOnClickListener {
+            currentFilter = "belum"
+            updateTabUI()
+            loadTugas()
+        }
+        tabSelesai.setOnClickListener {
+            currentFilter = "selesai"
+            updateTabUI()
+            loadTugas()
         }
     }
 
-    private fun updateTaskList() {
-        tasksContainer.removeAllViews()
+    private fun updateTabUI() {
+        val selectedBg = UiKit.rounded(this, Color.parseColor("#1D5EFF"), 20)
+        val unselectedBg = UiKit.rounded(this, Color.TRANSPARENT, 20)
 
-        val filtered = when (currentFilter) {
-            "belum" -> tasksList.filter { it.status == "belum" || it.status == "terlambat" }
-            "selesai" -> tasksList.filter { it.status == "selesai" || it.status == "menunggu" }
-            else -> tasksList
-        }
+        tabSemua.background = if (currentFilter == "semua") selectedBg else unselectedBg
+        tabSemua.setTextColor(if (currentFilter == "semua") Color.WHITE else Color.parseColor("#7186A5"))
 
-        for (task in filtered) {
-            tasksContainer.addView(createTaskCard(task))
-        }
+        tabBelum.background = if (currentFilter == "belum") selectedBg else unselectedBg
+        tabBelum.setTextColor(if (currentFilter == "belum") Color.WHITE else Color.parseColor("#7186A5"))
+
+        tabSelesai.background = if (currentFilter == "selesai") selectedBg else unselectedBg
+        tabSelesai.setTextColor(if (currentFilter == "selesai") Color.WHITE else Color.parseColor("#7186A5"))
     }
 
-    private fun createTaskCard(task: StudentTask): View {
-        val card = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(16), dp(16), dp(16))
-            background = roundedBackground(Color.WHITE, 16, Color.rgb(220, 231, 244), 1)
-            elevation = dp(1).toFloat()
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
-                val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
-                val intent = UiKit.withProfile(Intent(this@TugasPelajarInstitusiActivity, DetailTugasPelajarInstitusiActivity::class.java), role, mode).apply {
-                    putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_TASK_TITLE, task.title)
-                    putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_COURSE_NAME, task.course)
-                }
-                startActivity(intent)
-            }
-        }
+    private fun loadTugas() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                combine(
+                    tugasRepo.tugasUntukPelajar("pelajar_me"),
+                    pengumpulanRepo.getPengumpulanPelajar("pelajar_me")
+                ) { tugasList, pengumpulanList ->
+                    val now = System.currentTimeMillis()
+                    val items = mutableListOf<TugasItemUi>()
+                    val submittedMap = pengumpulanList.associateBy { it.tugasId }
 
-        val topRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
+                    for (t in tugasList) {
+                        val submission = submittedMap[t.id]
+                        val nilai = submission?.nilai
+                        val isSudahKumpul = submission != null
 
-        val iconBox = TextView(this).apply {
-            text = "📄"
-            textSize = 20f
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(33, 96, 245), 12)
-        }
-        topRow.addView(iconBox, LinearLayout.LayoutParams(dp(48), dp(48)))
-
-        val textCol = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(14), 0, 0, 0)
-        }
-
-        val titleTv = TextView(this).apply {
-            text = task.title
-            textSize = 16f
-            setTextColor(Color.rgb(25, 54, 95))
-            setTypeface(null, Typeface.BOLD)
-        }
-        textCol.addView(titleTv)
-
-        val courseTv = TextView(this).apply {
-            text = task.course
-            textSize = 13f
-            setTextColor(Color.rgb(117, 139, 169))
-        }
-        val cParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-            topMargin = dp(2)
-        }
-        textCol.addView(courseTv, cParams)
-
-        topRow.addView(textCol, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-
-        val optionsTv = TextView(this).apply {
-            text = "•••"
-            textSize = 16f
-            setTextColor(Color.rgb(117, 139, 169))
-            gravity = Gravity.CENTER
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
-                val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
-                val intent = UiKit.withProfile(Intent(this@TugasPelajarInstitusiActivity, DetailTugasPelajarInstitusiActivity::class.java), role, mode).apply {
-                    putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_TASK_TITLE, task.title)
-                    putExtra(DetailTugasPelajarInstitusiActivity.EXTRA_COURSE_NAME, task.course)
-                }
-                startActivity(intent)
-            }
-        }
-        topRow.addView(optionsTv, LinearLayout.LayoutParams(dp(24), dp(32)))
-
-        card.addView(topRow)
-
-        // Deadline info
-        val deadlineRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-        val dParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-            topMargin = dp(12)
-        }
-
-        val deadlineTv = TextView(this).apply {
-            text = "🕒 ${task.deadline}"
-            textSize = 12f
-            setTextColor(Color.rgb(117, 139, 169))
-        }
-        deadlineRow.addView(deadlineTv, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-
-        val badge = TextView(this).apply {
-            text = task.statusText
-            textSize = 11f
-            setTypeface(null, Typeface.BOLD)
-            setTextColor(task.statusTextColor)
-            background = roundedBackground(task.statusBgColor, 8)
-            setPadding(dp(10), dp(4), dp(10), dp(4))
-        }
-        deadlineRow.addView(badge)
-
-        card.addView(deadlineRow, dParams)
-
-        val wrapper = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = dp(12)
-            }
-            layoutParams = lp
-            addView(card)
-        }
-        return wrapper
-    }
-
-    private fun createBottomNav(): View {
-        val nav = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(16), dp(8), dp(16), dp(8))
-            background = roundedBackground(Color.WHITE, 0)
-            elevation = dp(8).toFloat()
-        }
-
-        nav.addView(createNavItem("🏠", "Beranda", false), createNavParams())
-        nav.addView(createNavItem("📚", "Kelas", false), createNavParams())
-        nav.addView(createNavItem("🤖", "AI", false), createNavParams())
-        nav.addView(createNavItem("📋", "Aktivitas", true), createNavParams())
-        nav.addView(createNavItem("👤", "Profil", false), createNavParams())
-
-        return nav
-    }
-
-    private fun createNavItem(icon: String, label: String, isSelected: Boolean): View {
-        val item = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(dp(4), dp(6), dp(4), dp(6))
-            isClickable = true
-            isFocusable = true
-            setOnClickListener {
-                when (label) {
-                    "Beranda" -> {
-                        val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
-                        val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
-                        val intent = UiKit.getBerandaIntent(this@TugasPelajarInstitusiActivity, role, mode)
-                        startActivity(intent)
-                    }
-                    "Kelas" -> {
-                        val intent = Intent(this@TugasPelajarInstitusiActivity, KelasPelajarInstitusiActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        val (statusText, textColor, bgColor, filterGroup) = when {
+                            nilai != null -> Quad("Dinilai ($nilai)", Color.rgb(46, 125, 50), Color.rgb(232, 245, 233), "selesai")
+                            isSudahKumpul -> Quad("Menunggu Penilaian", Color.rgb(255, 152, 0), Color.rgb(255, 243, 224), "selesai")
+                            now > t.tenggat -> Quad("Terlambat", Color.rgb(244, 67, 54), Color.rgb(255, 235, 238), "belum")
+                            else -> Quad("Belum Dikerjakan", Color.rgb(244, 67, 54), Color.rgb(255, 235, 238), "belum")
                         }
-                        startActivity(intent)
-                    }
-                    "Aktivitas", "Tugas" -> {
-                        val intent = Intent(this@TugasPelajarInstitusiActivity, TugasPelajarInstitusiActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+                        if (currentFilter == "semua" || 
+                            (currentFilter == "belum" && filterGroup == "belum") ||
+                            (currentFilter == "selesai" && filterGroup == "selesai")) {
+                            items.add(TugasItemUi(t, statusText, textColor, bgColor))
                         }
-                        startActivity(intent)
                     }
-                    "AI" -> {
-                        val intent = Intent(this@TugasPelajarInstitusiActivity, AiAssistantActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        }
-                        startActivity(intent)
-                    }
-                    "Profil" -> {
-                        UiKit.openProfile(this@TugasPelajarInstitusiActivity, PilihPeranActivity.ROLE_PELAJAR, ModePembelajaranActivity.MODE_INSTITUSI)
+                    items
+                }.collectLatest { items ->
+                    if (items.isEmpty()) {
+                        rvTugasPelajar.visibility = View.GONE
+                        tvEmpty.visibility = View.VISIBLE
+                    } else {
+                        rvTugasPelajar.visibility = View.VISIBLE
+                        tvEmpty.visibility = View.GONE
+                        adapter.submitList(items)
                     }
                 }
             }
         }
-
-        val iconTv = TextView(this).apply {
-            text = icon
-            textSize = 18f
-        }
-        item.addView(iconTv)
-
-        val labelTv = TextView(this).apply {
-            text = label
-            textSize = 11f
-            setTextColor(if (isSelected) Color.rgb(33, 96, 245) else Color.rgb(117, 139, 169))
-            if (isSelected) setTypeface(null, Typeface.BOLD)
-        }
-        val labelParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-            topMargin = dp(2)
-        }
-        item.addView(labelTv, labelParams)
-
-        return item
     }
 
-    private fun createNavParams(): LinearLayout.LayoutParams {
-        return LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-    }
-
-    private fun roundedBackground(color: Int, radiusDp: Int, strokeColor: Int? = null, strokeWidthDp: Int = 0): GradientDrawable {
-        return GradientDrawable().apply {
-            setColor(color)
-            cornerRadius = dp(radiusDp).toFloat()
-            if (strokeColor != null) {
-                setStroke(dp(strokeWidthDp), strokeColor)
-            }
-        }
-    }
-
-    private fun dp(value: Int): Int =
-        (value * resources.displayMetrics.density).toInt()
+    private data class Quad<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
 }

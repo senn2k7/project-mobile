@@ -1,6 +1,7 @@
 package com.example.projectmobile.ui.pengajar.institusi
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import java.util.Locale
@@ -247,6 +248,16 @@ class FakeTugasRepository(
         }
     }
 
+    override fun tugasUntukPelajar(pelajarId: String): Flow<List<Tugas>> {
+        if (pelajarId.isBlank()) {
+            return flowOf(emptyList())
+        }
+        return kelasRepo.getKelasDiikuti("", pelajarId).map { kelasList ->
+            val followedKelasIds = kelasList.map { it.id }
+            tugasList.filter { followedKelasIds.contains(it.kelasId) || it.kelasId == "1" }
+        }
+    }
+
     override fun tugasById(id: String): Flow<Tugas?> {
         return flowOf(tugasList.find { it.id == id } ?: tugasList.first())
     }
@@ -261,6 +272,54 @@ class FakeTugasRepository(
 }
 
 class FakePengumpulanRepository : PengumpulanRepository {
+    private val _pengumpulanFlow = MutableStateFlow(
+        mutableListOf(
+            Pengumpulan(
+                id = "peng_t3",
+                tugasId = "t3",
+                pelajarId = "pelajar_me",
+                namaPelajar = "Andi Pratama",
+                waktuKumpul = System.currentTimeMillis() - 86400000L * 2,
+                namaFile = "Laporan_Basis_Data.pdf",
+                tipeFile = "application/pdf",
+                ukuranByte = 2400000L,
+                url = "",
+                jawabanText = "Berikut laporan basis data.",
+                nilai = 85
+            )
+        )
+    )
+
+    override suspend fun kumpulkanTugas(tugasId: String, pelajarId: String, jawabanText: String, lampiran: FileLampiranInput?): Result<String> {
+        if (pelajarId.isBlank()) {
+            return Result.failure(Exception("Pelajar tidak teridentifikasi"))
+        }
+        val id = "peng_${System.currentTimeMillis()}"
+        val p = Pengumpulan(
+            id = id,
+            tugasId = tugasId,
+            pelajarId = pelajarId,
+            namaPelajar = "Andi Pratama",
+            waktuKumpul = System.currentTimeMillis(),
+            namaFile = lampiran?.nama ?: "",
+            tipeFile = lampiran?.tipeFile ?: "",
+            ukuranByte = lampiran?.ukuranByte ?: 0L,
+            url = lampiran?.uriString ?: "",
+            jawabanText = jawabanText
+        )
+        val currentList = _pengumpulanFlow.value.toMutableList()
+        currentList.add(p)
+        _pengumpulanFlow.value = currentList
+        return Result.success(id)
+    }
+
+    override fun getPengumpulanPelajar(pelajarId: String): Flow<List<Pengumpulan>> {
+        if (pelajarId.isBlank()) {
+            return flowOf(emptyList())
+        }
+        return _pengumpulanFlow.map { list -> list.filter { it.pelajarId == pelajarId } }
+    }
+
     private val pelajarNames = listOf(
         "Nadia Putri", "Rizky Pratama", "Siti Aulia", "Andi Saputra",
         "Dewi Lestari", "Ahmad Fauzi", "Rina Marlina", "Budi Santoso",
