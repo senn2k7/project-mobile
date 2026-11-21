@@ -16,6 +16,13 @@ data class PengajarProfilGuru(
     val institusiId: String = ""
 )
 
+data class ProfilPelajar(
+    val uid: String = "",
+    val nama: String = "",
+    val nim: String = "",
+    val fotoUrl: String = ""
+)
+
 data class PengajarKelas(
     val id: String = "",
     val namaMataKuliah: String = "",
@@ -207,6 +214,16 @@ data class InputKuis(
     val jumlahSoal: Int = 10,
     val fileSoal: FileLampiranInput? = null,
     val status: String = "dipublikasikan"
+)
+
+data class PesanDiskusi(
+    val id: String = "",
+    val kelasId: String = "",
+    val pengirimId: String = "",
+    val namaPengirim: String = "",
+    val teks: String = "",
+    val waktu: Long = System.currentTimeMillis(),
+    val isKode: Boolean = false
 )
 
 data class PengajarStatistikBeranda(

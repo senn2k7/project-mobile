@@ -1,197 +1,142 @@
 package com.example.projectmobile
 
 import android.graphics.Color
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.Gravity
-import android.view.View
 import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ScrollView
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.projectmobile.ui.pengajar.institusi.DiskusiRepository
+import com.example.projectmobile.ui.pengajar.institusi.KelasRepository
+import com.example.projectmobile.ui.pengajar.institusi.PengajarRepositoryProvider
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class DiskusiPelajarInstitusiActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_KELAS_ID = "extra_kelas_id"
+    }
+
+    private val diskusiRepo: DiskusiRepository = PengajarRepositoryProvider.provideDiskusiRepo()
+    private val kelasRepo: KelasRepository = PengajarRepositoryProvider.provideKelasRepo()
+    private val profilPelajarRepo = PengajarRepositoryProvider.provideProfilPelajarRepo()
+
+    private lateinit var rvDiskusi: RecyclerView
+    private lateinit var etPesan: EditText
+    private lateinit var btnKirim: ImageView
+    private lateinit var adapter: PelajarDiskusiAdapter
+
+    private var kelasId: String = ""
+    private var currentPelajarId: String = "pelajar_me"
+    private var currentNamaPelajar: String = "Andi Pratama"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         window.statusBarColor = Color.rgb(245, 250, 255)
         window.navigationBarColor = Color.rgb(245, 250, 255)
 
-        val courseName = intent.getStringExtra(EXTRA_COURSE_NAME) ?: "Pemrograman Mobile"
-        setContentView(createScreen(courseName))
+        kelasId = intent.getStringExtra(EXTRA_KELAS_ID) ?: ""
+
+        if (kelasId.isBlank()) {
+            Toast.makeText(this, "Kelas tidak ditemukan", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        setContentView(R.layout.activity_diskusi_pelajar_institusi)
+
+        bindViews()
+        setupRecyclerView()
+        setupListeners()
+        loadKelasDanDiskusi()
     }
 
-    private fun createScreen(courseName: String): View {
-        val bgColor = Color.rgb(245, 250, 255)
+    private fun bindViews() {
+        findViewById<ImageView>(R.id.btnBack).setOnClickListener { finish() }
+        findViewById<ImageView>(R.id.btnMenu).setOnClickListener {}
 
-        val rootLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundColor(bgColor)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-            )
-        }
+        rvDiskusi = findViewById(R.id.rvDiskusi)
+        etPesan = findViewById(R.id.etPesan)
+        btnKirim = findViewById(R.id.btnKirim)
 
-        // 1. Header Top (Back button, Title "Diskusi [Course]", Subtitle "28 peserta", Options menu)
-        val headerLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(16), dp(16), dp(16), dp(16))
-            background = roundedBackground(bgColor, 0)
-            elevation = dp(2).toFloat()
+        findViewById<ImageView>(R.id.btnEmoji).setOnClickListener {
+            Toast.makeText(this, "Fitur emoji (TODO)", Toast.LENGTH_SHORT).show()
         }
-
-        val backButton = TextView(this).apply {
-            text = "‹"
-            textSize = 36f
-            setTextColor(Color.rgb(25, 54, 95))
-            gravity = Gravity.CENTER
-            includeFontPadding = false
-            setOnClickListener { finish() }
+        findViewById<ImageView>(R.id.btnAttach).setOnClickListener {
+            Toast.makeText(this, "Lampirkan file diskusi (TODO)", Toast.LENGTH_SHORT).show()
         }
-        headerLayout.addView(backButton, LinearLayout.LayoutParams(dp(32), dp(44)))
-
-        val headerTextCol = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(12), 0, 0, 0)
-        }
-        val headerTitle = TextView(this).apply {
-            text = "Diskusi $courseName"
-            textSize = 18f
-            setTextColor(Color.rgb(25, 54, 95))
-            setTypeface(null, Typeface.BOLD)
-        }
-        headerTextCol.addView(headerTitle)
-
-        val headerSub = TextView(this).apply {
-            text = "28 peserta"
-            textSize = 12f
-            setTextColor(Color.rgb(117, 139, 169))
-        }
-        val hsParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-            topMargin = dp(2)
-        }
-        headerTextCol.addView(headerSub, hsParams)
-
-        headerLayout.addView(headerTextCol, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-
-        val optionsMenu = TextView(this).apply {
-            text = "⋮"
-            textSize = 20f
-            setTextColor(Color.rgb(25, 54, 95))
-            gravity = Gravity.CENTER
-        }
-        headerLayout.addView(optionsMenu, LinearLayout.LayoutParams(dp(36), dp(36)))
-
-        rootLayout.addView(headerLayout)
-
-        // 2. Empty Chat Area (ScrollView / Container with no chat bubbles initially, ready for database)
-        val chatArea = ScrollView(this).apply {
-            setBackgroundColor(bgColor)
-            isFillViewport = true
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
-        }
-
-        val emptyContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(dp(24), dp(24), dp(24), dp(24))
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-            )
-        }
-
-        val emptyText = TextView(this).apply {
-            text = "Belum ada pesan diskusi.\n(Pesan dari pengajar/peserta akan muncul di sini)"
-            textSize = 14f
-            setTextColor(Color.rgb(117, 139, 169))
-            gravity = Gravity.CENTER
-            setLineSpacing(dp(4).toFloat(), 1f)
-        }
-        emptyContainer.addView(emptyText)
-        chatArea.addView(emptyContainer)
-        rootLayout.addView(chatArea)
-
-        // 3. Bottom Message Input Bar
-        val inputBar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(16), dp(12), dp(16), dp(16))
-            background = roundedBackground(Color.WHITE, 0)
-            elevation = dp(8).toFloat()
-        }
-
-        val emojiIcon = TextView(this).apply {
-            text = "😊"
-            textSize = 22f
-            gravity = Gravity.CENTER
-        }
-        inputBar.addView(emojiIcon, LinearLayout.LayoutParams(dp(36), dp(36)))
-
-        val attachIcon = TextView(this).apply {
-            text = "📎"
-            textSize = 20f
-            gravity = Gravity.CENTER
-        }
-        val attachParams = LinearLayout.LayoutParams(dp(36), dp(36)).apply {
-            marginStart = dp(8)
-        }
-        inputBar.addView(attachIcon, attachParams)
-
-        val etMessage = EditText(this).apply {
-            hint = "Tulis pesan..."
-            textSize = 14f
-            setTextColor(Color.rgb(25, 54, 95))
-            setHintTextColor(Color.rgb(117, 139, 169))
-            background = roundedBackground(Color.rgb(240, 246, 255), 24)
-            setPadding(dp(16), dp(10), dp(16), dp(10))
-            maxLines = 3
-        }
-        val etParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-            marginStart = dp(12)
-            marginEnd = dp(12)
-        }
-        inputBar.addView(etMessage, etParams)
-
-        val sendButton = TextView(this).apply {
-            text = "✈️"
-            textSize = 18f
-            gravity = Gravity.CENTER
-            setTextColor(Color.WHITE)
-            background = roundedBackground(Color.rgb(29, 94, 255), 22)
-            isClickable = true
-            isFocusable = true
-        }
-        inputBar.addView(sendButton, LinearLayout.LayoutParams(dp(44), dp(44)))
-
-        rootLayout.addView(inputBar)
-
-        return rootLayout
     }
 
-    private fun roundedBackground(color: Int, radiusDp: Int, strokeColor: Int? = null, strokeWidthDp: Int = 0): GradientDrawable {
-        return GradientDrawable().apply {
-            setColor(color)
-            cornerRadius = dp(radiusDp).toFloat()
-            if (strokeColor != null) {
-                setStroke(dp(strokeWidthDp), strokeColor)
+    private fun setupRecyclerView() {
+        rvDiskusi.layoutManager = LinearLayoutManager(this).apply {
+            stackFromEnd = true
+        }
+        adapter = PelajarDiskusiAdapter(currentPelajarId)
+        rvDiskusi.adapter = adapter
+    }
+
+    private fun setupListeners() {
+        btnKirim.setOnClickListener {
+            val teks = etPesan.text.toString().trim()
+            if (teks.isBlank()) {
+                Toast.makeText(this, "Pesan tidak boleh kosong", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+                val result = diskusiRepo.kirimPesan(kelasId, currentPelajarId, currentNamaPelajar, teks)
+                if (result.isSuccess) {
+                    etPesan.setText("")
+                } else {
+                    Toast.makeText(this@DiskusiPelajarInstitusiActivity, "Gagal mengirim pesan", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
-    private fun dp(value: Int): Int =
-        (value * resources.displayMetrics.density).toInt()
+    private fun loadKelasDanDiskusi() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // 1. Load Class Details as Single Source of Truth
+                launch {
+                    kelasRepo.kelasById(kelasId).collectLatest { kelas ->
+                        if (kelas != null) {
+                            findViewById<TextView>(R.id.tvJudulDiskusi).text = "Diskusi ${kelas.namaMataKuliah}"
+                            findViewById<TextView>(R.id.tvSubjudulPeserta).text = "${kelas.jumlahPelajar} peserta"
+                        }
+                    }
+                }
 
-    companion object {
-        const val EXTRA_COURSE_NAME = "extra_course_name"
+                // 2. Get active student profile ID and Name
+                launch {
+                    profilPelajarRepo.getProfilPelajar().collectLatest { profil ->
+                        if (profil != null && profil.uid.isNotBlank()) {
+                            currentPelajarId = profil.uid
+                            if (profil.nama.isNotBlank()) {
+                                currentNamaPelajar = profil.nama
+                            }
+                        }
+                    }
+                }
+
+                // 3. Observe messages reactively
+                launch {
+                    diskusiRepo.pesanPerKelas(kelasId).collectLatest { pesanList ->
+                        adapter.submitList(pesanList) {
+                            if (pesanList.isNotEmpty()) {
+                                rvDiskusi.scrollToPosition(pesanList.size - 1)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

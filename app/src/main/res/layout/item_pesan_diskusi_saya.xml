@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:gravity="top|end"
+    android:orientation="horizontal">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_weight="1"
+        app:cardBackgroundColor="#1D5EFF"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/tvPesan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                tools:text="Algoritma BFS bekerja dengan..." />
+
+            <!-- Code snippet container if isKode == true -->
+            <TextView
+                android:id="@+id/tvKodeSnippet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="#1E293B"
+                android:fontFamily="monospace"
+                android:padding="8dp"
+                android:textColor="#E2E8F0"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="from collections import deque" />
+
+            <TextView
+                android:id="@+id/tvWaktu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif"
+                android:textColor="#E8F2FF"
+                android:textSize="11sp"
+                tools:text="09:17" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

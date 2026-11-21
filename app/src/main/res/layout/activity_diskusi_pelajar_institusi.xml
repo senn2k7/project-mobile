@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5FAFF"
+    android:orientation="vertical">
+
+    <!-- Top Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="2dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/ic_back"
+            app:tint="#19365F" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvJudulDiskusi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="#19365F"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="Diskusi Pemrograman Mobile" />
+
+            <TextView
+                android:id="@+id/tvSubjudulPeserta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:textColor="#7186A5"
+                android:textSize="12sp"
+                tools:text="28 peserta" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btnMenu"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/ic_more_vert"
+            app:tint="#19365F" />
+    </LinearLayout>
+
+    <!-- RecyclerView Pesan Diskusi -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvDiskusi"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:padding="16dp"
+        tools:itemCount="4"
+        tools:listitem="@layout/item_pesan_diskusi_orang_lain" />
+
+    <!-- Bottom Input Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp">
+
+        <ImageView
+            android:id="@+id/btnEmoji"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/ic_forum"
+            app:tint="#7186A5" />
+
+        <ImageView
+            android:id="@+id/btnAttach"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/ic_attach"
+            app:tint="#7186A5" />
+
+        <EditText
+            android:id="@+id/etPesan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:autofillHints="name"
+            android:background="@drawable/bg_search"
+            android:fontFamily="sans-serif"
+            android:hint="Tulis pesan..."
+            android:inputType="textShortMessage|textAutoCorrect"
+            android:maxLines="4"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:textColor="#19365F"
+            android:textColorHint="#94A3B8"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/btnKirim"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_stat_blue"
+            android:contentDescription="@string/app_name"
+            android:padding="8dp"
+            android:src="@drawable/ic_upload"
+            app:tint="@color/white" />
+    </LinearLayout>
+
+</LinearLayout>

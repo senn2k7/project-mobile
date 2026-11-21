@@ -52,6 +52,7 @@ class DetailKelasPelajarInstitusiActivity : AppCompatActivity() {
     private lateinit var btnTanyakanAi: TextView
 
     private lateinit var materiAdapter: PelajarFileMateriAdapter
+    private var currentKelasId: String = ""
     private var currentClassName: String = "Pengenalan Android Studio"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,8 +60,8 @@ class DetailKelasPelajarInstitusiActivity : AppCompatActivity() {
         window.statusBarColor = Color.rgb(245, 250, 255)
         window.navigationBarColor = Color.rgb(245, 250, 255)
 
-        val kelasId = intent.getStringExtra(EXTRA_KELAS_ID) ?: ""
-        if (kelasId.isBlank()) {
+        currentKelasId = intent.getStringExtra(EXTRA_KELAS_ID) ?: ""
+        if (currentKelasId.isBlank()) {
             Toast.makeText(this, "Kelas tidak ditemukan", Toast.LENGTH_SHORT).show()
             finish()
             return
@@ -160,7 +161,7 @@ class DetailKelasPelajarInstitusiActivity : AppCompatActivity() {
             val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
             val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
             val intent = UiKit.withProfile(Intent(this, DiskusiPelajarInstitusiActivity::class.java), role, mode).apply {
-                putExtra(DiskusiPelajarInstitusiActivity.EXTRA_COURSE_NAME, currentClassName)
+                putExtra(DiskusiPelajarInstitusiActivity.EXTRA_KELAS_ID, currentKelasId)
             }
             startActivity(intent)
         }

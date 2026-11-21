@@ -9,6 +9,10 @@ interface PengajarProfilRepository {
     fun getProfil(): Flow<PengajarProfilGuru?>
 }
 
+interface ProfilPelajarRepository {
+    fun getProfilPelajar(): Flow<ProfilPelajar?>
+}
+
 interface PengajarKelasRepository {
     fun getKelasList(searchQuery: String = "", filterInstitusi: Boolean = false, semester: String = "", guruId: String = ""): Flow<List<PengajarKelas>>
     fun getKelasDiikuti(searchQuery: String = "", pelajarId: String = ""): Flow<List<PengajarKelas>>
@@ -57,9 +61,18 @@ interface PengajarNotifikasiRepository {
     fun getUnreadCount(): Flow<Int>
 }
 
+interface DiskusiRepository {
+    fun pesanPerKelas(kelasId: String): Flow<List<PesanDiskusi>>
+    suspend fun kirimPesan(kelasId: String, pengirimId: String, namaPengirim: String, teks: String): Result<String>
+}
+
 // EMPTY IMPLEMENTATIONS
 class EmptyPengajarProfilRepository : PengajarProfilRepository {
     override fun getProfil(): Flow<PengajarProfilGuru?> = flowOf(null)
+}
+
+class EmptyProfilPelajarRepository : ProfilPelajarRepository {
+    override fun getProfilPelajar(): Flow<ProfilPelajar?> = flowOf(null)
 }
 
 class EmptyPengajarKelasRepository : PengajarKelasRepository {
@@ -110,8 +123,14 @@ class EmptyPengajarNotifikasiRepository : PengajarNotifikasiRepository {
     override fun getUnreadCount(): Flow<Int> = flowOf(0)
 }
 
+class EmptyDiskusiRepository : DiskusiRepository {
+    override fun pesanPerKelas(kelasId: String): Flow<List<PesanDiskusi>> = flowOf(emptyList())
+    override suspend fun kirimPesan(kelasId: String, pengirimId: String, namaPengirim: String, teks: String): Result<String> = Result.failure(Exception("Belum terhubung ke database"))
+}
+
 object PengajarRepositoryProvider {
     private val fakeProfilRepo by lazy { FakePengajarProfilRepository() }
+    private val fakeProfilPelajarRepo by lazy { FakeProfilPelajarRepository() }
     private val fakeKelasRepo by lazy { FakePengajarKelasRepository() }
     private val fakeMateriRepo by lazy { FakeMateriRepository() }
     private val fakeTugasRepo by lazy { FakeTugasRepository(fakeKelasRepo) }
@@ -120,8 +139,12 @@ object PengajarRepositoryProvider {
     private val fakePengumpulanRepo by lazy { FakePengumpulanRepository() }
     private val fakeStatistikRepo by lazy { FakePengajarStatistikRepository() }
     private val fakeNotifikasiRepo by lazy { FakePengajarNotifikasiRepository() }
+    private val fakeDiskusiRepo by lazy { FakeDiskusiRepository() }
 
     fun provideProfilRepo(): PengajarProfilRepository = fakeProfilRepo
+
+    fun provideProfilPelajarRepo(): ProfilPelajarRepository =
+        if (PengajarRepoConfig.useFakeData) fakeProfilPelajarRepo else EmptyProfilPelajarRepository()
 
     fun provideKelasRepo(): KelasRepository =
         if (PengajarRepoConfig.useFakeData) fakeKelasRepo else EmptyPengajarKelasRepository()
@@ -140,6 +163,9 @@ object PengajarRepositoryProvider {
 
     fun providePengumpulanRepo(): PengumpulanRepository =
         if (PengajarRepoConfig.useFakeData) fakePengumpulanRepo else EmptyPengumpulanRepository()
+
+    fun provideDiskusiRepo(): DiskusiRepository =
+        if (PengajarRepoConfig.useFakeData) fakeDiskusiRepo else EmptyDiskusiRepository()
 
     fun provideStatistikRepo(): PengajarStatistikRepository = fakeStatistikRepo
 

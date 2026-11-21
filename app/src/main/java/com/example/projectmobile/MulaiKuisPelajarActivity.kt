@@ -36,7 +36,7 @@ class MulaiKuisPelajarActivity : AppCompatActivity() {
     }
 
     private val hasilRepo = PengajarRepositoryProvider.provideHasilKuisRepo()
-    private val profilRepo = PengajarRepositoryProvider.provideProfilRepo()
+    private val profilPelajarRepo = PengajarRepositoryProvider.provideProfilPelajarRepo()
 
     private lateinit var tvProgressSoal: TextView
     private lateinit var tvTimer: TextView
@@ -49,6 +49,8 @@ class MulaiKuisPelajarActivity : AppCompatActivity() {
     private var countDownTimer: CountDownTimer? = null
     private var quizTitle: String = "Kuis Sistem Cerdas"
     private var kuisId: String = "k1"
+    private var currentPelajarId: String = "pelajar_me"
+    private var currentNamaPelajar: String = "Andi Pratama"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +71,7 @@ class MulaiKuisPelajarActivity : AppCompatActivity() {
         bindViews()
         setupListeners()
         observeViewModel()
+        loadProfilPelajar()
         startTimer()
     }
 
@@ -82,6 +85,21 @@ class MulaiKuisPelajarActivity : AppCompatActivity() {
         rvOpsi.layoutManager = LinearLayoutManager(this)
         btnSebelumnya = findViewById(R.id.btnSebelumnya)
         btnSelanjutnya = findViewById(R.id.btnSelanjutnya)
+    }
+
+    private fun loadProfilPelajar() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                profilPelajarRepo.getProfilPelajar().collectLatest { profil ->
+                    if (profil != null && profil.uid.isNotBlank()) {
+                        currentPelajarId = profil.uid
+                        if (profil.nama.isNotBlank()) {
+                            currentNamaPelajar = profil.nama
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun setupListeners() {
@@ -162,19 +180,12 @@ class MulaiKuisPelajarActivity : AppCompatActivity() {
     private fun submitKuis() {
         countDownTimer?.cancel()
 
+        if (currentPelajarId.isBlank()) {
+            Toast.makeText(this@MulaiKuisPelajarActivity, "Pelajar tidak teridentifikasi", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         lifecycleScope.launch {
-            var pelajarId = ""
-            profilRepo.getProfil().collectLatest { profil ->
-                if (profil != null) {
-                    pelajarId = profil.uid
-                }
-            }
-
-            if (pelajarId.isBlank()) {
-                Toast.makeText(this@MulaiKuisPelajarActivity, "Pelajar tidak teridentifikasi", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-
             val soalList = viewModel.soalList
             var benarCount = 0
             for ((index, soal) in soalList.withIndex()) {
@@ -190,8 +201,8 @@ class MulaiKuisPelajarActivity : AppCompatActivity() {
 
             val hasil = HasilKuis(
                 kuisId = kuisId,
-                pelajarId = pelajarId,
-                namaPelajar = "Andi Pratama",
+                pelajarId = currentPelajarId,
+                namaPelajar = currentNamaPelajar,
                 waktuMulai = viewModel.startTime,
                 waktuSelesai = System.currentTimeMillis(),
                 nilai = nilai,

@@ -5,9 +5,13 @@
 - **Solusi**: Menerapkan pola *Singleton* menggunakan penang caching `by lazy` di dalam object `PengajarRepositoryProvider`.
 
 ## 2. Bug CardView Item Tidak Responsif Klik (Teratasi)
-- **Deskripsi Masalah**: `CardView` di dalam `RecyclerView` item (seperti opsi jawaban kuis) tidak merespons sentuhan / klik jika tidak diberi atribut interaktif pada XML root-nya.
-- **Solusi**: Menambahkan `android:clickable="true"`, `android:focusable="true"`, dan `android:foreground="?attr/selectableItemBackground"` pada root `CardView` (misal pada `item_opsi_jawaban_pelajar.xml`).
+- **Deskripsi Masalah**: `CardView` di dalam `RecyclerView` item tidak merespons sentuhan / klik jika tidak diberi atribut interaktif pada XML root-nya.
+- **Solusi**: Menambahkan `android:clickable="true"`, `android:focusable="true"`, dan `android:foreground="?attr/selectableItemBackground"` pada root `CardView`.
 
-## 3. Default Senyap (Silent Defaults)
-- **Prinsip**: Dilarang keras menggunakan fallback nilai diam-diam pada parameter wajib (`pelajarId`, `kuisId`, dll).
-- **Solusi**: Mengembalikan `Result.failure` atau `flowOf(emptyList())` secara eksplisit.
+## 3. Bug ProfilRepository Tertukar (Teratasi)
+- **Deskripsi Masalah**: Proyek awalnya hanya memiliki satu `ProfilRepository` untuk pengajar (`teacher_budi`). Layar pelajar yang memanggilnya akan mendapatkan `uid` pengajar alih-alih `uid` pelajar (`pelajar_me`), menyebabkan ketidakcocokan identitas pada pengumpulan dan diskusi.
+- **Solusi**: Membuat `ProfilPelajarRepository` terpisah (`uid = "pelajar_me"`), konsisten di seluruh modul tugas, kuis, dan diskusi pelajar.
+
+## 4. Default Senyap (Silent Defaults)
+- **Prinsip**: Dilarang keras menggunakan fallback nilai diam-diam pada parameter wajib (`pelajarId`, `kuisId`, `kelasId`, dll).
+- **Solusi**: Mengembalikan `Result.failure` atau `flowOf(emptyList())` secara eksplisit, tanpa fallback fiktif.

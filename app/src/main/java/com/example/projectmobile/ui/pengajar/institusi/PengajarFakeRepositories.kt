@@ -18,6 +18,16 @@ class FakePengajarProfilRepository : PengajarProfilRepository {
     )
 }
 
+class FakeProfilPelajarRepository : ProfilPelajarRepository {
+    private val profil = ProfilPelajar(
+        uid = "pelajar_me",
+        nama = "Andi Pratama",
+        nim = "10522001",
+        fotoUrl = ""
+    )
+    override fun getProfilPelajar(): Flow<ProfilPelajar?> = flowOf(profil)
+}
+
 class FakePengajarKelasRepository : PengajarKelasRepository {
     private val allKelas = listOf(
         Kelas(
@@ -477,6 +487,41 @@ class FakeHasilKuisRepository : HasilKuisRepository {
         val id = "hasil_${System.currentTimeMillis()}"
         val finalHasil = hasil.copy(id = id)
         hasilList.add(finalHasil)
+        return Result.success(id)
+    }
+}
+
+class FakeDiskusiRepository : DiskusiRepository {
+    private val _pesanFlow = MutableStateFlow(
+        mutableListOf(
+            PesanDiskusi("p1", "1", "teacher_budi", "Budi Santoso", "Bagaimana cara kerja algoritma BFS? Saya masih bingung dengan cara kerjanya.", System.currentTimeMillis() - 600000L, false),
+            PesanDiskusi("p2", "1", "pelajar_me", "Andi Pratama", "Algoritma BFS (Breadth First Search) bekerja dengan menjelajahi simpul secara level atau per tingkat.", System.currentTimeMillis() - 400000L, false),
+            PesanDiskusi("p3", "1", "user_siti", "Siti Aminah", "Apakah bisa diberikan contoh kode sederhana?", System.currentTimeMillis() - 200000L, false),
+            PesanDiskusi("p4", "1", "teacher_budi", "Budi Santoso", "Tentu! Berikut contoh kode sederhana dalam Python:\n\nfrom collections import deque\ndef bfs(graph, start):\n    visited = set()\n    queue = deque([start])", System.currentTimeMillis() - 100000L, true)
+        )
+    )
+
+    override fun pesanPerKelas(kelasId: String): Flow<List<PesanDiskusi>> {
+        return _pesanFlow.map { list -> list.filter { it.kelasId == kelasId || it.kelasId == "1" } }
+    }
+
+    override suspend fun kirimPesan(kelasId: String, pengirimId: String, namaPengirim: String, teks: String): Result<String> {
+        if (teks.trim().isBlank()) {
+            return Result.failure(Exception("Pesan tidak boleh kosong"))
+        }
+        val id = "pesan_${System.currentTimeMillis()}"
+        val pesan = PesanDiskusi(
+            id = id,
+            kelasId = if (kelasId.isBlank()) "1" else kelasId,
+            pengirimId = if (pengirimId.isBlank()) "pelajar_me" else pengirimId,
+            namaPengirim = if (namaPengirim.isBlank()) "Andi Pratama" else namaPengirim,
+            teks = teks,
+            waktu = System.currentTimeMillis(),
+            isKode = false
+        )
+        val current = _pesanFlow.value.toMutableList()
+        current.add(pesan)
+        _pesanFlow.value = current
         return Result.success(id)
     }
 }
