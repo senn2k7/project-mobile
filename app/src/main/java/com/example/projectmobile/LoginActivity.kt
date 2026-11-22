@@ -21,6 +21,8 @@ import com.example.projectmobile.R
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class LoginActivity : AppCompatActivity() {
 
@@ -248,32 +250,58 @@ class LoginActivity : AppCompatActivity() {
         email: String,
         button: Button
     ) {
-        FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(uid)
-            .get()
-            .addOnSuccessListener { document ->
-                val nama = document.getString("nama")
-                    ?: namaDefault
+        lifecycleScope.launch {
+            try {
+                val document = GoogleLoginRecovery.execute(
+                    operation = {
+                        kotlinx.coroutines.suspendCancellableCoroutine { continuation ->
+                            FirebaseFirestore.getInstance()
+                                .collection("users")
+                                .document(uid)
+                                .get()
+                                .addOnSuccessListener { document ->
+                                    continuation.resume(document) { _, _, _ -> }
+                                }
+                                .addOnFailureListener { error ->
+                                    continuation.resumeWithException(error)
+                                }
+                        }
+                    },
+                    shouldRetry = { error ->
+                        GoogleLoginRecovery.isRetryableNetworkError(error) ||
+                        (
+                            error is com.google.firebase.firestore.FirebaseFirestoreException &&
+                            (
+                                error.code == com.google.firebase.firestore.FirebaseFirestoreException.Code.UNAVAILABLE ||
+                                error.code == com.google.firebase.firestore.FirebaseFirestoreException.Code.DEADLINE_EXCEEDED
+                            )
+                        )
+                    }
+                )
+
+                val nama = document.getString("nama") ?: namaDefault
 
                 Toast.makeText(
-                    this,
+                    this@LoginActivity,
                     "Selamat datang, $nama!",
                     Toast.LENGTH_SHORT
                 ).show()
 
                 openLearningMode(uid, nama, email)
-            }
-            .addOnFailureListener { error ->
+
+            } catch (error: kotlinx.coroutines.CancellationException) {
+                throw error
+            } catch (error: Exception) {
                 button.isEnabled = true
                 button.text = "Masuk"
 
                 Toast.makeText(
-                    this,
+                    this@LoginActivity,
                     "Gagal mengambil profil: ${error.message}",
                     Toast.LENGTH_LONG
                 ).show()
             }
+        }
     }
 
     private fun openLearningMode(
