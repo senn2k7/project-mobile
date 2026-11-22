@@ -525,3 +525,37 @@ class FakeDiskusiRepository : DiskusiRepository {
         return Result.success(id)
     }
 }
+
+class FakeChatAiRepository : ChatAiRepository {
+    private val _pesanFlow = MutableStateFlow(
+        mutableListOf(
+            PesanChatAi("ai_1", "Halo! Aku TemanStudi. Materi apa yang ingin kamu pelajari hari ini?", false, System.currentTimeMillis() - 60000L)
+        )
+    )
+
+    override fun pesanSesi(): Flow<List<PesanChatAi>> = _pesanFlow
+
+    override suspend fun kirimPesanAi(teks: String): Result<String> {
+        if (teks.trim().isBlank()) {
+            return Result.failure(Exception("Pesan tidak boleh kosong"))
+        }
+        val userMsgId = "user_${System.currentTimeMillis()}"
+        val userMsg = PesanChatAi(userMsgId, teks, true, System.currentTimeMillis())
+
+        val currentList = _pesanFlow.value.toMutableList()
+        currentList.add(userMsg)
+        _pesanFlow.value = currentList
+
+        val botMsgId = "bot_${System.currentTimeMillis() + 1}"
+        val botMsg = PesanChatAi(
+            botMsgId,
+            "Maaf, aku belum bisa menjawab pertanyaan ini sekarang. Fitur AI Assistant akan segera hadir!",
+            false,
+            System.currentTimeMillis() + 500L
+        )
+        currentList.add(botMsg)
+        _pesanFlow.value = currentList
+
+        return Result.success(userMsgId)
+    }
+}

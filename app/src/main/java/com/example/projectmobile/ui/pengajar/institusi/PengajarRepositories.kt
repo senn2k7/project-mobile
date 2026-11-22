@@ -66,6 +66,11 @@ interface DiskusiRepository {
     suspend fun kirimPesan(kelasId: String, pengirimId: String, namaPengirim: String, teks: String): Result<String>
 }
 
+interface ChatAiRepository {
+    fun pesanSesi(): Flow<List<PesanChatAi>>
+    suspend fun kirimPesanAi(teks: String): Result<String>
+}
+
 // EMPTY IMPLEMENTATIONS
 class EmptyPengajarProfilRepository : PengajarProfilRepository {
     override fun getProfil(): Flow<PengajarProfilGuru?> = flowOf(null)
@@ -128,6 +133,11 @@ class EmptyDiskusiRepository : DiskusiRepository {
     override suspend fun kirimPesan(kelasId: String, pengirimId: String, namaPengirim: String, teks: String): Result<String> = Result.failure(Exception("Belum terhubung ke database"))
 }
 
+class EmptyChatAiRepository : ChatAiRepository {
+    override fun pesanSesi(): Flow<List<PesanChatAi>> = flowOf(emptyList())
+    override suspend fun kirimPesanAi(teks: String): Result<String> = Result.failure(Exception("Belum terhubung ke database"))
+}
+
 object PengajarRepositoryProvider {
     private val fakeProfilRepo by lazy { FakePengajarProfilRepository() }
     private val fakeProfilPelajarRepo by lazy { FakeProfilPelajarRepository() }
@@ -140,6 +150,7 @@ object PengajarRepositoryProvider {
     private val fakeStatistikRepo by lazy { FakePengajarStatistikRepository() }
     private val fakeNotifikasiRepo by lazy { FakePengajarNotifikasiRepository() }
     private val fakeDiskusiRepo by lazy { FakeDiskusiRepository() }
+    private val fakeChatAiRepo by lazy { FakeChatAiRepository() }
 
     fun provideProfilRepo(): PengajarProfilRepository = fakeProfilRepo
 
@@ -166,6 +177,9 @@ object PengajarRepositoryProvider {
 
     fun provideDiskusiRepo(): DiskusiRepository =
         if (PengajarRepoConfig.useFakeData) fakeDiskusiRepo else EmptyDiskusiRepository()
+
+    fun provideChatAiRepo(): ChatAiRepository =
+        if (PengajarRepoConfig.useFakeData) fakeChatAiRepo else EmptyChatAiRepository()
 
     fun provideStatistikRepo(): PengajarStatistikRepository = fakeStatistikRepo
 

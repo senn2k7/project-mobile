@@ -226,6 +226,13 @@ data class PesanDiskusi(
     val isKode: Boolean = false
 )
 
+data class PesanChatAi(
+    val id: String = "",
+    val teks: String = "",
+    val isDariUser: Boolean = false,
+    val waktu: Long = System.currentTimeMillis()
+)
+
 data class PengajarStatistikBeranda(
     val kelasDiampu: Int = 0,
     val tugasAktif: Int = 0,

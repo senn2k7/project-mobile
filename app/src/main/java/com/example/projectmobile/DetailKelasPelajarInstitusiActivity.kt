@@ -179,14 +179,12 @@ class DetailKelasPelajarInstitusiActivity : AppCompatActivity() {
         }
 
         btnTanyakanAi.setOnClickListener {
-            // TODO: Sambungkan ke KelolaAiAsistenPelajarActivity dengan extra konteks (nama kelas + pertemuan)
-            @Suppress("UNUSED_VARIABLE")
-            val intent = Intent(this, KelolaAiAsistenPelajarActivity::class.java).apply {
-                putExtra("extra_konteks_kelas", currentClassName)
-                putExtra("extra_konteks_pertemuan", "Pertemuan 1")
+            val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+            val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
+            val intent = UiKit.withProfile(Intent(this, KelolaAiAsistenPelajarActivity::class.java), role, mode).apply {
+                putExtra(KelolaAiAsistenPelajarActivity.EXTRA_KELAS_ID, currentKelasId)
             }
-            // startActivity(intent)
-            Toast.makeText(this, "Kelola AI Asisten (TODO - belum dikerjakan)", Toast.LENGTH_SHORT).show()
+            startActivity(intent)
         }
     }
 }
