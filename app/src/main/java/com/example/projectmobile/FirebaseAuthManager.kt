@@ -3,6 +3,10 @@ package com.example.projectmobile
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 object FirebaseAuthManager {
 
@@ -74,36 +78,39 @@ object FirebaseAuthManager {
         }
 
         val credential = GoogleAuthProvider.getCredential(idToken, null)
-        val handler = android.os.Handler(android.os.Looper.getMainLooper())
-        val maxRetries = 2
 
-        fun attemptSignIn(retryCount: Int) {
-            auth.signInWithCredential(credential)
-                .addOnSuccessListener { result ->
-                    val user = result.user
-                    if (user != null) {
-                        onSuccess(user)
-                    } else {
-                        onFailure("Data pengguna Google tidak ditemukan.")
-                    }
-                }
-                .addOnFailureListener { error ->
-                    val retryable =
-                        GoogleLoginRecovery.isRetryableNetworkError(error)
+        kotlinx.coroutines.MainScope().launch {
+            try {
+                val user = GoogleLoginRecovery.execute(
+                    operation = {
+                        suspendCancellableCoroutine { continuation ->
+                            auth.signInWithCredential(credential)
+                                .addOnSuccessListener { result ->
+                                    val firebaseUser = result.user
 
-                    if (retryable && retryCount < maxRetries) {
-                        val delayMs = if (retryCount == 0) 1_000L else 2_000L
+                                    if (firebaseUser != null) {
+                                        continuation.resume(firebaseUser)
+                                    } else {
+                                        continuation.resumeWithException(
+                                            IllegalStateException(
+                                                "Data pengguna Google tidak ditemukan."
+                                            )
+                                        )
+                                    }
+                                }
+                                .addOnFailureListener { error ->
+                                    continuation.resumeWithException(error)
+                                }
+                        }
+                    },
+                    shouldRetry = GoogleLoginRecovery::isRetryableNetworkError
+                )
 
-                        handler.postDelayed({
-                            attemptSignIn(retryCount + 1)
-                        }, delayMs)
-                    } else {
-                        onFailure(error.message ?: "Login Google gagal.")
-                    }
-                }
+                onSuccess(user)
+            } catch (error: Exception) {
+                onFailure(error.message ?: "Login Google gagal.")
+            }
         }
-
-        attemptSignIn(0)
     }
 
     fun sendPasswordReset(
