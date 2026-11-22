@@ -2,6 +2,11 @@
 
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 object FirebaseManager {
 
@@ -51,6 +56,7 @@ object FirebaseManager {
     }
 
     fun ensureUserProfile(
+        scope: CoroutineScope,
         uid: String,
         nama: String,
         email: String,
@@ -71,29 +77,51 @@ object FirebaseManager {
 
         val userRef = db.collection("users").document(uid)
 
-        db.runTransaction { transaction ->
-            val snapshot = transaction.get(userRef)
+        scope.launch {
+            try {
+                GoogleLoginRecovery.execute(
+                    operation = {
+                        suspendCancellableCoroutine { continuation ->
+                            db.runTransaction { transaction ->
+                                val snapshot = transaction.get(userRef)
 
-            if (!snapshot.exists()) {
-                val profile = hashMapOf(
-                    "uid" to uid,
-                    "nama" to nama.trim(),
-                    "email" to email.trim(),
-                    "created_at" to FieldValue.serverTimestamp(),
-                    "updated_at" to FieldValue.serverTimestamp(),
-                    "profil_lengkap" to false
+                                if (!snapshot.exists()) {
+                                    val profile = hashMapOf(
+                                        "uid" to uid,
+                                        "nama" to nama.trim(),
+                                        "email" to email.trim(),
+                                        "created_at" to FieldValue.serverTimestamp(),
+                                        "updated_at" to FieldValue.serverTimestamp(),
+                                        "profil_lengkap" to false
+                                    )
+
+                                    transaction.set(userRef, profile)
+                                }
+
+                                null
+                            }.addOnSuccessListener {
+                                continuation.resume(Unit)
+                            }.addOnFailureListener { error ->
+                                continuation.resumeWithException(error)
+                            }
+                        }
+                    },
+                    shouldRetry = { error ->
+                        GoogleLoginRecovery.isRetryableNetworkError(error) ||
+                        (
+                            error is com.google.firebase.firestore.FirebaseFirestoreException &&
+                            (
+                                error.code == com.google.firebase.firestore.FirebaseFirestoreException.Code.UNAVAILABLE ||
+                                error.code == com.google.firebase.firestore.FirebaseFirestoreException.Code.DEADLINE_EXCEEDED
+                            )
+                        )
+                    }
                 )
 
-                transaction.set(userRef, profile)
+                onSuccess()
+            } catch (error: Exception) {
+                onFailure(error.message ?: "Gagal memeriksa profil pengguna.")
             }
-
-            null
-        }.addOnSuccessListener {
-            onSuccess()
-        }.addOnFailureListener { error ->
-            onFailure(
-                error.message ?: "Gagal memeriksa profil pengguna."
-            )
         }
     }
 }

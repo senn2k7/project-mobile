@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.lifecycleScope
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.CustomCredential
@@ -119,27 +120,17 @@ class LoginActivity : AppCompatActivity() {
                 val credentialManager =
                     CredentialManager.create(this@LoginActivity)
 
-                var result: androidx.credentials.GetCredentialResponse? = null
-                var retryCount = 0
-
-                while (result == null) {
-                    try {
-                        result = credentialManager.getCredential(
+                val result = GoogleLoginRecovery.execute(
+                    operation = {
+                        credentialManager.getCredential(
                             this@LoginActivity,
                             request
                         )
-                    } catch (
-                        error: androidx.credentials.exceptions.GetCredentialInterruptedException
-                    ) {
-                        if (retryCount >= 2) {
-                            throw error
-                        }
-
-                        val delayMs = if (retryCount == 0) 1_000L else 2_000L
-                        retryCount++
-                        kotlinx.coroutines.delay(delayMs)
+                    },
+                    shouldRetry = { error ->
+                        error is androidx.credentials.exceptions.GetCredentialInterruptedException
                     }
-                }
+                )
 
                 val credential = result.credential
 
@@ -231,6 +222,7 @@ class LoginActivity : AppCompatActivity() {
         button.text = "Memeriksa profil..."
 
         FirebaseManager.ensureUserProfile(
+            scope = lifecycleScope,
             uid = uid,
             nama = namaDefault,
             email = email,

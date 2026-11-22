@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -42,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         FirebaseManager.ensureUserProfile(
+            scope = lifecycleScope,
             uid = uid,
             nama = namaDefault,
             email = email,
