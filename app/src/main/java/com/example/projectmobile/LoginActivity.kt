@@ -310,7 +310,66 @@ class LoginActivity : AppCompatActivity() {
         nama: String,
         email: String
     ) {
-        // Jika masih ada draft profil pengajar, lanjutkan pengisian.
+        FirebaseFirestore.getInstance()
+            .collection("pengajar_mandiri")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+
+                android.util.Log.d(
+                    "PengajarMandiri",
+                    "UID=$uid, exists=${document.exists()}, data=${document.data}"
+                )
+
+                if (
+                    document.exists() &&
+                    document.getBoolean("profil_lengkap") == true
+                ) {
+                    val intent = Intent(
+                        this@LoginActivity,
+                        HomeActivity::class.java
+                    ).apply {
+                        putExtra(
+                            PilihPeranActivity.EXTRA_ROLE,
+                            PilihPeranActivity.ROLE_PENGAJAR
+                        )
+                        putExtra(
+                            ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN,
+                            ModePembelajaranActivity.MODE_MANDIRI
+                        )
+                    }
+
+                    startActivity(intent)
+                    finish()
+                    return@addOnSuccessListener
+                }
+
+                lanjutkanAlurProfil(uid, nama, email)
+            }
+            .addOnFailureListener { error ->
+
+                android.util.Log.e(
+                    "PengajarMandiri",
+                    "Gagal membaca profil Firestore",
+                    error
+                )
+
+                Toast.makeText(
+                    this@LoginActivity,
+                    "Gagal memeriksa profil: ${error.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                lanjutkanAlurProfil(uid, nama, email)
+            }
+    }
+
+    private fun lanjutkanAlurProfil(
+        uid: String,
+        nama: String,
+        email: String
+    ) {
+        // Jika masih ada draft profil, lanjutkan pengisian.
         if (ProfilDraftManager.hasDraft(this, uid)) {
             val intent = Intent(
                 this,
@@ -334,7 +393,7 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        // Jika tidak ada draft, gunakan alur normal.
+        // Jika belum memiliki profil, gunakan alur normal.
         val intent = Intent(
             this,
             ModePembelajaranActivity::class.java
