@@ -71,32 +71,105 @@ class MainActivity : AppCompatActivity() {
             .collection("users")
             .document(uid)
             .get()
-            .addOnSuccessListener { document ->
+            .addOnSuccessListener { userDocument ->
 
-                val nama = document.getString("nama")
+                val nama = userDocument.getString("nama")
                     ?: namaDefault
 
-                val intent = Intent(
-                    this,
-                    ModePembelajaranActivity::class.java
-                ).apply {
-                    putExtra("USER_ID", uid)
-                    putExtra("USER_NAME", nama)
-                    putExtra("USER_EMAIL", email)
-                }
+                FirebaseFirestore.getInstance()
+                    .collection("pengajar_mandiri")
+                    .document(uid)
+                    .get()
+                    .addOnSuccessListener { teacherDocument ->
 
-                startActivity(intent)
-                finish()
+                        val profilLengkap =
+                            teacherDocument.getBoolean("profil_lengkap") == true
+
+                        val role = teacherDocument.getString("role")
+                        val mode = teacherDocument.getString("mode")
+
+                        if (
+                            teacherDocument.exists() &&
+                            profilLengkap &&
+                            role == "pengajar" &&
+                            mode == "mandiri"
+                        ) {
+                            android.util.Log.d(
+                                "MainActivity",
+                                "Profil Pengajar Mandiri ditemukan. Membuka dashboard."
+                            )
+
+                            val intent = Intent(
+                                this@MainActivity,
+                                HomeActivity::class.java
+                            ).apply {
+                                putExtra(
+                                    PilihPeranActivity.EXTRA_ROLE,
+                                    PilihPeranActivity.ROLE_PENGAJAR
+                                )
+                                putExtra(
+                                    ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN,
+                                    ModePembelajaranActivity.MODE_MANDIRI
+                                )
+                                putExtra("USER_ID", uid)
+                                putExtra("USER_NAME", nama)
+                                putExtra("USER_EMAIL", email)
+                            }
+
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            android.util.Log.d(
+                                "MainActivity",
+                                "Profil Pengajar Mandiri belum ditemukan/lengkap. Membuka pemilihan mode."
+                            )
+
+                            bukaModePembelajaran(uid, nama, email)
+                        }
+                    }
+                    .addOnFailureListener { error ->
+                        android.util.Log.e(
+                            "MainActivity",
+                            "Gagal memeriksa profil Pengajar Mandiri",
+                            error
+                        )
+
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Profil belum dapat diperiksa. Silakan lanjutkan.",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        bukaModePembelajaran(uid, nama, email)
+                    }
             }
             .addOnFailureListener { error ->
                 Toast.makeText(
-                    this,
+                    this@MainActivity,
                     "Gagal mengambil profil: ${error.message}",
                     Toast.LENGTH_LONG
                 ).show()
 
                 openOnboarding()
             }
+    }
+
+    private fun bukaModePembelajaran(
+        uid: String,
+        nama: String,
+        email: String
+    ) {
+        val intent = Intent(
+            this,
+            ModePembelajaranActivity::class.java
+        ).apply {
+            putExtra("USER_ID", uid)
+            putExtra("USER_NAME", nama)
+            putExtra("USER_EMAIL", email)
+        }
+
+        startActivity(intent)
+        finish()
     }
 
     private fun openOnboarding() {
