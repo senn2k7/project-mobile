@@ -229,6 +229,7 @@ class LoginActivity : AppCompatActivity() {
             nama = namaDefault,
             email = email,
             onSuccess = {
+                LoginEmailHistory.record(this@LoginActivity, email)
                 loadUserProfile(uid, namaDefault, email, button)
             },
             onFailure = { message ->
@@ -309,6 +310,31 @@ class LoginActivity : AppCompatActivity() {
         nama: String,
         email: String
     ) {
+        // Jika masih ada draft profil pengajar, lanjutkan pengisian.
+        if (ProfilDraftManager.hasDraft(this, uid)) {
+            val intent = Intent(
+                this,
+                LengkapiProfilPengajarActivity::class.java
+            ).apply {
+                putExtra("USER_ID", uid)
+                putExtra("USER_NAME", nama)
+                putExtra("USER_EMAIL", email)
+                putExtra(
+                    ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN,
+                    ModePembelajaranActivity.MODE_MANDIRI
+                )
+                putExtra(
+                    PilihPeranActivity.EXTRA_ROLE,
+                    PilihPeranActivity.ROLE_PENGAJAR
+                )
+            }
+
+            startActivity(intent)
+            finish()
+            return
+        }
+
+        // Jika tidak ada draft, gunakan alur normal.
         val intent = Intent(
             this,
             ModePembelajaranActivity::class.java

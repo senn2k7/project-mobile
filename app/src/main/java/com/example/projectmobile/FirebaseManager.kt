@@ -14,6 +14,89 @@ object FirebaseManager {
         FirebaseFirestore.getInstance()
     }
 
+    fun savePengajarMandiriProfile(
+        uid: String,
+        nama: String,
+        email: String,
+        nomorTelepon: String,
+        bidangKeahlian: String,
+        namaInstansi: String,
+        pengalamanMengajar: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        if (uid.isBlank() || nama.isBlank() || email.isBlank() || bidangKeahlian.isBlank()) {
+            onFailure("Nama, email, dan bidang keahlian wajib diisi.")
+            return
+        }
+
+        if (FirebaseAuthManager.currentUser?.uid != uid) {
+            onFailure("UID pengguna tidak sesuai dengan sesi Firebase.")
+            return
+        }
+
+        val userRef = db.collection("users").document(uid)
+        val profileRef = db.collection("pengajar_mandiri").document(uid)
+
+        val profileData = hashMapOf<String, Any>(
+            "uid" to uid,
+            "nama" to nama.trim(),
+            "email" to email.trim(),
+            "nomor_telepon" to nomorTelepon.trim(),
+            "bidang_keahlian" to bidangKeahlian.trim(),
+            "nama_instansi" to namaInstansi.trim(),
+            "pengalaman_mengajar" to pengalamanMengajar.trim(),
+            "role" to "pengajar",
+            "mode" to "mandiri",
+            "profil_lengkap" to true,
+            "updated_at" to FieldValue.serverTimestamp()
+        )
+
+        db.runTransaction { transaction ->
+            val userSnapshot = transaction.get(userRef)
+            val profileSnapshot = transaction.get(profileRef)
+
+            if (!userSnapshot.exists()) {
+                transaction.set(
+                    userRef,
+                    hashMapOf(
+                        "uid" to uid,
+                        "email" to email.trim(),
+                        "role" to "pengajar",
+                        "mode" to "mandiri",
+                        "created_at" to FieldValue.serverTimestamp()
+                    ),
+                    com.google.firebase.firestore.SetOptions.merge()
+                )
+            } else {
+                transaction.set(
+                    userRef,
+                    hashMapOf(
+                        "email" to email.trim(),
+                        "role" to "pengajar",
+                        "mode" to "mandiri",
+                        "updated_at" to FieldValue.serverTimestamp()
+                    ),
+                    com.google.firebase.firestore.SetOptions.merge()
+                )
+            }
+
+            if (!profileSnapshot.exists()) {
+                profileData["created_at"] = FieldValue.serverTimestamp()
+            }
+
+            transaction.set(
+                profileRef,
+                profileData,
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+        }.addOnSuccessListener {
+            onSuccess()
+        }.addOnFailureListener { error ->
+            onFailure(error.message ?: "Gagal menyimpan profil pengajar.")
+        }
+    }
+
     fun saveUserProfile(
         uid: String,
         nama: String,
