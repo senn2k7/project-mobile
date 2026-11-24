@@ -11,9 +11,18 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class LengkapiProfilPelajarActivity : AppCompatActivity() {
+
+    private lateinit var inputNama: EditText
+    private lateinit var inputEmail: EditText
+    private lateinit var inputTelepon: EditText
+    private lateinit var inputJenjang: EditText
+    private lateinit var inputInstansi: EditText
+    private lateinit var btnSimpan: TextView
+    private var sedangMenyimpan = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +32,12 @@ class LengkapiProfilPelajarActivity : AppCompatActivity() {
 
         val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_MANDIRI
         val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
+
+        if (FirebaseAuthManager.currentUser == null) {
+            Toast.makeText(this, "Silakan login terlebih dahulu.", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         setContentView(createFormLayout(mode, role))
     }
@@ -76,11 +91,15 @@ class LengkapiProfilPelajarActivity : AppCompatActivity() {
         root.addView(subTv, subParams)
 
         // Form Fields
-        addInputField(root, "Nama Lengkap", "Nama lengkap sesuai identitas", "👤")
-        addInputField(root, "Email", "nama@email.com", "✉️")
-        addInputField(root, "Nomor Telepon (Opsional)", "0812 3456 7890", "📞")
-        addInputField(root, "Jenjang Pendidikan", "Pilih jenjang pendidikan", "🎓", hasDropdown = true)
-        addInputField(root, "Nama Sekolah / Institusi (Opsional)", "Nama sekolah atau instansi", "🏛️")
+        inputNama = addInputField(root, "Nama Lengkap", "Nama lengkap sesuai identitas", "👤")
+        inputEmail = addInputField(root, "Email", "Email akun Firebase", "✉️").apply {
+            setText(FirebaseAuthManager.currentUser?.email.orEmpty())
+            isFocusable = false
+            isFocusableInTouchMode = false
+        }
+        inputTelepon = addInputField(root, "Nomor Telepon (Opsional)", "0812 3456 7890", "📞")
+        inputJenjang = addInputField(root, "Jenjang Pendidikan", "Contoh: SMA, SMK, D3, S1", "🎓", hasDropdown = true)
+        inputInstansi = addInputField(root, "Nama Sekolah / Institusi (Opsional)", "Nama sekolah atau instansi", "🏛️")
 
         // Foto Profil (Opsional)
         val fotoLabel = TextView(this).apply {
@@ -162,7 +181,7 @@ class LengkapiProfilPelajarActivity : AppCompatActivity() {
         root.addView(infoBox, infoParams)
 
         // Submit Button (Simpan dan Lanjutkan)
-        val btnSimpan = TextView(this).apply {
+        btnSimpan = TextView(this).apply {
             text = "Simpan dan Lanjutkan"
             textSize = 16f
             setTextColor(Color.WHITE)
@@ -173,12 +192,7 @@ class LengkapiProfilPelajarActivity : AppCompatActivity() {
             isClickable = true
             isFocusable = true
             setOnClickListener {
-                val intent = Intent(this@LengkapiProfilPelajarActivity, HomeActivity::class.java).apply {
-                    putExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN, mode)
-                    putExtra(PilihPeranActivity.EXTRA_ROLE, role)
-                }
-                startActivity(intent)
-                finish()
+                simpanProfil(mode, role)
             }
         }
         val btnParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
@@ -190,7 +204,7 @@ class LengkapiProfilPelajarActivity : AppCompatActivity() {
         return scrollView
     }
 
-    private fun addInputField(parent: LinearLayout, label: String, hint: String, icon: String, hasDropdown: Boolean = false) {
+    private fun addInputField(parent: LinearLayout, label: String, hint: String, icon: String, hasDropdown: Boolean = false): EditText {
         val labelTv = TextView(this).apply {
             text = label
             textSize = 14f
@@ -238,6 +252,95 @@ class LengkapiProfilPelajarActivity : AppCompatActivity() {
             topMargin = dp(8)
         }
         parent.addView(inputContainer, containerParams)
+        return editText
+    }
+
+    private fun simpanProfil(mode: String, role: String) {
+        if (sedangMenyimpan) return
+
+        val user = FirebaseAuthManager.currentUser
+        if (user == null) {
+            Toast.makeText(this, "Sesi login tidak ditemukan.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val nama = inputNama.text.toString().trim()
+        val email = user.email.orEmpty().trim()
+        val telepon = inputTelepon.text.toString().trim()
+        val jenjang = inputJenjang.text.toString().trim()
+        val instansi = inputInstansi.text.toString().trim()
+
+        if (nama.isBlank()) {
+            inputNama.error = "Nama lengkap wajib diisi"
+            inputNama.requestFocus()
+            return
+        }
+        if (jenjang.isBlank()) {
+            inputJenjang.error = "Jenjang pendidikan wajib diisi"
+            inputJenjang.requestFocus()
+            return
+        }
+        if (email.isBlank()) {
+            Toast.makeText(this, "Email akun tidak ditemukan.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (role != PilihPeranActivity.ROLE_PELAJAR) {
+            Toast.makeText(this, "Peran tidak valid.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val collection = when (mode) {
+            ModePembelajaranActivity.MODE_MANDIRI -> "pelajar_mandiri"
+            ModePembelajaranActivity.MODE_INSTITUSI -> "pelajar_institusi"
+            else -> {
+                Toast.makeText(this, "Mode pembelajaran tidak valid.", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+
+        sedangMenyimpan = true
+        btnSimpan.isEnabled = false
+        btnSimpan.text = "Menyimpan profil..."
+
+        FirebaseManager.saveRoleModeProfile(
+            uid = user.uid,
+            collection = collection,
+            role = role,
+            mode = mode,
+            data = mapOf(
+                "nama" to nama,
+                "email" to email,
+                "nomor_telepon" to telepon,
+                "jenjang_pendidikan" to jenjang,
+                "nama_instansi" to instansi
+            ),
+            onSuccess = {
+                sedangMenyimpan = false
+                Toast.makeText(
+                    this@LengkapiProfilPelajarActivity,
+                    "Profil berhasil disimpan!",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                val next = UiKit.getBerandaIntent(
+                    this@LengkapiProfilPelajarActivity,
+                    role,
+                    mode
+                )
+                startActivity(next)
+                finish()
+            },
+            onFailure = { message ->
+                sedangMenyimpan = false
+                btnSimpan.isEnabled = true
+                btnSimpan.text = "Simpan dan Lanjutkan"
+                Toast.makeText(
+                    this@LengkapiProfilPelajarActivity,
+                    "Gagal menyimpan: $message",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        )
     }
 
     private fun roundedBackground(color: Int, radiusDp: Int, strokeColor: Int? = null, strokeWidthDp: Int = 0): GradientDrawable {

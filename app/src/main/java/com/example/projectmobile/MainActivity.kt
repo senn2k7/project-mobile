@@ -48,110 +48,39 @@ class MainActivity : AppCompatActivity() {
             nama = namaDefault,
             email = email,
             onSuccess = {
-                loadUserProfile(uid, namaDefault, email)
-            },
-            onFailure = { message ->
-                Toast.makeText(
-                    this,
-                    "Gagal memeriksa profil: $message",
-                    Toast.LENGTH_LONG
-                ).show()
-
-                openOnboarding()
-            }
-        )
-    }
-
-    private fun loadUserProfile(
-        uid: String,
-        namaDefault: String,
-        email: String
-    ) {
-        FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(uid)
-            .get()
-            .addOnSuccessListener { userDocument ->
-
-                val nama = userDocument.getString("nama")
-                    ?: namaDefault
-
                 FirebaseFirestore.getInstance()
-                    .collection("pengajar_mandiri")
+                    .collection("users")
                     .document(uid)
                     .get()
-                    .addOnSuccessListener { teacherDocument ->
+                    .addOnSuccessListener { document ->
+                        val nama = document.getString("nama")
+                            ?: namaDefault
 
-                        val profilLengkap =
-                            teacherDocument.getBoolean("profil_lengkap") == true
-
-                        val role = teacherDocument.getString("role")
-                        val mode = teacherDocument.getString("mode")
-
-                        if (
-                            teacherDocument.exists() &&
-                            profilLengkap &&
-                            role == "pengajar" &&
-                            mode == "mandiri"
-                        ) {
-                            android.util.Log.d(
-                                "MainActivity",
-                                "Profil Pengajar Mandiri ditemukan. Membuka dashboard."
-                            )
-
-                            val intent = Intent(
-                                this@MainActivity,
-                                HomeActivity::class.java
-                            ).apply {
-                                putExtra(
-                                    PilihPeranActivity.EXTRA_ROLE,
-                                    PilihPeranActivity.ROLE_PENGAJAR
-                                )
-                                putExtra(
-                                    ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN,
-                                    ModePembelajaranActivity.MODE_MANDIRI
-                                )
-                                putExtra("USER_ID", uid)
-                                putExtra("USER_NAME", nama)
-                                putExtra("USER_EMAIL", email)
-                            }
-
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            android.util.Log.d(
-                                "MainActivity",
-                                "Profil Pengajar Mandiri belum ditemukan/lengkap. Membuka pemilihan mode."
-                            )
-
-                            bukaModePembelajaran(uid, nama, email)
-                        }
+                        bukaModePembelajaran(uid, nama, email)
                     }
                     .addOnFailureListener { error ->
                         android.util.Log.e(
                             "MainActivity",
-                            "Gagal memeriksa profil Pengajar Mandiri",
+                            "Gagal mengambil data dasar pengguna",
                             error
                         )
-
                         Toast.makeText(
-                            this@MainActivity,
-                            "Profil belum dapat diperiksa. Silakan lanjutkan.",
+                            this,
+                            "Gagal memuat data akun. Periksa koneksi internet.",
                             Toast.LENGTH_LONG
                         ).show()
-
-                        bukaModePembelajaran(uid, nama, email)
+                        openOnboarding()
                     }
-            }
-            .addOnFailureListener { error ->
+            },
+            onFailure = { message ->
                 Toast.makeText(
-                    this@MainActivity,
-                    "Gagal mengambil profil: ${error.message}",
+                    this,
+                    "Gagal menyiapkan akun: $message",
                     Toast.LENGTH_LONG
                 ).show()
-
                 openOnboarding()
             }
+        )
     }
 
     private fun bukaModePembelajaran(

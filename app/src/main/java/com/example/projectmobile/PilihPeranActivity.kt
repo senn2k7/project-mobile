@@ -12,7 +12,9 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.firestore.FirebaseFirestore
 import android.graphics.drawable.GradientDrawable
 
 class PilihPeranActivity : AppCompatActivity() {
@@ -285,28 +287,74 @@ class PilihPeranActivity : AppCompatActivity() {
 
         card.setOnClickListener {
             selectedRole = role
+
             val mode = intent.getStringExtra(
                 ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN
             ) ?: ModePembelajaranActivity.MODE_INSTITUSI
 
-            if (mode == ModePembelajaranActivity.MODE_MANDIRI) {
-                val targetActivity = if (role == ROLE_PENGAJAR) {
-                    LengkapiProfilPengajarActivity::class.java
-                } else {
-                    LengkapiProfilPelajarActivity::class.java
-                }
-                val next = Intent(this, targetActivity).apply {
-                    putExtra(
-                        ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN,
-                        mode
-                    )
-                    putExtra(EXTRA_ROLE, role)
-                }
-                startActivity(next)
-                finish()
-            } else {
-                openHome(role)
+            val user = FirebaseAuthManager.currentUser
+            if (user == null) {
+                Toast.makeText(
+                    this,
+                    "Sesi login tidak ditemukan. Silakan login kembali.",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
             }
+
+            val collection = when {
+                role == ROLE_PENGAJAR && mode == ModePembelajaranActivity.MODE_MANDIRI ->
+                    "pengajar_mandiri"
+                role == ROLE_PELAJAR && mode == ModePembelajaranActivity.MODE_MANDIRI ->
+                    "pelajar_mandiri"
+                role == ROLE_PENGAJAR && mode == ModePembelajaranActivity.MODE_INSTITUSI ->
+                    "pengajar_institusi"
+                else -> "pelajar_institusi"
+            }
+
+            card.isEnabled = false
+
+            FirebaseFirestore.getInstance()
+                .collection(collection)
+                .document(user.uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    card.isEnabled = true
+
+                    val complete =
+                        document.exists() &&
+                        document.getBoolean("profil_lengkap") == true &&
+                        document.getString("role") == role &&
+                        document.getString("mode") == mode
+
+                    if (complete) {
+                        openHome(role)
+                    } else {
+                        val targetActivity = if (role == ROLE_PENGAJAR) {
+                            LengkapiProfilPengajarActivity::class.java
+                        } else {
+                            LengkapiProfilPelajarActivity::class.java
+                        }
+
+                        val next = Intent(this, targetActivity).apply {
+                            putExtra(
+                                ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN,
+                                mode
+                            )
+                            putExtra(EXTRA_ROLE, role)
+                        }
+                        startActivity(next)
+                        finish()
+                    }
+                }
+                .addOnFailureListener { error ->
+                    card.isEnabled = true
+                    Toast.makeText(
+                        this,
+                        "Gagal memeriksa profil: ${error.message ?: "Kesalahan koneksi"}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
         }
 
         return card

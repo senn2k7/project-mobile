@@ -278,8 +278,7 @@ class LengkapiProfilPengajarActivity : AppCompatActivity() {
         if (sedangMenyimpan) return
 
         val user = FirebaseAuthManager.currentUser
-
-        if (user == null) {
+        if (user == null || user.uid != uidAktif) {
             Toast.makeText(this, "Sesi login tidak ditemukan.", Toast.LENGTH_SHORT).show()
             return
         }
@@ -296,15 +295,17 @@ class LengkapiProfilPengajarActivity : AppCompatActivity() {
             inputNama.requestFocus()
             return
         }
-
         if (keahlian.isEmpty()) {
             inputKeahlian.error = "Bidang keahlian wajib diisi"
             inputKeahlian.requestFocus()
             return
         }
-
         if (email.isEmpty()) {
             Toast.makeText(this, "Email akun tidak ditemukan.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (role != PilihPeranActivity.ROLE_PENGAJAR) {
+            Toast.makeText(this, "Peran tidak valid.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -313,51 +314,72 @@ class LengkapiProfilPengajarActivity : AppCompatActivity() {
         btnSimpan.text = "Menyimpan profil..."
         btnSimpan.alpha = 0.7f
 
-        FirebaseManager.savePengajarMandiriProfile(
-            uid = user.uid,
-            nama = nama,
-            email = email,
-            nomorTelepon = telepon,
-            bidangKeahlian = keahlian,
-            namaInstansi = instansi,
-            pengalamanMengajar = pengalaman,
-            onSuccess = {
-                sedangMenyimpan = false
-                ProfilDraftManager.clear(this@LengkapiProfilPengajarActivity, user.uid)
+        val success = {
+            sedangMenyimpan = false
+            ProfilDraftManager.clear(this@LengkapiProfilPengajarActivity, user.uid)
 
-                Toast.makeText(
-                    this,
-                    "Profil berhasil disimpan!",
-                    Toast.LENGTH_SHORT
-                ).show()
+            Toast.makeText(
+                this@LengkapiProfilPengajarActivity,
+                "Profil berhasil disimpan!",
+                Toast.LENGTH_SHORT
+            ).show()
 
-                val intent = Intent(this, HomeActivity::class.java).apply {
-                    putExtra(
-                        ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN,
-                        mode
-                    )
-                    putExtra(
-                        PilihPeranActivity.EXTRA_ROLE,
-                        role
-                    )
-                }
-
-                startActivity(intent)
-                finish()
-            },
-            onFailure = { message ->
-                sedangMenyimpan = false
-                btnSimpan.isEnabled = true
-                btnSimpan.text = "Simpan dan Lanjutkan"
-                btnSimpan.alpha = 1f
-
-                Toast.makeText(
-                    this,
-                    "Gagal menyimpan: $message",
-                    Toast.LENGTH_LONG
-                ).show()
+            val next = UiKit.getBerandaIntent(this@LengkapiProfilPengajarActivity, role, mode)
+            if (mode == ModePembelajaranActivity.MODE_INSTITUSI) {
+                next.setClass(
+                    this@LengkapiProfilPengajarActivity,
+                    com.example.projectmobile.ui.pengajar.institusi.PengajarBerandaActivity::class.java
+                )
             }
-        )
+            startActivity(next)
+            finish()
+        }
+
+        val failure: (String) -> Unit = { message ->
+            sedangMenyimpan = false
+            btnSimpan.isEnabled = true
+            btnSimpan.text = "Simpan dan Lanjutkan"
+            btnSimpan.alpha = 1f
+            Toast.makeText(
+                this,
+                "Gagal menyimpan: $message",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
+        if (mode == ModePembelajaranActivity.MODE_MANDIRI) {
+            // Fungsi lama Pengajar Mandiri dipertahankan.
+            FirebaseManager.savePengajarMandiriProfile(
+                uid = user.uid,
+                nama = nama,
+                email = email,
+                nomorTelepon = telepon,
+                bidangKeahlian = keahlian,
+                namaInstansi = instansi,
+                pengalamanMengajar = pengalaman,
+                onSuccess = success,
+                onFailure = failure
+            )
+        } else if (mode == ModePembelajaranActivity.MODE_INSTITUSI) {
+            FirebaseManager.saveRoleModeProfile(
+                uid = user.uid,
+                collection = "pengajar_institusi",
+                role = role,
+                mode = mode,
+                data = mapOf(
+                    "nama" to nama,
+                    "email" to email,
+                    "nomor_telepon" to telepon,
+                    "bidang_keahlian" to keahlian,
+                    "nama_instansi" to instansi,
+                    "pengalaman_mengajar" to pengalaman
+                ),
+                onSuccess = success,
+                onFailure = failure
+            )
+        } else {
+            failure("Mode pembelajaran tidak valid.")
+        }
     }
 
     private fun addInputField(

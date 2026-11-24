@@ -97,6 +97,55 @@ object FirebaseManager {
         }
     }
 
+    fun saveRoleModeProfile(
+        uid: String,
+        collection: String,
+        role: String,
+        mode: String,
+        data: Map<String, Any>,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val allowedCollections = setOf(
+            "pelajar_mandiri",
+            "pengajar_institusi",
+            "pelajar_institusi"
+        )
+
+        if (collection !in allowedCollections) {
+            onFailure("Koleksi profil tidak diizinkan.")
+            return
+        }
+
+        if (uid.isBlank() || FirebaseAuthManager.currentUser?.uid != uid) {
+            onFailure("UID pengguna tidak sesuai dengan sesi Firebase.")
+            return
+        }
+
+        if (role !in setOf("pengajar", "pelajar") ||
+            mode !in setOf("mandiri", "institusi")
+        ) {
+            onFailure("Peran atau mode pembelajaran tidak valid.")
+            return
+        }
+
+        val profileData = HashMap<String, Any>(data).apply {
+            put("uid", uid)
+            put("role", role)
+            put("mode", mode)
+            put("profil_lengkap", true)
+            put("updated_at", FieldValue.serverTimestamp())
+        }
+
+        db.collection(collection)
+            .document(uid)
+            .set(profileData, com.google.firebase.firestore.SetOptions.merge())
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { error ->
+                onFailure(error.message ?: "Gagal menyimpan profil.")
+            }
+    }
+
     fun saveUserProfile(
         uid: String,
         nama: String,
