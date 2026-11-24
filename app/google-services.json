@@ -51,6 +51,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "828951043706-86fr2kt022uek7083jnu09mr019gnka4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.snapchatsphlasscreen",
+            "certificate_hash": "b0578c024104a7811b027ddca351125bb0884381"
+          }
+        },
+        {
           "client_id": "828951043706-c79s46jmb64rtgmc4dtie25b8had2be3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
