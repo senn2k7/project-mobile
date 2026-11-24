@@ -114,8 +114,8 @@ class GabungKelasActivity : AppCompatActivity() {
         }
         val check = FrameLayout(this).apply { background = UiKit.oval(UiKit.SUCCESS) }
         check.addView(
-            UiKit.tv(this, "✓", 26f, Color.WHITE, true).apply { gravity = Gravity.CENTER },
-            FrameLayout.LayoutParams(UiKit.MATCH, UiKit.MATCH, Gravity.CENTER)
+            UiKit.icon(this, R.drawable.ic_check, 28, Color.WHITE),
+            FrameLayout.LayoutParams(px(28), px(28), Gravity.CENTER)
         )
         head.addView(check, LinearLayout.LayoutParams(px(52), px(52)))
         val texts = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }

@@ -64,8 +64,8 @@ class KelasBerhasilActivity : AppCompatActivity() {
             val outer = FrameLayout(this).apply { background = UiKit.oval(UiKit.SOFT) }
             val inner = FrameLayout(this).apply { background = UiKit.oval(UiKit.SUCCESS) }
             inner.addView(
-                UiKit.tv(this, "✓", 44f, Color.WHITE, true).apply { gravity = Gravity.CENTER },
-                FrameLayout.LayoutParams(UiKit.MATCH, UiKit.MATCH, Gravity.CENTER)
+                UiKit.icon(this, R.drawable.ic_check, 48, Color.WHITE),
+                FrameLayout.LayoutParams(px(48), px(48), Gravity.CENTER)
             )
             outer.addView(inner, FrameLayout.LayoutParams(px(84), px(84), Gravity.CENTER))
             top.addView(outer, LinearLayout.LayoutParams(px(140), px(140)))

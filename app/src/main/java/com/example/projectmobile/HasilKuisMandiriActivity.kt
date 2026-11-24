@@ -55,8 +55,8 @@ class HasilKuisMandiriActivity : AppCompatActivity() {
         }
         val circle = FrameLayout(this).apply { background = UiKit.oval(Color.parseColor("#FFC83D")) }
         circle.addView(
-            UiKit.tv(this, "🏆", 56f, Color.WHITE).apply { gravity = Gravity.CENTER },
-            FrameLayout.LayoutParams(UiKit.MATCH, UiKit.MATCH, Gravity.CENTER)
+            UiKit.icon(this, R.drawable.ic_trophy, 64, Color.WHITE),
+            FrameLayout.LayoutParams(px(64), px(64), Gravity.CENTER)
         )
         top.addView(circle, LinearLayout.LayoutParams(px(120), px(120)))
         top.addView(

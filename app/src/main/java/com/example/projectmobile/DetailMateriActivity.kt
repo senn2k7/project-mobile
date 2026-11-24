@@ -148,7 +148,13 @@ class DetailMateriActivity : AppCompatActivity() {
         buttons.addView(doneBtn, UiKit.params(this, 0, px(52), start = 6, weight = 1f))
 
         val ask = UiKit.primaryButton(this, "✦  Tanyakan Materi ke AI") {
-            UiKit.toast(this, "Membuka Asisten AI TemanStudi...")
+            val next = UiKit.withProfile(Intent(this, AiAsistenMandiriActivity::class.java), role, mode)
+            val cls = info
+            val mtg = meeting
+            if (cls != null && mtg != null) {
+                next.putExtra(AiAsistenMandiriActivity.EXTRA_CONTEXT_KEY, "${cls.code}|${mtg.number}")
+            }
+            startActivity(next)
         }
         root.addView(UiKit.bottomBar(this, buttons, ask.also {
             it.layoutParams = UiKit.params(this, UiKit.MATCH, px(52), top = 10)

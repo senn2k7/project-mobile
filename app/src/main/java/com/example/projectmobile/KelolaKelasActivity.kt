@@ -214,7 +214,7 @@ class KelolaKelasActivity : AppCompatActivity() {
 
     private fun deleteLabel(onClick: () -> Unit): TextView =
         UiKit.tv(this, "Hapus", 12f, UiKit.DANGER, true).apply {
-            setPadding(px(8), px(6), px(4), px(6))
+            setPadding(px(12), px(12), px(8), px(12))
             isClickable = true
             isFocusable = true
             setOnClickListener { onClick() }

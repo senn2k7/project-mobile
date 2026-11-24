@@ -38,7 +38,7 @@ class AiAsistenMandiriActivity : AppCompatActivity() {
         role = UiKit.roleOf(intent)
         mode = ModePembelajaranActivity.MODE_MANDIRI
         contexts = buildContexts()
-        val lastKey = savedInstanceState?.getString(STATE_KEY) ?: lastKeyByRole[role]
+        val lastKey = savedInstanceState?.getString(STATE_KEY) ?: intent.getStringExtra(EXTRA_CONTEXT_KEY) ?: lastKeyByRole[role]
         selected = contexts.indexOfFirst { it.key == lastKey }.coerceAtLeast(0)
         setContentView(build())
         renderMessages()
@@ -103,13 +103,7 @@ class AiAsistenMandiriActivity : AppCompatActivity() {
             gravity = Gravity.CENTER_VERTICAL
             setPadding(px(16), px(14), px(16), px(14))
         }
-        header.addView(
-            UiKit.tv(this, "🤖", 26f, Color.WHITE).apply {
-                gravity = Gravity.CENTER
-                background = UiKit.oval(UiKit.SOFT)
-            },
-            LinearLayout.LayoutParams(px(52), px(52))
-        )
+        header.addView(UiKit.circleIcon(this, R.drawable.ic_bot, UiKit.PRIMARY, UiKit.SOFT, 52, 30))
         val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         col.addView(UiKit.tv(this, "TemanStudi AI Assistant", 16f, UiKit.NAVY, true))
         col.addView(
@@ -145,7 +139,7 @@ class AiAsistenMandiriActivity : AppCompatActivity() {
         }
         ctxCol.addView(tvContext, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 2))
         ctxCard.addView(ctxCol, UiKit.params(this, 0, UiKit.WRAP, weight = 1f))
-        ctxCard.addView(UiKit.tv(this, "▾", 18f, UiKit.MUTED))
+        ctxCard.addView(UiKit.icon(this, R.drawable.ic_chevron_down, 22, UiKit.MUTED))
         root.addView(ctxCard, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, start = 20, end = 20, top = 10))
 
         // Catatan mode demo
@@ -208,9 +202,7 @@ class AiAsistenMandiriActivity : AppCompatActivity() {
         }
         bar.addView(etMessage, UiKit.params(this, 0, UiKit.WRAP, weight = 1f))
         bar.addView(
-            UiKit.tv(this, "➤", 18f, Color.WHITE, true).apply {
-                gravity = Gravity.CENTER
-                background = UiKit.oval(UiKit.PRIMARY)
+            UiKit.circleIcon(this, R.drawable.ic_send, Color.WHITE, UiKit.PRIMARY, 48, 22).apply {
                 isClickable = true
                 isFocusable = true
                 setOnClickListener { sendFromField() }
@@ -242,13 +234,7 @@ class AiAsistenMandiriActivity : AppCompatActivity() {
                 }
             )
         } else {
-            row.addView(
-                UiKit.tv(this, "🤖", 16f, Color.WHITE).apply {
-                    gravity = Gravity.CENTER
-                    background = UiKit.oval(UiKit.SOFT)
-                },
-                LinearLayout.LayoutParams(px(36), px(36))
-            )
+            row.addView(UiKit.circleIcon(this, R.drawable.ic_bot, UiKit.PRIMARY, UiKit.SOFT, 36, 20))
             row.addView(
                 UiKit.tv(this, m.text, 14.5f, UiKit.NAVY).apply {
                     maxWidth = px(280)
@@ -313,6 +299,7 @@ class AiAsistenMandiriActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val EXTRA_CONTEXT_KEY = "extra_ai_context_key"
         private const val STATE_KEY = "state_ai_context"
         private val memory = mutableMapOf<String, MutableList<Msg>>()
         private val lastKeyByRole = mutableMapOf<String, String>()

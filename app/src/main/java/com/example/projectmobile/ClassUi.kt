@@ -18,6 +18,8 @@ object ClassUi {
         UiKit.tv(activity, label, 11.5f, textColor, true).apply {
             background = UiKit.rounded(activity, bg, 8)
             setPadding(activity.px(10), activity.px(3), activity.px(10), activity.px(3))
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
         }
 
     fun progressBar(activity: Activity, percent: Int): ProgressBar =

@@ -46,8 +46,8 @@ class TugasBerhasilActivity : AppCompatActivity() {
 
         val circle = FrameLayout(this).apply { background = UiKit.oval(UiKit.SUCCESS) }
         circle.addView(
-            UiKit.tv(this, "✓", 56f, Color.WHITE, true).apply { gravity = Gravity.CENTER },
-            FrameLayout.LayoutParams(UiKit.MATCH, UiKit.MATCH, Gravity.CENTER)
+            UiKit.icon(this, R.drawable.ic_check, 56, Color.WHITE),
+            FrameLayout.LayoutParams(px(56), px(56), Gravity.CENTER)
         )
         val top = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL

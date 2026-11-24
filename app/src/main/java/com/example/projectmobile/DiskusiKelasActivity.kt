@@ -79,9 +79,7 @@ class DiskusiKelasActivity : AppCompatActivity() {
             setPadding(px(18), px(12), px(18), px(12))
         }
         bar.addView(etMessage, UiKit.params(this, 0, UiKit.WRAP, weight = 1f))
-        val send = UiKit.tv(this, "➤", 18f, Color.WHITE, true).apply {
-            gravity = Gravity.CENTER
-            background = UiKit.oval(UiKit.PRIMARY)
+        val send = UiKit.circleIcon(this, R.drawable.ic_send, Color.WHITE, UiKit.PRIMARY, 48, 22).apply {
             isClickable = true
             isFocusable = true
             setOnClickListener { send() }

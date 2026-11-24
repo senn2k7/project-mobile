@@ -171,6 +171,17 @@ object UiKit {
         }
     }
 
+    /** Lingkaran berlatar berisi satu ikon vektor di tengah (menggantikan emoji). */
+    fun circleIcon(ctx: Context, res: Int, tint: Int, bg: Int, boxDp: Int, glyphDp: Int): FrameLayout =
+        FrameLayout(ctx).apply {
+            background = oval(bg)
+            addView(
+                icon(ctx, res, glyphDp, tint),
+                FrameLayout.LayoutParams(ctx.px(glyphDp), ctx.px(glyphDp), Gravity.CENTER)
+            )
+            layoutParams = LinearLayout.LayoutParams(ctx.px(boxDp), ctx.px(boxDp))
+        }
+
     /** Ikon menu bawah (menggantikan emoji), diwarnai biru bila aktif. */
     fun navIcon(ctx: Context, key: String, selected: Boolean): ImageView {
         val res = when (key) {
