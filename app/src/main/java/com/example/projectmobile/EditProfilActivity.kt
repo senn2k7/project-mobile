@@ -1,6 +1,10 @@
 package com.example.projectmobile
 
 import android.os.Bundle
+import android.app.AlertDialog
+import android.graphics.Bitmap
+import android.net.Uri
+import java.io.ByteArrayOutputStream
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
@@ -22,9 +26,29 @@ class EditProfilActivity : AppCompatActivity() {
     private val required = HashSet<String>()
     private val editors = HashMap<String, EditText>()
 
-    private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        // Foto hanya dipratinjau; unggah ke server dihubungkan nanti.
-        if (uri != null) avatar?.setPhoto(uri)
+    private var fotoProfilUri: Uri? = null
+    private var fotoProfilBytes: ByteArray? = null
+
+    private val pickImage = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            fotoProfilUri = uri
+            fotoProfilBytes = null
+            avatar?.setPhoto(uri)
+        }
+    }
+
+    private val takePhoto = registerForActivityResult(
+        ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        if (bitmap != null) {
+            val output = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, output)
+            fotoProfilBytes = output.toByteArray()
+            fotoProfilUri = null
+            avatar?.setPhotoBitmap(bitmap)
+        }
     }
 
     private val prodiOptions = listOf(
@@ -71,8 +95,11 @@ class EditProfilActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
         }
-        val handle = UiKit.avatar(this, 96, withCamera = true) { pickImage.launch("image/*") }
+        val handle = UiKit.avatar(this, 96, withCamera = true) {
+            pilihSumberFoto()
+        }
         avatar = handle
+        handle.setPhotoUrl(value(ProfileStore.FOTO_PROFIL_URL))
         photo.addView(handle.view)
         if (teacher) {
             photo.addView(
@@ -172,6 +199,18 @@ class EditProfilActivity : AppCompatActivity() {
         }
     }
 
+    private fun pilihSumberFoto() {
+        AlertDialog.Builder(this)
+            .setTitle("Pilih Foto Profil")
+            .setItems(arrayOf("Pilih dari Galeri", "Ambil Foto dari Kamera")) { _, pilihan ->
+                when (pilihan) {
+                    0 -> pickImage.launch("image/*")
+                    1 -> takePhoto.launch(null)
+                }
+            }
+            .show()
+    }
+
     private var isSaving = false
 
     private fun save() {
@@ -242,27 +281,71 @@ class EditProfilActivity : AppCompatActivity() {
 
         isSaving = true
 
-        FirebaseManager.saveProfileEdits(
-            uid = uid,
-            collection = collection,
-            role = role,
-            mode = mode,
-            data = data,
-            onSuccess = {
-                for ((field, getter) in getters) {
-                    ProfileStore.put(this, role, mode, field, getter())
-                }
-
-                ProfileStore.put(this, role, mode, ProfileStore.EMAIL, email)
-
-                isSaving = false
-                UiKit.toast(this, "Profil berhasil diperbarui")
-                finish()
-            },
-            onFailure = { message ->
-                isSaving = false
-                UiKit.toast(this, "Gagal memperbarui profil: $message")
+        val simpanKeFirestore: (String?) -> Unit = { fotoUrl ->
+            if (!fotoUrl.isNullOrBlank()) {
+                data["foto_profil_url"] = fotoUrl
             }
-        )
+
+            FirebaseManager.saveProfileEdits(
+                uid = uid,
+                collection = collection,
+                role = role,
+                mode = mode,
+                data = data,
+                onSuccess = {
+                    for ((field, getter) in getters) {
+                        ProfileStore.put(this, role, mode, field, getter())
+                    }
+
+                    ProfileStore.put(this, role, mode, ProfileStore.EMAIL, email)
+
+                    if (!fotoUrl.isNullOrBlank()) {
+                        ProfileStore.put(
+                            this,
+                            role,
+                            mode,
+                            ProfileStore.FOTO_PROFIL_URL,
+                            fotoUrl
+                        )
+                    }
+
+                    isSaving = false
+                    UiKit.toast(this, "Profil berhasil diperbarui")
+                    finish()
+                },
+                onFailure = { message ->
+                    isSaving = false
+                    UiKit.toast(this, "Gagal memperbarui profil: $message")
+                }
+            )
+        }
+
+        when {
+            fotoProfilUri != null -> {
+                CloudinaryUploader.upload(
+                    this,
+                    fotoProfilUri!!,
+                    onSuccess = { url -> simpanKeFirestore(url) },
+                    onFailure = { message ->
+                        isSaving = false
+                        UiKit.toast(this, "Gagal mengunggah foto: $message")
+                    }
+                )
+            }
+
+            fotoProfilBytes != null -> {
+                CloudinaryUploader.uploadBytes(
+                    fotoProfilBytes!!,
+                    "image/jpeg",
+                    onSuccess = { url -> simpanKeFirestore(url) },
+                    onFailure = { message ->
+                        isSaving = false
+                        UiKit.toast(this, "Gagal mengunggah foto: $message")
+                    }
+                )
+            }
+
+            else -> simpanKeFirestore(null)
+        }
     }
 }

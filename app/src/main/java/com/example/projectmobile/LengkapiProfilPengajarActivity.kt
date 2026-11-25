@@ -2,6 +2,10 @@ package com.example.projectmobile
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Bitmap
+import android.graphics.Bitmap.CompressFormat
+import android.net.Uri
+import java.io.ByteArrayOutputStream
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -9,11 +13,14 @@ import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
+import android.app.AlertDialog
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.result.contract.ActivityResultContracts
 
 class LengkapiProfilPengajarActivity : AppCompatActivity() {
 
@@ -25,7 +32,35 @@ class LengkapiProfilPengajarActivity : AppCompatActivity() {
     private lateinit var inputPengalaman: EditText
     private lateinit var btnSimpan: TextView
 
+
     private var sedangMenyimpan = false
+    private var fotoProfilUri: Uri? = null
+    private var fotoProfilBytes: ByteArray? = null
+    private lateinit var fotoPreview: ImageView
+
+    private val pilihFotoGaleri = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            fotoProfilUri = uri
+            fotoProfilBytes = null
+            fotoPreview.setImageURI(uri)
+            fotoPreview.visibility = View.VISIBLE
+        }
+    }
+
+    private val ambilFotoKamera = registerForActivityResult(
+        ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        if (bitmap != null) {
+            val output = ByteArrayOutputStream()
+            bitmap.compress(CompressFormat.JPEG, 90, output)
+            fotoProfilBytes = output.toByteArray()
+            fotoProfilUri = null
+            fotoPreview.setImageBitmap(bitmap)
+            fotoPreview.visibility = View.VISIBLE
+        }
+    }
     private var uidAktif: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,13 +149,93 @@ class LengkapiProfilPengajarActivity : AppCompatActivity() {
             }
         }
 
-        inputTelepon = addInputField(root, "Nomor Telepon (Opsional)", "0812 3456 7890", "📞")
+        inputTelepon = addInputField(root, "Nomor Telepon (Opsional)", "081234567890", "📞").apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            keyListener = android.text.method.DigitsKeyListener.getInstance("0123456789")
+            filters = arrayOf(android.text.InputFilter.LengthFilter(13))
+        }
 
         inputKeahlian = addInputField(root, "Bidang Keahlian", "Contoh: Matematika, Informatika", "📚")
 
         inputInstansi = addInputField(root, "Nama Instansi (Opsional)", "Nama sekolah, kampus, atau lembaga", "🏛️")
 
         inputPengalaman = addInputField(root, "Pengalaman Mengajar (Opsional)", "Contoh: 2 tahun atau pemula", "💼")
+
+        val fotoLabel = TextView(this).apply {
+            text = "Foto Profil (Opsional)"
+            textSize = 14f
+            setTextColor(Color.rgb(25, 54, 95))
+            setTypeface(null, Typeface.BOLD)
+        }
+        root.addView(fotoLabel, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { topMargin = dp(18) })
+
+        val uploadBox = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setPadding(dp(16), dp(24), dp(16), dp(24))
+            background = roundedBackground(Color.WHITE, 12)
+        }
+
+        fotoPreview = ImageView(this).apply {
+            visibility = View.GONE
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            background = roundedBackground(Color.rgb(232, 242, 255), 12)
+        }
+        uploadBox.addView(
+            fotoPreview,
+            LinearLayout.LayoutParams(dp(120), dp(120))
+        )
+
+        val uploadIcon = TextView(this).apply {
+            text = "👤➕"
+            textSize = 28f
+            gravity = Gravity.CENTER
+        }
+        uploadBox.addView(uploadIcon)
+
+        val uploadTitle = TextView(this).apply {
+            text = "Pilih atau unggah foto profil"
+            textSize = 14f
+            setTextColor(Color.rgb(25, 54, 95))
+            setTypeface(null, Typeface.BOLD)
+        }
+        uploadBox.addView(uploadTitle, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { topMargin = dp(8) })
+
+        val uploadSub = TextView(this).apply {
+            text = "Format: JPG, PNG. Maksimal 2 MB."
+            textSize = 12f
+            setTextColor(Color.rgb(117, 139, 169))
+        }
+        uploadBox.addView(uploadSub, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { topMargin = dp(2) })
+
+        root.addView(uploadBox, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { topMargin = dp(8) })
+
+        uploadBox.isClickable = true
+        uploadBox.isFocusable = true
+        uploadBox.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Pilih Foto Profil")
+                .setItems(arrayOf("Pilih dari Galeri", "Ambil Foto dari Kamera")) { _, pilihan ->
+                    when (pilihan) {
+                        0 -> pilihFotoGaleri.launch("image/*")
+                        1 -> ambilFotoKamera.launch(null)
+                    }
+                }
+                .setNegativeButton("Batal", null)
+                .show()
+        }
 
         // Pulihkan draft yang pernah disimpan
         ProfilDraftManager.restore(this, uidAktif)?.let { draft ->
@@ -295,6 +410,12 @@ class LengkapiProfilPengajarActivity : AppCompatActivity() {
             inputNama.requestFocus()
             return
         }
+        if (telepon.isNotEmpty() && !telepon.matches(Regex("^08[0-9]{8,11}$"))) {
+            inputTelepon.error = "Nomor harus diawali 08 dan terdiri dari 10–13 digit"
+            inputTelepon.requestFocus()
+            return
+        }
+
         if (keahlian.isEmpty()) {
             inputKeahlian.error = "Bidang keahlian wajib diisi"
             inputKeahlian.requestFocus()
@@ -347,38 +468,82 @@ class LengkapiProfilPengajarActivity : AppCompatActivity() {
             ).show()
         }
 
-        if (mode == ModePembelajaranActivity.MODE_MANDIRI) {
-            // Fungsi lama Pengajar Mandiri dipertahankan.
-            FirebaseManager.savePengajarMandiriProfile(
-                uid = user.uid,
-                nama = nama,
-                email = email,
-                nomorTelepon = telepon,
-                bidangKeahlian = keahlian,
-                namaInstansi = instansi,
-                pengalamanMengajar = pengalaman,
-                onSuccess = success,
-                onFailure = failure
-            )
-        } else if (mode == ModePembelajaranActivity.MODE_INSTITUSI) {
-            FirebaseManager.saveRoleModeProfile(
-                uid = user.uid,
-                collection = "pengajar_institusi",
-                role = role,
-                mode = mode,
-                data = mapOf(
+        val simpanKeFirebase: (String?) -> Unit = { fotoUrl ->
+            if (mode == ModePembelajaranActivity.MODE_MANDIRI) {
+                FirebaseManager.savePengajarMandiriProfile(
+                    uid = user.uid,
+                    nama = nama,
+                    email = email,
+                    nomorTelepon = telepon,
+                    bidangKeahlian = keahlian,
+                    namaInstansi = instansi,
+                    pengalamanMengajar = pengalaman,
+                    fotoProfilUrl = fotoUrl,
+                    onSuccess = success,
+                    onFailure = failure
+                )
+            } else if (mode == ModePembelajaranActivity.MODE_INSTITUSI) {
+                val data = mutableMapOf<String, Any>(
                     "nama" to nama,
                     "email" to email,
                     "nomor_telepon" to telepon,
                     "bidang_keahlian" to keahlian,
                     "nama_instansi" to instansi,
                     "pengalaman_mengajar" to pengalaman
-                ),
-                onSuccess = success,
-                onFailure = failure
-            )
-        } else {
-            failure("Mode pembelajaran tidak valid.")
+                )
+
+                if (!fotoUrl.isNullOrBlank()) {
+                    data["foto_profil_url"] = fotoUrl
+                }
+
+                FirebaseManager.saveRoleModeProfile(
+                    uid = user.uid,
+                    collection = "pengajar_institusi",
+                    role = role,
+                    mode = mode,
+                    data = data,
+                    onSuccess = success,
+                    onFailure = failure
+                )
+            } else {
+                failure("Mode pembelajaran tidak valid.")
+            }
+        }
+
+        when {
+            fotoProfilUri != null -> {
+                btnSimpan.text = "Mengunggah foto..."
+
+                CloudinaryUploader.upload(
+                    this,
+                    fotoProfilUri!!,
+                    onSuccess = { url ->
+                        simpanKeFirebase(url)
+                    },
+                    onFailure = { message ->
+                        failure("Gagal mengunggah foto: $message")
+                    }
+                )
+            }
+
+            fotoProfilBytes != null -> {
+                btnSimpan.text = "Mengunggah foto..."
+
+                CloudinaryUploader.uploadBytes(
+                    fotoProfilBytes!!,
+                    "image/jpeg",
+                    onSuccess = { url ->
+                        simpanKeFirebase(url)
+                    },
+                    onFailure = { message ->
+                        failure("Gagal mengunggah foto: $message")
+                    }
+                )
+            }
+
+            else -> {
+                simpanKeFirebase(null)
+            }
         }
     }
 

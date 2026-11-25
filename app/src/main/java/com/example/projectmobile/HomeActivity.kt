@@ -86,12 +86,15 @@ class HomeActivity : AppCompatActivity() {
             gravity = Gravity.CENTER_VERTICAL
         }
 
-        // Avatar placeholder circle
-        val avatarView = vectorBox(R.drawable.ic_person, Color.rgb(33, 96, 245), 26, roundedBackground(Color.rgb(215, 230, 255), 24))
-        avatarView.isClickable = true
-        avatarView.isFocusable = true
-        avatarView.setOnClickListener { UiKit.openProfile(this, role, mode) }
-        headerLayout.addView(avatarView, LinearLayout.LayoutParams(dp(48), dp(48)))
+        // Avatar profil dari URL Cloudinary
+        val avatarHandle = UiKit.avatar(this, 48, withCamera = false)
+        avatarHandle.setPhotoUrl(
+            ProfileStore.get(this, role, mode, ProfileStore.FOTO_PROFIL_URL)
+        )
+        avatarHandle.view.isClickable = true
+        avatarHandle.view.isFocusable = true
+        avatarHandle.view.setOnClickListener { UiKit.openProfile(this, role, mode) }
+        headerLayout.addView(avatarHandle.view, LinearLayout.LayoutParams(dp(48), dp(48)))
 
         // Greeting text
         val greetingTextLayout = LinearLayout(this).apply {
@@ -367,11 +370,25 @@ class HomeActivity : AppCompatActivity() {
             gravity = Gravity.CENTER_VERTICAL
         }
 
-        val avatarView = vectorBox(R.drawable.ic_person, Color.rgb(33, 96, 245), 26, roundedBackground(Color.rgb(215, 230, 255), 24))
-        avatarView.isClickable = true
-        avatarView.isFocusable = true
-        avatarView.setOnClickListener { UiKit.openProfile(this, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_MANDIRI) }
-        headerLayout.addView(avatarView, LinearLayout.LayoutParams(dp(48), dp(48)))
+        val avatarHandle = UiKit.avatar(this, 48, withCamera = false)
+        avatarHandle.setPhotoUrl(
+            ProfileStore.get(
+                this,
+                PilihPeranActivity.ROLE_PENGAJAR,
+                ModePembelajaranActivity.MODE_MANDIRI,
+                ProfileStore.FOTO_PROFIL_URL
+            )
+        )
+        avatarHandle.view.isClickable = true
+        avatarHandle.view.isFocusable = true
+        avatarHandle.view.setOnClickListener {
+            UiKit.openProfile(
+                this,
+                PilihPeranActivity.ROLE_PENGAJAR,
+                ModePembelajaranActivity.MODE_MANDIRI
+            )
+        }
+        headerLayout.addView(avatarHandle.view, LinearLayout.LayoutParams(dp(48), dp(48)))
 
         val greetingTextLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL

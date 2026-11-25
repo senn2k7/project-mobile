@@ -23,6 +23,7 @@ object FirebaseManager {
         bidangKeahlian: String,
         namaInstansi: String,
         pengalamanMengajar: String,
+        fotoProfilUrl: String? = null,
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit
     ) {
@@ -52,6 +53,10 @@ object FirebaseManager {
             "profil_lengkap" to true,
             "updated_at" to FieldValue.serverTimestamp()
         )
+
+        if (!fotoProfilUrl.isNullOrBlank()) {
+            profileData["foto_profil_url"] = fotoProfilUrl
+        }
 
         db.runTransaction { transaction ->
             val userSnapshot = transaction.get(userRef)

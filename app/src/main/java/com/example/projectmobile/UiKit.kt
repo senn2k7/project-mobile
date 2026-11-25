@@ -6,10 +6,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
@@ -27,6 +31,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import java.net.URL
+import java.util.concurrent.Executors
 
 /** Konversi dp ke piksel. */
 fun Context.px(v: Int): Int = (v * resources.displayMetrics.density).toInt()
@@ -36,6 +42,9 @@ fun Context.px(v: Int): Int = (v * resources.displayMetrics.density).toInt()
  * Warna dan bentuk mengikuti tema TemanStudi (biru #1D5EFF, latar #F5FAFF).
  */
 object UiKit {
+
+    private val avatarExecutor = Executors.newFixedThreadPool(2)
+    private val avatarMainHandler = Handler(Looper.getMainLooper())
 
     val BG: Int = Color.parseColor("#F5FAFF")
     val NAVY: Int = Color.parseColor("#19365F")
@@ -508,10 +517,46 @@ object UiKit {
 
     class AvatarHandle(val view: FrameLayout, private val image: ImageView) {
         fun setPhoto(uri: Uri) {
+            image.tag = null
             image.setPadding(0, 0, 0, 0)
             image.clearColorFilter()
             image.scaleType = ImageView.ScaleType.CENTER_CROP
             image.setImageURI(uri)
+        }
+
+        fun setPhotoBitmap(bitmap: Bitmap) {
+            image.tag = null
+            image.setPadding(0, 0, 0, 0)
+            image.clearColorFilter()
+            image.scaleType = ImageView.ScaleType.CENTER_CROP
+            image.setImageBitmap(bitmap)
+        }
+
+        fun setPhotoUrl(url: String) {
+            val photoUrl = url.trim()
+            if (photoUrl.isBlank()) return
+
+            image.tag = photoUrl
+            avatarExecutor.execute {
+                try {
+                    val bitmap = URL(photoUrl).openStream().use { stream ->
+                        BitmapFactory.decodeStream(stream)
+                    }
+
+                    if (bitmap != null) {
+                        avatarMainHandler.post {
+                            if (image.tag == photoUrl) {
+                                image.setPadding(0, 0, 0, 0)
+                                image.clearColorFilter()
+                                image.scaleType = ImageView.ScaleType.CENTER_CROP
+                                image.setImageBitmap(bitmap)
+                            }
+                        }
+                    }
+                } catch (_: Exception) {
+                    // Avatar default tetap digunakan jika foto gagal dimuat.
+                }
+            }
         }
     }
 

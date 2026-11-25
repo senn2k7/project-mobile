@@ -50,7 +50,9 @@ class ProfilSayaActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
         }
-        head.addView(UiKit.avatar(this, 96, withCamera = true).view)
+        val studentAvatar = UiKit.avatar(this, 96, withCamera = true)
+        studentAvatar.setPhotoUrl(value(ProfileStore.FOTO_PROFIL_URL))
+        head.addView(studentAvatar.view)
         head.addView(
             UiKit.tv(this, value(ProfileStore.NAMA), 24f, UiKit.NAVY, true),
             UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 16)
@@ -108,7 +110,9 @@ class ProfilSayaActivity : AppCompatActivity() {
             gravity = Gravity.CENTER_HORIZONTAL
             setPadding(px(16), px(24), px(16), px(24))
         }
-        headCard.addView(UiKit.avatar(this, 84, withCamera = true).view)
+        val teacherAvatar = UiKit.avatar(this, 84, withCamera = true)
+        teacherAvatar.setPhotoUrl(value(ProfileStore.FOTO_PROFIL_URL))
+        headCard.addView(teacherAvatar.view)
         headCard.addView(
             UiKit.tv(this, value(ProfileStore.NAMA), 20f, UiKit.NAVY, true),
             UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 14)

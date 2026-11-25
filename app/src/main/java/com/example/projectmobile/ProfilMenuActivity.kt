@@ -76,6 +76,7 @@ class ProfilMenuActivity : AppCompatActivity() {
             setPadding(px(8), px(8), px(8), px(8))
         }
         val avatar = UiKit.avatar(this, 56, withCamera = true)
+        avatar.setPhotoUrl(ProfileStore.get(this, role, mode, ProfileStore.FOTO_PROFIL_URL))
         header.addView(avatar.view)
 
         val info = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
@@ -177,7 +178,11 @@ class ProfilMenuActivity : AppCompatActivity() {
             isFocusable = true
             setOnClickListener { go(ProfilSayaActivity::class.java) }
         }
-        profileCard.addView(UiKit.avatar(this, 64, withCamera = false).view)
+        val teacherAvatar = UiKit.avatar(this, 64, withCamera = false)
+        teacherAvatar.setPhotoUrl(
+            ProfileStore.get(this, role, mode, ProfileStore.FOTO_PROFIL_URL)
+        )
+        profileCard.addView(teacherAvatar.view)
         val pInfo = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         pInfo.addView(UiKit.tv(this, nama, 16f, UiKit.NAVY, true))
         pInfo.addView(

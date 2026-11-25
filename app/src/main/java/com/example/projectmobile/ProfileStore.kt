@@ -18,11 +18,12 @@ object ProfileStore {
     const val INSTITUSI = "institusi"
     const val JABATAN = "jabatan"
     const val FAKULTAS = "fakultas"
+    const val FOTO_PROFIL_URL = "foto_profil_url"
 
     private const val PREFS = "profile_prefs"
 
     private val allFields = listOf(
-        NAMA, EMAIL, PHONE, NIM, PRODI, INSTITUSI, JABATAN, FAKULTAS
+        NAMA, EMAIL, PHONE, NIM, PRODI, INSTITUSI, JABATAN, FAKULTAS, FOTO_PROFIL_URL
     )
 
     private fun sp(ctx: Context) =
@@ -171,6 +172,7 @@ object ProfileStore {
                         )
                         values[JABATAN] = readString(profileData, "jabatan")
                         values[FAKULTAS] = readString(profileData, "fakultas")
+                        values[FOTO_PROFIL_URL] = readString(profileData, "foto_profil_url")
 
                         val editor = sp(ctx).edit()
                         allFields.forEach { field ->
