@@ -369,4 +369,75 @@ object FirebaseManager {
             }
         }
     }
+
+
+    /**
+     * Menyimpan kelas mandiri pengajar ke Firestore.
+     * Document ID menggunakan kode kelas.
+     */
+    fun saveTeacherClass(
+        teacherClass: TeacherClass,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val uid = FirebaseAuthManager.currentUser?.uid
+
+        if (uid.isNullOrBlank()) {
+            onFailure("Silakan login kembali untuk membuat kelas.")
+            return
+        }
+
+        if (teacherClass.ownerUid != uid) {
+            onFailure("UID pemilik kelas tidak sesuai dengan sesi Firebase.")
+            return
+        }
+
+        if (
+            teacherClass.code.isBlank() ||
+            teacherClass.name.isBlank() ||
+            teacherClass.topic.isBlank() ||
+            teacherClass.category.isBlank() ||
+            teacherClass.level.isBlank() ||
+            teacherClass.capacity !in 5..200 ||
+            teacherClass.capacity % 5 != 0
+        ) {
+            onFailure("Data kelas tidak valid. Periksa kembali informasi kelas.")
+            return
+        }
+
+        val classRef = db.collection("kelas_mandiri")
+            .document(teacherClass.code)
+
+        val classData = hashMapOf<String, Any>(
+            "code" to teacherClass.code,
+            "name" to teacherClass.name.trim(),
+            "description" to teacherClass.description.trim(),
+            "topic" to teacherClass.topic,
+            "category" to teacherClass.category,
+            "level" to teacherClass.level,
+            "capacity" to teacherClass.capacity,
+            "ownerUid" to uid,
+            "createdAt" to FieldValue.serverTimestamp()
+        )
+
+        db.runTransaction { transaction ->
+            val existing = transaction.get(classRef)
+
+            if (existing.exists()) {
+                throw IllegalStateException(
+                    "Kode kelas sudah digunakan. Silakan coba lagi."
+                )
+            }
+
+            transaction.set(classRef, classData)
+            null
+        }.addOnSuccessListener {
+            onSuccess()
+        }.addOnFailureListener { error ->
+            onFailure(
+                error.message ?: "Gagal menyimpan kelas ke Firestore."
+            )
+        }
+    }
+
 }

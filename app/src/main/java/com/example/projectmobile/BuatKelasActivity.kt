@@ -28,6 +28,8 @@ class BuatKelasActivity : AppCompatActivity() {
     private lateinit var ddLevel: UiKit.DropdownHandle
     private lateinit var tvCapacity: TextView
     private var capacity = 30
+    private var isSubmitting = false
+    private var submitButton: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -137,8 +139,13 @@ class BuatKelasActivity : AppCompatActivity() {
             UiKit.outlineButton(this, "Batal") { finish() },
             UiKit.params(this, 0, px(52), weight = 1f)
         )
+        val button = UiKit.primaryButton(
+            this,
+            if (ed == null) "+ Buat Kelas" else "Simpan Perubahan"
+        ) { submit() }
+        submitButton = button
         row.addView(
-            UiKit.primaryButton(this, if (ed == null) "+ Buat Kelas" else "Simpan Perubahan") { submit() },
+            button,
             UiKit.params(this, 0, px(52), start = 12, weight = 2f)
         )
         root.addView(UiKit.bottomBar(this, row))
@@ -161,6 +168,8 @@ class BuatKelasActivity : AppCompatActivity() {
     }
 
     private fun submit() {
+        if (isSubmitting) return
+
         etName.error = null
         val name = etName.text.toString().trim()
         if (name.isEmpty()) {
@@ -172,30 +181,72 @@ class BuatKelasActivity : AppCompatActivity() {
             UiKit.toast(this, "Lengkapi topik, kategori, dan tingkat belajar")
             return
         }
+
         val desc = etDesc.text.toString().trim()
         val ed = editing
+
         if (ed == null) {
-            val c = TeacherClassStore.create(
-                this, name, desc, ddTopic.selected, ddCategory.selected, ddLevel.selected, capacity
-            )
-            val next = UiKit.withProfile(Intent(this, KelasBerhasilActivity::class.java), role, mode)
-            next.putExtra(KelasBerhasilActivity.EXTRA_CODE, c.code)
-            next.putExtra(KelasBerhasilActivity.EXTRA_CREATED, true)
-            startActivity(next)
-        } else {
-            TeacherClassStore.update(
+            val uid = FirebaseAuthManager.currentUser?.uid
+            if (uid.isNullOrBlank()) {
+                UiKit.toast(this, "Silakan login kembali untuk membuat kelas.")
+                return
+            }
+
+            val pending = TeacherClassStore.createPending(
                 this,
-                ed.copy(
-                    name = name,
-                    description = desc,
-                    topic = ddTopic.selected,
-                    category = ddCategory.selected,
-                    level = ddLevel.selected,
-                    capacity = capacity
-                )
+                name,
+                desc,
+                ddTopic.selected,
+                ddCategory.selected,
+                ddLevel.selected,
+                capacity,
+                uid
             )
-            UiKit.toast(this, "Perubahan disimpan")
+
+            isSubmitting = true
+            submitButton?.isEnabled = false
+
+            FirebaseManager.saveTeacherClass(
+                pending,
+                onSuccess = {
+                    if (isFinishing || isDestroyed) return@saveTeacherClass
+
+                    TeacherClassStore.cacheCreated(this, pending)
+
+                    val next = UiKit.withProfile(
+                        Intent(this, KelasBerhasilActivity::class.java),
+                        role,
+                        mode
+                    )
+                    next.putExtra(KelasBerhasilActivity.EXTRA_CODE, pending.code)
+                    next.putExtra(KelasBerhasilActivity.EXTRA_CREATED, true)
+                    startActivity(next)
+                    finish()
+                },
+                onFailure = { message ->
+                    if (isFinishing || isDestroyed) return@saveTeacherClass
+
+                    isSubmitting = false
+                    submitButton?.isEnabled = true
+                    UiKit.toast(this, message)
+                }
+            )
+            return
         }
+
+        // Alur edit kelas tetap menggunakan penyimpanan lokal seperti sebelumnya.
+        TeacherClassStore.update(
+            this,
+            ed.copy(
+                name = name,
+                description = desc,
+                topic = ddTopic.selected,
+                category = ddCategory.selected,
+                level = ddLevel.selected,
+                capacity = capacity
+            )
+        )
+        UiKit.toast(this, "Perubahan disimpan")
         finish()
     }
 

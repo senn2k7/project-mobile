@@ -38,7 +38,8 @@ data class TeacherClass(
     val category: String,
     val level: String,
     val capacity: Int,
-    val createdAt: Long
+    val createdAt: Long,
+    val ownerUid: String = ""
 )
 
 /**
@@ -82,7 +83,8 @@ object TeacherClassStore {
                         category = o.optString("category"),
                         level = o.optString("level"),
                         capacity = o.optInt("capacity", 30),
-                        createdAt = o.optLong("createdAt")
+                        createdAt = o.optLong("createdAt"),
+                        ownerUid = o.optString("ownerUid")
                     )
                 )
             }
@@ -105,6 +107,7 @@ object TeacherClassStore {
                     put("level", c.level)
                     put("capacity", c.capacity)
                     put("createdAt", c.createdAt)
+                    put("ownerUid", c.ownerUid)
                 }
             )
         }
@@ -133,6 +136,48 @@ object TeacherClassStore {
         return code
     }
 
+    /**
+     * Menyiapkan data kelas baru tanpa menyimpannya ke penyimpanan lokal.
+     * Data akan dicache setelah Firestore mengonfirmasi penyimpanan berhasil.
+     */
+    fun createPending(
+        ctx: Context,
+        name: String,
+        description: String,
+        topic: String,
+        category: String,
+        level: String,
+        capacity: Int,
+        ownerUid: String
+    ): TeacherClass {
+        require(ownerUid.isNotBlank()) { "UID pemilik kelas wajib tersedia." }
+
+        return TeacherClass(
+            code = generateCode(ctx, name),
+            name = name.trim(),
+            description = description.trim(),
+            topic = topic,
+            category = category,
+            level = level,
+            capacity = capacity,
+            createdAt = System.currentTimeMillis(),
+            ownerUid = ownerUid
+        )
+    }
+
+    /** Menyimpan salinan lokal setelah kelas berhasil disimpan ke Firestore. */
+    fun cacheCreated(ctx: Context, created: TeacherClass) {
+        val list = read(ctx)
+        if (list.any { it.code.equals(created.code, ignoreCase = true) }) {
+            return
+        }
+        list.add(created)
+        write(ctx, list)
+    }
+
+    /**
+     * Penyimpanan lokal lama dipertahankan untuk kompatibilitas pemanggil lain.
+     */
     fun create(
         ctx: Context,
         name: String,
@@ -142,20 +187,19 @@ object TeacherClassStore {
         level: String,
         capacity: Int
     ): TeacherClass {
-        val list = read(ctx)
-        val c = TeacherClass(
+        val created = TeacherClass(
             code = generateCode(ctx, name),
-            name = name,
-            description = description,
+            name = name.trim(),
+            description = description.trim(),
             topic = topic,
             category = category,
             level = level,
             capacity = capacity,
-            createdAt = System.currentTimeMillis()
+            createdAt = System.currentTimeMillis(),
+            ownerUid = ""
         )
-        list.add(c)
-        write(ctx, list)
-        return c
+        cacheCreated(ctx, created)
+        return created
     }
 
     fun update(ctx: Context, updated: TeacherClass) {
