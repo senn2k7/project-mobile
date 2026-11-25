@@ -77,24 +77,79 @@ object ClassStore {
         joinable.firstOrNull { it.code.equals(code.trim(), ignoreCase = true) }
 
     fun joined(ctx: Context): List<ClassInfo> {
-        val codes = sp(ctx).getStringSet(KEY_JOINED, emptySet()) ?: emptySet()
-        val sample = joinable.filter { it.code in codes }
-        val own = TeacherClassStore.all(ctx).filter { it.code in codes }.map { fromTeacher(ctx, it) }
-        return (sample + own).sortedBy { it.name }
+        val codes = (sp(ctx).getStringSet(KEY_JOINED, emptySet()) ?: emptySet())
+            .map { it.trim().uppercase() }
+            .toSet()
+
+        val sample = joinable.filter { it.code.uppercase() in codes }
+        val own = TeacherClassStore.all(ctx)
+            .filter { it.code.uppercase() in codes }
+            .map { fromTeacher(ctx, it) }
+        val cached = JoinedClassStore.all(ctx)
+            .filter { it.code.uppercase() in codes }
+
+        // Data Firestore diprioritaskan daripada salinan kelas lokal.
+        return (sample + cached + own)
+            .distinctBy { it.code.uppercase() }
+            .sortedBy { it.name }
     }
 
-    fun isJoined(ctx: Context, code: String): Boolean = joined(ctx).any { it.code == code }
+    fun isJoined(ctx: Context, code: String): Boolean =
+        joined(ctx).any { it.code.equals(code.trim(), ignoreCase = true) }
 
     fun join(ctx: Context, code: String) {
         val set = (sp(ctx).getStringSet(KEY_JOINED, emptySet()) ?: emptySet()).toMutableSet()
-        set.add(code)
+        set.add(code.trim().uppercase())
         sp(ctx).edit().putStringSet(KEY_JOINED, set).apply()
     }
 
+    fun join(ctx: Context, info: ClassInfo) {
+        JoinedClassStore.save(ctx, info)
+        join(ctx, info.code)
+    }
+
+    /**
+     * Menyamakan daftar kelas mandiri lokal dengan keanggotaan dari Firestore.
+     */
+    fun syncCloudJoined(ctx: Context, classes: List<ClassInfo>) {
+        JoinedClassStore.replaceCloud(ctx, classes)
+
+        val currentCodes = (
+            sp(ctx).getStringSet(KEY_JOINED, emptySet()) ?: emptySet()
+        )
+
+        // Pertahankan kelas contoh yang masih diikuti.
+        val sampleCodes = currentCodes.filter {
+            find(it) != null
+        }
+
+        // Pertahankan kelas lokal yang sebelumnya sudah diikuti.
+        val localTeacherCodes = currentCodes.filter {
+            TeacherClassStore.byCode(ctx, it) != null
+        }
+
+        // Tambahkan keanggotaan terbaru dari Firestore.
+        val cloudCodes = classes.map {
+            it.code.trim().uppercase()
+        }
+
+        val updatedCodes = (
+            sampleCodes + localTeacherCodes + cloudCodes
+        ).toSet()
+
+        sp(ctx).edit()
+            .putStringSet(KEY_JOINED, updatedCodes)
+            .apply()
+    }
+
     fun leave(ctx: Context, code: String) {
-        val set = (sp(ctx).getStringSet(KEY_JOINED, emptySet()) ?: emptySet()).toMutableSet()
-        set.remove(code)
+        val normalizedCode = code.trim()
+        val set = (sp(ctx).getStringSet(KEY_JOINED, emptySet()) ?: emptySet())
+            .filterNot { it.equals(normalizedCode, ignoreCase = true) }
+            .toMutableSet()
+
         sp(ctx).edit().putStringSet(KEY_JOINED, set).apply()
+        JoinedClassStore.remove(ctx, normalizedCode)
     }
 
     /** Kelas yang ditampilkan sesuai mode pembelajaran. */
@@ -125,10 +180,14 @@ object ClassStore {
 
     /** Mencari kelas dari kode, termasuk kelas buatan pengajar di perangkat ini. */
     fun find(ctx: Context, code: String): ClassInfo? =
-        find(code) ?: TeacherClassStore.byCode(ctx, code.trim())?.let { fromTeacher(ctx, it) }
+        find(code)
+            ?: JoinedClassStore.byCode(ctx, code)
+            ?: TeacherClassStore.byCode(ctx, code.trim())?.let { fromTeacher(ctx, it) }
 
     fun byCode(ctx: Context, code: String): ClassInfo? =
-        byCode(code) ?: TeacherClassStore.byCode(ctx, code)?.let { fromTeacher(ctx, it) }
+        JoinedClassStore.byCode(ctx, code)
+            ?: byCode(code)
+            ?: TeacherClassStore.byCode(ctx, code.trim())?.let { fromTeacher(ctx, it) }
 
     fun meetings(ctx: Context, info: ClassInfo): List<Meeting> {
         val own = TeacherClassStore.byCode(ctx, info.code)

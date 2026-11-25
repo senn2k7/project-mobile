@@ -22,6 +22,7 @@ class DetailKelasPelajarActivity : AppCompatActivity() {
     private lateinit var role: String
     private lateinit var mode: String
     private var info: ClassInfo? = null
+    private var isLeaving = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -249,9 +250,42 @@ class DetailKelasPelajarActivity : AppCompatActivity() {
             .setMessage("Kamu tidak akan lagi melihat kelas ${c.name}. Kamu bisa bergabung lagi dengan kode kelas.")
             .setNegativeButton("Batal", null)
             .setPositiveButton("Keluar") { _, _ ->
-                ClassStore.leave(this, c.code)
-                UiKit.toast(this, "Kamu keluar dari kelas ${c.name}")
-                finish()
+                if (isLeaving) return@setPositiveButton
+                isLeaving = true
+
+                // Kelas contoh tidak memiliki keanggotaan Firestore.
+                if (ClassStore.find(c.code) != null) {
+                    ClassStore.leave(this, c.code)
+                    UiKit.toast(this, "Kamu keluar dari kelas ${c.name}")
+                    finish()
+                    return@setPositiveButton
+                }
+
+                UiKit.toast(this, "Menghapus keanggotaan kelas...")
+
+                FirebaseManager.leaveTeacherClass(
+                    code = c.code,
+                    onSuccess = {
+                        runOnUiThread {
+                            if (isFinishing || isDestroyed) return@runOnUiThread
+
+                            ClassStore.leave(this, c.code)
+                            UiKit.toast(
+                                this,
+                                "Kamu keluar dari kelas ${c.name}"
+                            )
+                            finish()
+                        }
+                    },
+                    onFailure = { message ->
+                        runOnUiThread {
+                            if (isFinishing || isDestroyed) return@runOnUiThread
+
+                            isLeaving = false
+                            UiKit.toast(this, message)
+                        }
+                    }
+                )
             }
             .show()
     }

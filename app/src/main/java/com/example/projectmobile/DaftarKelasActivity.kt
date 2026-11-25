@@ -35,6 +35,26 @@ class DaftarKelasActivity : AppCompatActivity() {
         super.onResume()
         setContentView(build())
         renderList()
+
+        // Sinkronisasi kelas mandiri pelajar dari Firestore.
+        if (
+            role == PilihPeranActivity.ROLE_PELAJAR &&
+            mode == ModePembelajaranActivity.MODE_MANDIRI
+        ) {
+            FirebaseManager.getJoinedTeacherClasses(
+                onSuccess = { classes ->
+                    runOnUiThread {
+                        if (isFinishing || isDestroyed) return@runOnUiThread
+
+                        ClassStore.syncCloudJoined(this, classes)
+                        renderList()
+                    }
+                },
+                onFailure = {
+                    // Jika jaringan gagal, daftar dari cache lokal tetap ditampilkan.
+                }
+            )
+        }
     }
 
     private fun build(): View {

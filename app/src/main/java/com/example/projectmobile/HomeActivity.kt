@@ -44,6 +44,26 @@ class HomeActivity : AppCompatActivity() {
                 setContentView(createDashboard(role, mode))
             }
         }
+
+        // Sinkronkan kelas Mandiri yang diikuti pelajar dari Firestore.
+        if (
+            role == PilihPeranActivity.ROLE_PELAJAR &&
+            mode == ModePembelajaranActivity.MODE_MANDIRI
+        ) {
+            FirebaseManager.getJoinedTeacherClasses(
+                onSuccess = { classes ->
+                    runOnUiThread {
+                        if (isFinishing || isDestroyed) return@runOnUiThread
+
+                        ClassStore.syncCloudJoined(this, classes)
+                        setContentView(createDashboard(role, mode))
+                    }
+                },
+                onFailure = {
+                    // Cache lokal tetap digunakan jika koneksi gagal.
+                }
+            )
+        }
     }
 
     private fun createDashboard(role: String, mode: String): View {
@@ -221,6 +241,22 @@ class HomeActivity : AppCompatActivity() {
         }
         contentLayout.addView(kelasHeader, kelasHeaderParams)
 
+        if (role == PilihPeranActivity.ROLE_PELAJAR &&
+            mode == ModePembelajaranActivity.MODE_MANDIRI
+        ) {
+            contentLayout.addView(
+                UiKit.primaryButton(this, "Gabung Kelas") {
+                    UiKit.open(
+                        this,
+                        GabungKelasActivity::class.java,
+                        PilihPeranActivity.ROLE_PELAJAR,
+                        ModePembelajaranActivity.MODE_MANDIRI
+                    )
+                },
+                UiKit.params(this, LinearLayout.LayoutParams.MATCH_PARENT, dp(52), top = 12)
+            )
+        }
+
         if (role == PilihPeranActivity.ROLE_PENGAJAR) {
             contentLayout.addView(createTeacherClassCard("Pemrograman Mobile", "Universitas • Kelas A", "28 pelajar", "💻"))
             contentLayout.addView(createTeacherClassCard("Sistem Cerdas", "Universitas • Kelas B", "32 pelajar", "🤖"))
@@ -240,6 +276,7 @@ class HomeActivity : AppCompatActivity() {
                         topMargin = dp(8)
                     })
                 }
+
             }
         } else {
             contentLayout.addView(createStudentClassCard("Pemrograman Mobile", "Dr. Budi Santoso", 65, "Pertemuan 2: UI Android", "Besok, 10:00"))

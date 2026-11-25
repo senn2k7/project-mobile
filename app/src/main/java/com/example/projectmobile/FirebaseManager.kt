@@ -382,6 +382,7 @@ object FirebaseManager {
      */
     fun saveTeacherClass(
         teacherClass: TeacherClass,
+        teacherName: String,
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit
     ) {
@@ -394,6 +395,11 @@ object FirebaseManager {
 
         if (teacherClass.ownerUid != uid) {
             onFailure("UID pemilik kelas tidak sesuai dengan sesi Firebase.")
+            return
+        }
+
+        if (teacherName.isBlank()) {
+            onFailure("Nama pengajar belum tersedia. Lengkapi profil terlebih dahulu.")
             return
         }
 
@@ -421,7 +427,9 @@ object FirebaseManager {
             "category" to teacherClass.category,
             "level" to teacherClass.level,
             "capacity" to teacherClass.capacity,
+            "participantCount" to 0,
             "ownerUid" to uid,
+            "teacherName" to teacherName.trim(),
             "createdAt" to FieldValue.serverTimestamp()
         )
 
@@ -441,6 +449,321 @@ object FirebaseManager {
         }.addOnFailureListener { error ->
             onFailure(
                 error.message ?: "Gagal menyimpan kelas ke Firestore."
+            )
+        }
+    }
+
+
+
+    /**
+     * Mencari kelas mandiri di Firestore.
+     * Nama pengajar dibaca dari dokumen kelas, bukan profil privat.
+     */
+    fun findTeacherClass(
+        code: String,
+        onSuccess: (ClassInfo) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val normalizedCode = code.trim().uppercase()
+
+        if (normalizedCode.isBlank()) {
+            onFailure("Kode kelas tidak boleh kosong.")
+            return
+        }
+
+        db.collection("kelas_mandiri")
+            .document(normalizedCode)
+            .get()
+            .addOnSuccessListener { classSnapshot ->
+                if (!classSnapshot.exists()) {
+                    onFailure("Kode kelas tidak ditemukan.")
+                    return@addOnSuccessListener
+                }
+
+                val className = classSnapshot.getString("name").orEmpty()
+                val teacherName = classSnapshot.getString("teacherName")
+                    ?.takeIf { it.isNotBlank() }
+                    ?: "Pengajar TemanStudi"
+
+                val topic = classSnapshot.getString("topic").orEmpty()
+                val description = classSnapshot.getString("description").orEmpty()
+
+                onSuccess(
+                    ClassInfo(
+                        code = normalizedCode,
+                        name = className,
+                        teacher = teacherName,
+                        field = topic,
+                        participants = 0,
+                        type = ClassStore.TYPE_MANDIRI,
+                        description = description.ifBlank {
+                            "Kelas mandiri $className."
+                        },
+                        iconRes = TeacherClassStore.iconFor(topic),
+                        nextMeeting = "Belum ada materi",
+                        schedule = "Belum dijadwalkan"
+                    )
+                )
+            }
+            .addOnFailureListener { error ->
+                onFailure(
+                    error.message ?: "Gagal mencari kelas di server."
+                )
+            }
+    }
+
+
+    /**
+     * Menyimpan keanggotaan kelas mandiri pelajar ke Firestore.
+     * Data kelas diambil ulang dari dokumen kelas agar tidak bergantung
+     * pada informasi yang dikirim oleh perangkat pelajar.
+     */
+    fun joinTeacherClass(
+        code: String,
+        onSuccess: (ClassInfo) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val uid = FirebaseAuthManager.currentUser?.uid
+
+        if (uid.isNullOrBlank()) {
+            onFailure("Silakan login kembali.")
+            return
+        }
+
+        val normalizedCode = code.trim().uppercase()
+
+        if (normalizedCode.isBlank()) {
+            onFailure("Kode kelas tidak valid.")
+            return
+        }
+
+        val classRef = db.collection("kelas_mandiri")
+            .document(normalizedCode)
+
+        val memberRef = db.collection("pelajar_mandiri")
+            .document(uid)
+            .collection("kelas_diikuti")
+            .document(normalizedCode)
+
+        db.runTransaction { transaction ->
+            val classSnapshot = transaction.get(classRef)
+
+            if (!classSnapshot.exists()) {
+                throw IllegalStateException("Kelas tidak ditemukan.")
+            }
+
+            val memberSnapshot = transaction.get(memberRef)
+
+            val className = classSnapshot.getString("name").orEmpty()
+            val teacherName = classSnapshot.getString("teacherName").orEmpty()
+            val topic = classSnapshot.getString("topic").orEmpty()
+            val description = classSnapshot.getString("description").orEmpty()
+
+            val capacity = classSnapshot.getLong("capacity")
+                ?: throw IllegalStateException("Kapasitas kelas tidak valid.")
+
+            val participantCount = classSnapshot.getLong("participantCount")
+                ?: throw IllegalStateException(
+                    "Data penghitung anggota belum tersedia. Hubungi pengajar."
+                )
+
+            if (
+                className.isBlank() ||
+                teacherName.isBlank() ||
+                topic.isBlank()
+            ) {
+                throw IllegalStateException(
+                    "Informasi kelas belum lengkap. Hubungi pengajar."
+                )
+            }
+
+            if (
+                capacity <= 0 ||
+                participantCount < 0 ||
+                participantCount > capacity
+            ) {
+                throw IllegalStateException(
+                    "Data kapasitas kelas tidak valid. Hubungi pengajar."
+                )
+            }
+
+            val updatedCount = if (memberSnapshot.exists()) {
+                participantCount
+            } else {
+                if (participantCount >= capacity) {
+                    throw IllegalStateException(
+                        "Kelas sudah penuh. Tidak dapat bergabung."
+                    )
+                }
+
+                val nextCount = participantCount + 1
+
+                val memberData = hashMapOf<String, Any>(
+                    "uid" to uid,
+                    "classCode" to normalizedCode,
+                    "name" to className,
+                    "teacherName" to teacherName,
+                    "topic" to topic,
+                    "description" to description,
+                    "capacity" to capacity.toInt(),
+                    "joinedAt" to FieldValue.serverTimestamp()
+                )
+
+                transaction.update(
+                    classRef,
+                    "participantCount",
+                    nextCount
+                )
+                transaction.set(memberRef, memberData)
+
+                nextCount
+            }
+
+            ClassInfo(
+                code = normalizedCode,
+                name = className,
+                teacher = teacherName,
+                field = topic,
+                participants = updatedCount.toInt(),
+                type = ClassStore.TYPE_MANDIRI,
+                description = description.ifBlank {
+                    "Kelas mandiri $className."
+                },
+                iconRes = TeacherClassStore.iconFor(topic),
+                nextMeeting = "Belum ada materi",
+                schedule = "Belum dijadwalkan"
+            )
+        }.addOnSuccessListener { info ->
+            onSuccess(info)
+        }.addOnFailureListener { error ->
+            onFailure(
+                error.message ?: "Gagal bergabung dengan kelas."
+            )
+        }
+    }
+
+    fun getJoinedTeacherClasses(
+        onSuccess: (List<ClassInfo>) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val uid = FirebaseAuthManager.currentUser?.uid
+
+        if (uid.isNullOrBlank()) {
+            onFailure("Silakan login kembali.")
+            return
+        }
+
+        db.collection("pelajar_mandiri")
+            .document(uid)
+            .collection("kelas_diikuti")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val classes = snapshot.documents.mapNotNull { document ->
+                    val code = document.getString("classCode")
+                        ?: document.id
+
+                    val name = document.getString("name").orEmpty()
+                    val teacher = document.getString("teacherName").orEmpty()
+                    val topic = document.getString("topic").orEmpty()
+                    val description = document.getString("description").orEmpty()
+
+                    if (name.isBlank() || code.isBlank()) {
+                        null
+                    } else {
+                        ClassInfo(
+                            code = code,
+                            name = name,
+                            teacher = teacher,
+                            field = topic,
+                            participants = 0,
+                            type = ClassStore.TYPE_MANDIRI,
+                            description = description.ifBlank {
+                                "Kelas mandiri $name."
+                            },
+                            iconRes = TeacherClassStore.iconFor(topic),
+                            nextMeeting = "Belum ada materi",
+                            schedule = "Belum dijadwalkan"
+                        )
+                    }
+                }
+
+                onSuccess(classes)
+            }
+            .addOnFailureListener { error ->
+                onFailure(
+                    error.message ?: "Gagal mengambil daftar kelas."
+                )
+            }
+    }
+
+    /**
+     * Menghapus keanggotaan kelas mandiri milik pelajar login.
+     */
+    fun leaveTeacherClass(
+        code: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val uid = FirebaseAuthManager.currentUser?.uid
+
+        if (uid.isNullOrBlank()) {
+            onFailure("Silakan login kembali.")
+            return
+        }
+
+        val normalizedCode = code.trim().uppercase()
+
+        if (normalizedCode.isBlank()) {
+            onFailure("Kode kelas tidak valid.")
+            return
+        }
+
+        val classRef = db.collection("kelas_mandiri")
+            .document(normalizedCode)
+
+        val memberRef = db.collection("pelajar_mandiri")
+            .document(uid)
+            .collection("kelas_diikuti")
+            .document(normalizedCode)
+
+        db.runTransaction { transaction ->
+            val classSnapshot = transaction.get(classRef)
+            val memberSnapshot = transaction.get(memberRef)
+
+            if (!memberSnapshot.exists()) {
+                return@runTransaction true
+            }
+
+            if (!classSnapshot.exists()) {
+                transaction.delete(memberRef)
+                return@runTransaction true
+            }
+
+            val participantCount = classSnapshot.getLong("participantCount")
+                ?: throw IllegalStateException(
+                    "Data penghitung anggota belum tersedia. Hubungi pengajar."
+                )
+
+            if (participantCount <= 0) {
+                throw IllegalStateException(
+                    "Jumlah anggota kelas tidak valid. Hubungi pengajar."
+                )
+            }
+
+            transaction.update(
+                classRef,
+                "participantCount",
+                participantCount - 1
+            )
+
+            transaction.delete(memberRef)
+
+            true
+        }.addOnSuccessListener {
+            onSuccess()
+        }.addOnFailureListener { error ->
+            onFailure(
+                error.message ?: "Gagal keluar dari kelas."
             )
         }
     }

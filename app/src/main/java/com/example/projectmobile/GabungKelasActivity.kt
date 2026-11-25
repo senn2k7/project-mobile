@@ -16,6 +16,7 @@ class GabungKelasActivity : AppCompatActivity() {
     private lateinit var etCode: EditText
     private lateinit var resultSection: LinearLayout
     private var found: ClassInfo? = null
+    private var isJoining = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,26 +70,56 @@ class GabungKelasActivity : AppCompatActivity() {
 
     private fun verify() {
         etCode.error = null
-        val code = etCode.text.toString().trim()
+        val code = etCode.text.toString().trim().uppercase()
+
         if (code.isEmpty()) {
             etCode.error = "Masukkan kode kelas"
             return
         }
-        val info = ClassStore.find(this, code)
-        if (info == null) {
-            found = null
-            resultSection.visibility = View.GONE
-            etCode.error = "Kode kelas tidak ditemukan. Periksa kembali kode dari pengajar."
-            return
-        }
-        if (ClassStore.isJoined(this, info.code)) {
+
+        if (ClassStore.isJoined(this, code)) {
             found = null
             resultSection.visibility = View.GONE
             etCode.error = "Kamu sudah bergabung di kelas ini"
             return
         }
-        found = info
-        showResult(info)
+
+        resultSection.visibility = View.GONE
+        found = null
+
+        // Pertahankan kelas contoh yang tersedia secara lokal.
+        val sampleInfo = ClassStore.find(code)
+        if (sampleInfo != null) {
+            found = sampleInfo
+            showResult(sampleInfo)
+            return
+        }
+
+        UiKit.toast(this, "Memeriksa kode kelas...")
+
+        FirebaseManager.findTeacherClass(
+            code = code,
+            onSuccess = { info ->
+                runOnUiThread {
+                    if (ClassStore.isJoined(this, info.code)) {
+                        found = null
+                        resultSection.visibility = View.GONE
+                        etCode.error = "Kamu sudah bergabung di kelas ini"
+                        return@runOnUiThread
+                    }
+
+                    found = info
+                    showResult(info)
+                }
+            },
+            onFailure = { message ->
+                runOnUiThread {
+                    found = null
+                    resultSection.visibility = View.GONE
+                    etCode.error = message
+                }
+            }
+        )
     }
 
     private fun detailRow(iconRes: Int, label: String, value: String): LinearLayout =
@@ -156,8 +187,42 @@ class GabungKelasActivity : AppCompatActivity() {
 
     private fun joinClass() {
         val info = found ?: return
-        ClassStore.join(this, info.code)
-        UiKit.toast(this, "Berhasil bergabung ke kelas ${info.name}")
-        finish()
+
+        if (isJoining) return
+        isJoining = true
+
+        // Kelas contoh tetap menggunakan penyimpanan lokal.
+        if (ClassStore.find(info.code) != null) {
+            ClassStore.join(this, info)
+            UiKit.toast(this, "Berhasil bergabung ke kelas ${info.name}")
+            finish()
+            return
+        }
+
+        UiKit.toast(this, "Menyimpan keanggotaan kelas...")
+
+        FirebaseManager.joinTeacherClass(
+            code = info.code,
+            onSuccess = { joinedInfo ->
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+
+                    ClassStore.join(this, joinedInfo)
+                    UiKit.toast(
+                        this,
+                        "Berhasil bergabung ke kelas ${joinedInfo.name}"
+                    )
+                    finish()
+                }
+            },
+            onFailure = { message ->
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+
+                    isJoining = false
+                    UiKit.toast(this, message)
+                }
+            }
+        )
     }
 }

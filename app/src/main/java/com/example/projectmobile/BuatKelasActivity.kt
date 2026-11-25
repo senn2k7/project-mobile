@@ -208,6 +208,12 @@ class BuatKelasActivity : AppCompatActivity() {
 
             FirebaseManager.saveTeacherClass(
                 pending,
+                teacherName = ProfileStore.get(
+                    this,
+                    PilihPeranActivity.ROLE_PENGAJAR,
+                    ModePembelajaranActivity.MODE_MANDIRI,
+                    ProfileStore.NAMA
+                ),
                 onSuccess = {
                     if (isFinishing || isDestroyed) return@saveTeacherClass
 
