@@ -112,7 +112,7 @@ object ClassStore {
         return ClassInfo(
             code = t.code,
             name = t.name,
-            teacher = ProfileStore.get(ctx, PilihPeranActivity.ROLE_PENGAJAR, ProfileStore.NAMA),
+            teacher = ProfileStore.get(ctx, PilihPeranActivity.ROLE_PENGAJAR, ModePembelajaranActivity.MODE_MANDIRI, ProfileStore.NAMA),
             field = t.topic,
             participants = 1,
             type = TYPE_MANDIRI,

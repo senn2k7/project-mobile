@@ -157,7 +157,7 @@ class DiskusiKelasActivity : AppCompatActivity() {
     private fun send() {
         val text = etMessage.text.toString().trim()
         if (text.isEmpty()) return
-        DiscussionStore.send(this, code, role, text)
+        DiscussionStore.send(this, code, role, mode, text)
         etMessage.setText("")
         reload()
     }

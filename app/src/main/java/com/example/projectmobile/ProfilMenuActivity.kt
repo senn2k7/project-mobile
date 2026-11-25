@@ -24,6 +24,17 @@ class ProfilMenuActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        renderProfileMenu()
+
+        ProfileStore.refresh(this, role, mode) {
+            if (!isFinishing && !isDestroyed) {
+                renderProfileMenu()
+            }
+        }
+    }
+
+    private fun renderProfileMenu() {
         setContentView(if (ProfileStore.isTeacher(role)) buildTeacher() else buildStudent())
     }
 
@@ -68,9 +79,9 @@ class ProfilMenuActivity : AppCompatActivity() {
         header.addView(avatar.view)
 
         val info = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        info.addView(UiKit.tv(this, ProfileStore.get(this, role, ProfileStore.NAMA), 18f, UiKit.NAVY, true))
+        info.addView(UiKit.tv(this, ProfileStore.get(this, role, mode, ProfileStore.NAMA), 18f, UiKit.NAVY, true))
         info.addView(
-            UiKit.tv(this, ProfileStore.get(this, role, ProfileStore.EMAIL), 12f, UiKit.MUTED),
+            UiKit.tv(this, ProfileStore.get(this, role, mode, ProfileStore.EMAIL), 12f, UiKit.MUTED),
             UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 2)
         )
         info.addView(
@@ -147,9 +158,9 @@ class ProfilMenuActivity : AppCompatActivity() {
         )
         content.addView(top)
 
-        val nama = ProfileStore.get(this, role, ProfileStore.NAMA)
+        val nama = ProfileStore.get(this, role, mode, ProfileStore.NAMA)
         content.addView(
-            UiKit.tv(this, "Halo, $nama!", 22f, UiKit.NAVY, true),
+            UiKit.tv(this, if (nama.isNotBlank()) "Halo, $nama!" else "Halo!", 22f, UiKit.NAVY, true),
             UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 20)
         )
         content.addView(
@@ -170,7 +181,7 @@ class ProfilMenuActivity : AppCompatActivity() {
         val pInfo = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         pInfo.addView(UiKit.tv(this, nama, 16f, UiKit.NAVY, true))
         pInfo.addView(
-            UiKit.tv(this, ProfileStore.get(this, role, ProfileStore.EMAIL), 12f, UiKit.MUTED),
+            UiKit.tv(this, ProfileStore.get(this, role, mode, ProfileStore.EMAIL), 12f, UiKit.MUTED),
             UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 2)
         )
         pInfo.addView(

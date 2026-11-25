@@ -1,7 +1,12 @@
 package com.example.projectmobile.ui.pengajar.institusi
 
+import com.example.projectmobile.FirebaseAuthManager
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 typealias KelasRepository = PengajarKelasRepository
 
@@ -69,6 +74,70 @@ interface DiskusiRepository {
 interface ChatAiRepository {
     fun pesanSesi(): Flow<List<PesanChatAi>>
     suspend fun kirimPesanAi(teks: String): Result<String>
+}
+
+class FirestorePengajarProfilRepository : PengajarProfilRepository {
+
+    override fun getProfil(): Flow<PengajarProfilGuru?> = flow {
+        val uid = FirebaseAuthManager.currentUser?.uid
+
+        if (uid.isNullOrBlank()) {
+            emit(null)
+            return@flow
+        }
+
+        val db = FirebaseFirestore.getInstance()
+
+        val profil = suspendCancellableCoroutine<PengajarProfilGuru?> { continuation ->
+            db.collection("pengajar_institusi")
+                .document(uid)
+                .get()
+                .addOnSuccessListener { profileSnapshot ->
+                    db.collection("users")
+                        .document(uid)
+                        .get()
+                        .addOnSuccessListener { userSnapshot ->
+
+                            val namaProfil = profileSnapshot.getString("nama").orEmpty()
+                            val namaUser = userSnapshot.getString("nama").orEmpty()
+
+                            val nama = namaProfil.ifBlank { namaUser }
+
+                            val dataAda = profileSnapshot.exists() || userSnapshot.exists()
+
+                            val result = if (dataAda) {
+                                PengajarProfilGuru(
+                                    uid = uid,
+                                    nama = nama,
+                                    gelar = profileSnapshot.getString("gelar").orEmpty(),
+                                    fotoUrl = profileSnapshot.getString("foto_url")
+                                        ?: profileSnapshot.getString("fotoUrl").orEmpty(),
+                                    institusiId = profileSnapshot.getString("institusi_id")
+                                        ?: profileSnapshot.getString("institusiId").orEmpty()
+                                )
+                            } else {
+                                null
+                            }
+
+                            if (continuation.isActive) {
+                                continuation.resume(result)
+                            }
+                        }
+                        .addOnFailureListener {
+                            if (continuation.isActive) {
+                                continuation.resume(null)
+                            }
+                        }
+                }
+                .addOnFailureListener {
+                    if (continuation.isActive) {
+                        continuation.resume(null)
+                    }
+                }
+        }
+
+        emit(profil)
+    }
 }
 
 // EMPTY IMPLEMENTATIONS
@@ -152,7 +221,9 @@ object PengajarRepositoryProvider {
     private val fakeDiskusiRepo by lazy { FakeDiskusiRepository() }
     private val fakeChatAiRepo by lazy { FakeChatAiRepository() }
 
-    fun provideProfilRepo(): PengajarProfilRepository = fakeProfilRepo
+    fun provideProfilRepo(): PengajarProfilRepository =
+        if (PengajarRepoConfig.useFakeData) fakeProfilRepo
+        else FirestorePengajarProfilRepository()
 
     fun provideProfilPelajarRepo(): ProfilPelajarRepository =
         if (PengajarRepoConfig.useFakeData) fakeProfilPelajarRepo else EmptyProfilPelajarRepository()

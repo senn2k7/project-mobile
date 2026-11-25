@@ -14,6 +14,7 @@ object FirebaseManager {
         FirebaseFirestore.getInstance()
     }
 
+
     fun savePengajarMandiriProfile(
         uid: String,
         nama: String,
@@ -56,34 +57,28 @@ object FirebaseManager {
             val userSnapshot = transaction.get(userRef)
             val profileSnapshot = transaction.get(profileRef)
 
+            val userData = hashMapOf<String, Any>(
+                "uid" to uid,
+                "nama" to nama.trim(),
+                "email" to email.trim(),
+                "role" to "pengajar",
+                "mode" to "mandiri",
+                "updated_at" to FieldValue.serverTimestamp()
+            )
+
             if (!userSnapshot.exists()) {
-                transaction.set(
-                    userRef,
-                    hashMapOf(
-                        "uid" to uid,
-                        "email" to email.trim(),
-                        "role" to "pengajar",
-                        "mode" to "mandiri",
-                        "created_at" to FieldValue.serverTimestamp()
-                    ),
-                    com.google.firebase.firestore.SetOptions.merge()
-                )
-            } else {
-                transaction.set(
-                    userRef,
-                    hashMapOf(
-                        "email" to email.trim(),
-                        "role" to "pengajar",
-                        "mode" to "mandiri",
-                        "updated_at" to FieldValue.serverTimestamp()
-                    ),
-                    com.google.firebase.firestore.SetOptions.merge()
-                )
+                userData["created_at"] = FieldValue.serverTimestamp()
             }
 
             if (!profileSnapshot.exists()) {
                 profileData["created_at"] = FieldValue.serverTimestamp()
             }
+
+            transaction.set(
+                userRef,
+                userData,
+                com.google.firebase.firestore.SetOptions.merge()
+            )
 
             transaction.set(
                 profileRef,
@@ -97,6 +92,8 @@ object FirebaseManager {
         }
     }
 
+
+
     fun saveRoleModeProfile(
         uid: String,
         collection: String,
@@ -106,14 +103,15 @@ object FirebaseManager {
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit
     ) {
-        val allowedCollections = setOf(
-            "pelajar_mandiri",
-            "pengajar_institusi",
-            "pelajar_institusi"
-        )
+        val expectedCollection = when {
+            role == "pengajar" && mode == "institusi" -> "pengajar_institusi"
+            role == "pelajar" && mode == "mandiri" -> "pelajar_mandiri"
+            role == "pelajar" && mode == "institusi" -> "pelajar_institusi"
+            else -> null
+        }
 
-        if (collection !in allowedCollections) {
-            onFailure("Koleksi profil tidak diizinkan.")
+        if (expectedCollection == null || collection != expectedCollection) {
+            onFailure("Koleksi profil tidak sesuai dengan peran dan mode pengguna.")
             return
         }
 
@@ -122,12 +120,16 @@ object FirebaseManager {
             return
         }
 
-        if (role !in setOf("pengajar", "pelajar") ||
-            mode !in setOf("mandiri", "institusi")
-        ) {
-            onFailure("Peran atau mode pembelajaran tidak valid.")
+        val nama = data["nama"] as? String ?: ""
+        val email = data["email"] as? String ?: ""
+
+        if (nama.isBlank() || email.isBlank()) {
+            onFailure("Nama dan email wajib tersedia untuk menyimpan profil.")
             return
         }
+
+        val userRef = db.collection("users").document(uid)
+        val profileRef = db.collection(collection).document(uid)
 
         val profileData = HashMap<String, Any>(data).apply {
             put("uid", uid)
@@ -137,14 +139,125 @@ object FirebaseManager {
             put("updated_at", FieldValue.serverTimestamp())
         }
 
-        db.collection(collection)
-            .document(uid)
-            .set(profileData, com.google.firebase.firestore.SetOptions.merge())
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { error ->
-                onFailure(error.message ?: "Gagal menyimpan profil.")
+        db.runTransaction { transaction ->
+            val userSnapshot = transaction.get(userRef)
+            val profileSnapshot = transaction.get(profileRef)
+
+            val userData = hashMapOf<String, Any>(
+                "uid" to uid,
+                "nama" to nama.trim(),
+                "email" to email.trim(),
+                "role" to role,
+                "mode" to mode,
+                "updated_at" to FieldValue.serverTimestamp()
+            )
+
+            if (!userSnapshot.exists()) {
+                userData["created_at"] = FieldValue.serverTimestamp()
             }
+
+            if (!profileSnapshot.exists()) {
+                profileData["created_at"] = FieldValue.serverTimestamp()
+            }
+
+            transaction.set(
+                userRef,
+                userData,
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+
+            transaction.set(
+                profileRef,
+                profileData,
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+        }.addOnSuccessListener {
+            onSuccess()
+        }.addOnFailureListener { error ->
+            onFailure(error.message ?: "Gagal menyimpan profil.")
+        }
     }
+
+    fun saveProfileEdits(
+        uid: String,
+        collection: String,
+        role: String,
+        mode: String,
+        data: Map<String, Any>,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val expectedCollection = when {
+            role == "pengajar" && mode == "mandiri" -> "pengajar_mandiri"
+            role == "pengajar" && mode == "institusi" -> "pengajar_institusi"
+            role == "pelajar" && mode == "mandiri" -> "pelajar_mandiri"
+            role == "pelajar" && mode == "institusi" -> "pelajar_institusi"
+            else -> null
+        }
+
+        if (expectedCollection == null || collection != expectedCollection) {
+            onFailure("Koleksi profil tidak sesuai dengan peran dan mode pengguna.")
+            return
+        }
+
+        if (uid.isBlank() || FirebaseAuthManager.currentUser?.uid != uid) {
+            onFailure("UID pengguna tidak sesuai dengan sesi Firebase.")
+            return
+        }
+
+        val nama = data["nama"] as? String ?: ""
+        val email = data["email"] as? String ?: ""
+
+        if (nama.isBlank() || email.isBlank()) {
+            onFailure("Nama dan email wajib diisi.")
+            return
+        }
+
+        val userRef = db.collection("users").document(uid)
+        val profileRef = db.collection(collection).document(uid)
+
+        val profileData = HashMap<String, Any>(data).apply {
+            put("uid", uid)
+            put("role", role)
+            put("mode", mode)
+            put("updated_at", FieldValue.serverTimestamp())
+        }
+
+        db.runTransaction { transaction ->
+            val userSnapshot = transaction.get(userRef)
+            transaction.get(profileRef)
+
+            val userData = hashMapOf<String, Any>(
+                "uid" to uid,
+                "nama" to nama.trim(),
+                "email" to email.trim(),
+                "role" to role,
+                "mode" to mode,
+                "updated_at" to FieldValue.serverTimestamp()
+            )
+
+            if (!userSnapshot.exists()) {
+                userData["created_at"] = FieldValue.serverTimestamp()
+            }
+
+            transaction.set(
+                userRef,
+                userData,
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+
+            transaction.set(
+                profileRef,
+                profileData,
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+        }.addOnSuccessListener {
+            onSuccess()
+        }.addOnFailureListener { error ->
+            onFailure(error.message ?: "Gagal memperbarui profil.")
+        }
+    }
+
 
     fun saveUserProfile(
         uid: String,

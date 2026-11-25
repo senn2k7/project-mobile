@@ -20,7 +20,7 @@ class InformasiInstitusiActivity : AppCompatActivity() {
         setContentView(if (ProfileStore.isTeacher(role)) buildTeacher() else buildStudent())
     }
 
-    private fun value(field: String) = ProfileStore.get(this, role, field)
+    private fun value(field: String) = ProfileStore.get(this, role, mode, field)
 
     private fun banner(): LinearLayout = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL

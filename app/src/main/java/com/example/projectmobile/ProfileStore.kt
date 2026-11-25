@@ -2,11 +2,11 @@ package com.example.projectmobile
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.firebase.firestore.FirebaseFirestore
 
 /**
- * Penyimpanan data profil di perangkat (SharedPreferences).
- * Nama dan email diambil dari akun Firebase bila ada; sisanya memakai
- * contoh data dari desain Figma sampai terhubung ke server.
+ * Cache profil pengguna berdasarkan UID, peran, dan mode.
+ * Sumber data utama berasal dari Firestore.
  */
 object ProfileStore {
 
@@ -21,19 +21,175 @@ object ProfileStore {
 
     private const val PREFS = "profile_prefs"
 
-    private fun sp(ctx: Context) = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    private val allFields = listOf(
+        NAMA, EMAIL, PHONE, NIM, PRODI, INSTITUSI, JABATAN, FAKULTAS
+    )
 
-    private fun key(role: String, field: String) = "${role}_$field"
+    private fun sp(ctx: Context) =
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
-    fun isTeacher(role: String) = role == PilihPeranActivity.ROLE_PENGAJAR
+    private fun currentUid(): String? =
+        FirebaseAuthManager.currentUser?.uid?.takeIf { it.isNotBlank() }
 
+    private fun key(uid: String, role: String, mode: String, field: String) =
+        "${uid}_${role}_${mode}_$field"
+
+    private fun legacyKey(role: String, field: String) = "${role}_$field"
+
+    fun isTeacher(role: String) =
+        role == PilihPeranActivity.ROLE_PENGAJAR
+
+    /**
+     * Membaca cache berdasarkan pengguna, peran, dan mode aktif.
+     * Nilai kosong berarti data belum tersedia.
+     */
+    fun get(ctx: Context, role: String, mode: String, field: String): String {
+        val uid = currentUid() ?: return ""
+        return sp(ctx).getString(key(uid, role, mode, field), "") ?: ""
+    }
+
+    /**
+     * Kompatibilitas untuk pemanggil lama yang belum mengirim mode.
+     * Tidak lagi mengembalikan data contoh.
+     */
     fun get(ctx: Context, role: String, field: String): String {
-        val saved = sp(ctx).getString(key(role, field), null)
-        return saved ?: default(role, field)
+        val uid = currentUid() ?: return ""
+        val preferences = sp(ctx)
+
+        val mandiri = preferences.getString(
+            key(uid, role, ModePembelajaranActivity.MODE_MANDIRI, field), null
+        )
+        val institusi = preferences.getString(
+            key(uid, role, ModePembelajaranActivity.MODE_INSTITUSI, field), null
+        )
+
+        return mandiri?.takeIf { it.isNotBlank() }
+            ?: institusi?.takeIf { it.isNotBlank() }
+            ?: preferences.getString(legacyKey(role, field), "")
+            ?: ""
     }
 
     fun put(ctx: Context, role: String, field: String, value: String) {
-        sp(ctx).edit().putString(key(role, field), value).apply()
+        sp(ctx).edit().putString(legacyKey(role, field), value).apply()
+    }
+
+    fun put(
+        ctx: Context,
+        role: String,
+        mode: String,
+        field: String,
+        value: String
+    ) {
+        val uid = currentUid() ?: return
+        sp(ctx).edit().putString(key(uid, role, mode, field), value).apply()
+    }
+
+    /**
+     * Mengambil data users/{uid} dan koleksi profil sesuai peran/mode.
+     * Callback bernilai true jika pembacaan Firestore berhasil.
+     */
+    fun refresh(
+        ctx: Context,
+        role: String,
+        mode: String,
+        onComplete: (Boolean) -> Unit
+    ) {
+        val uid = currentUid()
+        if (uid == null) {
+            onComplete(false)
+            return
+        }
+
+        val collection = when {
+            role == PilihPeranActivity.ROLE_PENGAJAR &&
+                mode == ModePembelajaranActivity.MODE_MANDIRI -> "pengajar_mandiri"
+
+            role == PilihPeranActivity.ROLE_PENGAJAR &&
+                mode == ModePembelajaranActivity.MODE_INSTITUSI -> "pengajar_institusi"
+
+            role == PilihPeranActivity.ROLE_PELAJAR &&
+                mode == ModePembelajaranActivity.MODE_MANDIRI -> "pelajar_mandiri"
+
+            role == PilihPeranActivity.ROLE_PELAJAR &&
+                mode == ModePembelajaranActivity.MODE_INSTITUSI -> "pelajar_institusi"
+
+            else -> {
+                onComplete(false)
+                return
+            }
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(uid)
+        val profileRef = db.collection(collection).document(uid)
+
+        userRef.get()
+            .addOnSuccessListener { userSnapshot ->
+                profileRef.get()
+                    .addOnSuccessListener { profileSnapshot ->
+                        val values = mutableMapOf<String, String>()
+
+                        allFields.forEach { values[it] = "" }
+
+                        fun readString(
+                            map: Map<String, Any>?,
+                            vararg names: String
+                        ): String {
+                            for (name in names) {
+                                val value = map?.get(name) as? String
+                                if (!value.isNullOrBlank()) return value.trim()
+                            }
+                            return ""
+                        }
+
+                        val userData = userSnapshot.data
+                        val profileData = profileSnapshot.data
+
+                        values[NAMA] = readString(
+                            profileData, "nama"
+                        ).ifBlank {
+                            readString(userData, "nama")
+                        }
+
+                        values[EMAIL] = readString(
+                            profileData, "email"
+                        ).ifBlank {
+                            readString(userData, "email")
+                        }.ifBlank {
+                            FirebaseAuthManager.currentUser?.email.orEmpty()
+                        }
+
+                        values[PHONE] = readString(
+                            profileData, "nomor_telepon", "phone"
+                        )
+                        values[NIM] = readString(profileData, "nim")
+                        values[PRODI] = readString(
+                            profileData, "program_studi", "prodi"
+                        )
+                        values[INSTITUSI] = readString(
+                            profileData, "nama_instansi", "institusi"
+                        )
+                        values[JABATAN] = readString(profileData, "jabatan")
+                        values[FAKULTAS] = readString(profileData, "fakultas")
+
+                        val editor = sp(ctx).edit()
+                        allFields.forEach { field ->
+                            editor.putString(
+                                key(uid, role, mode, field),
+                                values[field].orEmpty()
+                            )
+                        }
+                        editor.apply()
+
+                        onComplete(true)
+                    }
+                    .addOnFailureListener {
+                        onComplete(false)
+                    }
+            }
+            .addOnFailureListener {
+                onComplete(false)
+            }
     }
 
     fun clear(ctx: Context) {
@@ -64,29 +220,6 @@ object ProfileStore {
             ) else listOf(
                 "Nama Lengkap" to NAMA, "Email" to EMAIL, "Nomor Telepon" to PHONE
             )
-        }
-    }
-
-    private fun default(role: String, field: String): String {
-        val teacher = isTeacher(role)
-        val user = try {
-            FirebaseAuthManager.currentUser
-        } catch (e: Exception) {
-            null
-        }
-        return when (field) {
-            NAMA -> user?.displayName?.takeIf { it.isNotBlank() }
-                ?: user?.email?.substringBefore("@")?.takeIf { it.isNotBlank() }
-                ?: if (teacher) "Dr. Andi Pratama" else "Aldi Pratama"
-            EMAIL -> user?.email?.takeIf { it.isNotBlank() }
-                ?: if (teacher) "andi.pratama@uti.ac.id" else "aldi.pratama@email.com"
-            PHONE -> if (teacher) "08123456789" else ""
-            NIM -> "220411100123"
-            PRODI -> "Teknik Informatika"
-            INSTITUSI -> if (teacher) "Universitas Teknologi Indonesia" else "Universitas Trunojoyo Madura"
-            JABATAN -> "Dosen / Pengajar"
-            FAKULTAS -> "Fakultas Ilmu Komputer"
-            else -> ""
         }
     }
 }

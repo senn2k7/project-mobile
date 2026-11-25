@@ -73,9 +73,9 @@ object DiscussionStore {
 
     fun count(ctx: Context, classCode: String): Int = read(ctx).count { it.classCode == classCode }
 
-    fun send(ctx: Context, classCode: String, role: String, text: String): DiscussionMessage {
+    fun send(ctx: Context, classCode: String, role: String, mode: String, text: String): DiscussionMessage {
         val clean = text.trim().take(MAX_LENGTH)
-        val name = ProfileStore.get(ctx, role, ProfileStore.NAMA).ifBlank {
+        val name = ProfileStore.get(ctx, role, mode, ProfileStore.NAMA).ifBlank {
             if (role == PilihPeranActivity.ROLE_PENGAJAR) "Pengajar" else "Pelajar"
         }
         val list = read(ctx)

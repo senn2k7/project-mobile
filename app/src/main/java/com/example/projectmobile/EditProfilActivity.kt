@@ -45,10 +45,18 @@ class EditProfilActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         role = UiKit.roleOf(intent)
         mode = UiKit.modeOf(intent)
-        setContentView(build())
+        ProfileStore.refresh(this, role, mode) { success ->
+            if (isFinishing || isDestroyed) return@refresh
+
+            if (!success) {
+                UiKit.toast(this, "Gagal memuat profil dari server. Periksa koneksi internet.")
+            }
+
+            setContentView(build())
+        }
     }
 
-    private fun value(field: String) = ProfileStore.get(this, role, field)
+    private fun value(field: String) = ProfileStore.get(this, role, mode, field)
 
     private fun build(): View {
         val teacher = ProfileStore.isTeacher(role)
@@ -164,8 +172,12 @@ class EditProfilActivity : AppCompatActivity() {
         }
     }
 
+    private var isSaving = false
+
     private fun save() {
-        // Validasi kolom wajib
+        if (isSaving) return
+
+        // Validasi kolom wajib.
         for (field in required) {
             val v = getters[field]?.invoke().orEmpty()
             if (v.isBlank()) {
@@ -180,10 +192,77 @@ class EditProfilActivity : AppCompatActivity() {
                 return
             }
         }
-        for ((field, getter) in getters) {
-            ProfileStore.put(this, role, field, getter())
+
+        val uid = FirebaseAuthManager.currentUser?.uid
+        if (uid.isNullOrBlank()) {
+            UiKit.toast(this, "Sesi login tidak ditemukan. Silakan login kembali.")
+            return
         }
-        UiKit.toast(this, "Profil berhasil diperbarui")
-        finish()
+
+        val collection = when {
+            role == PilihPeranActivity.ROLE_PENGAJAR &&
+                mode == ModePembelajaranActivity.MODE_MANDIRI -> "pengajar_mandiri"
+
+            role == PilihPeranActivity.ROLE_PENGAJAR &&
+                mode == ModePembelajaranActivity.MODE_INSTITUSI -> "pengajar_institusi"
+
+            role == PilihPeranActivity.ROLE_PELAJAR &&
+                mode == ModePembelajaranActivity.MODE_MANDIRI -> "pelajar_mandiri"
+
+            role == PilihPeranActivity.ROLE_PELAJAR &&
+                mode == ModePembelajaranActivity.MODE_INSTITUSI -> "pelajar_institusi"
+
+            else -> {
+                UiKit.toast(this, "Peran atau mode profil tidak valid.")
+                return
+            }
+        }
+
+        val email = ProfileStore.get(this, role, mode, ProfileStore.EMAIL)
+            .ifBlank { FirebaseAuthManager.currentUser?.email.orEmpty() }
+
+        val data = HashMap<String, Any>()
+        data["nama"] = getters[ProfileStore.NAMA]?.invoke().orEmpty()
+        data["email"] = email
+
+        // Terjemahkan key tampilan ke nama field yang digunakan Firestore.
+        val firestoreFields = mapOf(
+            ProfileStore.PHONE to "nomor_telepon",
+            ProfileStore.NIM to "nim",
+            ProfileStore.PRODI to "program_studi",
+            ProfileStore.INSTITUSI to "nama_instansi",
+            ProfileStore.JABATAN to "jabatan",
+            ProfileStore.FAKULTAS to "fakultas"
+        )
+
+        for ((field, firestoreField) in firestoreFields) {
+            val getter = getters[field] ?: continue
+            data[firestoreField] = getter()
+        }
+
+        isSaving = true
+
+        FirebaseManager.saveProfileEdits(
+            uid = uid,
+            collection = collection,
+            role = role,
+            mode = mode,
+            data = data,
+            onSuccess = {
+                for ((field, getter) in getters) {
+                    ProfileStore.put(this, role, mode, field, getter())
+                }
+
+                ProfileStore.put(this, role, mode, ProfileStore.EMAIL, email)
+
+                isSaving = false
+                UiKit.toast(this, "Profil berhasil diperbarui")
+                finish()
+            },
+            onFailure = { message ->
+                isSaving = false
+                UiKit.toast(this, "Gagal memperbarui profil: $message")
+            }
+        )
     }
 }

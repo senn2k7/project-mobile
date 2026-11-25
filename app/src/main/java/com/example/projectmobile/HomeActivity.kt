@@ -28,13 +28,21 @@ class HomeActivity : AppCompatActivity() {
         setContentView(createDashboard(role, mode))
     }
 
-    // Segarkan Beranda pelajar mandiri setelah bergabung / keluar dari kelas.
+    // Segarkan profil dan dashboard berdasarkan data pengguna dari Firestore.
     override fun onResume() {
         super.onResume()
-        val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE) ?: PilihPeranActivity.ROLE_PELAJAR
-        val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN) ?: ModePembelajaranActivity.MODE_INSTITUSI
-        if (mode == ModePembelajaranActivity.MODE_MANDIRI) {
-            setContentView(createDashboard(role, mode))
+
+        val role = intent.getStringExtra(PilihPeranActivity.EXTRA_ROLE)
+            ?: PilihPeranActivity.ROLE_PELAJAR
+        val mode = intent.getStringExtra(ModePembelajaranActivity.EXTRA_MODE_PEMBELAJARAN)
+            ?: ModePembelajaranActivity.MODE_INSTITUSI
+
+        setContentView(createDashboard(role, mode))
+
+        ProfileStore.refresh(this, role, mode) {
+            if (!isFinishing && !isDestroyed) {
+                setContentView(createDashboard(role, mode))
+            }
         }
     }
 
@@ -92,7 +100,8 @@ class HomeActivity : AppCompatActivity() {
         }
 
         val greetingTitle = TextView(this).apply {
-            text = if (role == PilihPeranActivity.ROLE_PENGAJAR) "Halo, Pak Budi! 👋" else "Halo, Siti! 👋"
+            val nama = ProfileStore.get(this@HomeActivity, role, mode, ProfileStore.NAMA)
+            text = if (nama.isNotBlank()) "Halo, $nama! 👋" else "Halo! 👋"
             textSize = 18f
             setTextColor(Color.rgb(25, 54, 95))
             setTypeface(null, Typeface.BOLD)
@@ -370,7 +379,13 @@ class HomeActivity : AppCompatActivity() {
         }
 
         val greetingTitle = TextView(this).apply {
-            text = "Halo, Pengajar! 👋"
+            val nama = ProfileStore.get(
+                this@HomeActivity,
+                PilihPeranActivity.ROLE_PENGAJAR,
+                ModePembelajaranActivity.MODE_MANDIRI,
+                ProfileStore.NAMA
+            )
+            text = if (nama.isNotBlank()) "Halo, $nama! 👋" else "Halo! 👋"
             textSize = 18f
             setTextColor(Color.rgb(25, 54, 95))
             setTypeface(null, Typeface.BOLD)

@@ -18,15 +18,26 @@ class ProfilSayaActivity : AppCompatActivity() {
         mode = UiKit.modeOf(intent)
     }
 
-    // Dibangun ulang saat kembali dari Edit Profil agar data terbaru tampil.
+    // Memuat ulang profil dari Firestore saat halaman dibuka kembali.
     override fun onResume() {
         super.onResume()
+
+        renderProfile()
+
+        ProfileStore.refresh(this, role, mode) {
+            if (!isFinishing && !isDestroyed) {
+                renderProfile()
+            }
+        }
+    }
+
+    private fun renderProfile() {
         setContentView(if (ProfileStore.isTeacher(role)) buildTeacher() else buildStudent())
     }
 
     private fun openEdit() = UiKit.open(this, EditProfilActivity::class.java, role, mode)
 
-    private fun value(field: String) = ProfileStore.get(this, role, field)
+    private fun value(field: String) = ProfileStore.get(this, role, mode, field)
 
     // ---------------------------------------------------------------- Pelajar
 
