@@ -131,7 +131,7 @@ class PilihPeranActivity : AppCompatActivity() {
 
         val teacherParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
-            dp(142)
+            LinearLayout.LayoutParams.WRAP_CONTENT
         ).apply {
             topMargin = dp(32)
         }
@@ -147,7 +147,7 @@ class PilihPeranActivity : AppCompatActivity() {
 
         val studentParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
-            dp(142)
+            LinearLayout.LayoutParams.WRAP_CONTENT
         ).apply {
             topMargin = dp(12)
         }
@@ -195,7 +195,7 @@ class PilihPeranActivity : AppCompatActivity() {
 
         val infoParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
-            dp(70)
+            LinearLayout.LayoutParams.WRAP_CONTENT
         ).apply {
             topMargin = dp(24)
         }
@@ -215,6 +215,7 @@ class PilihPeranActivity : AppCompatActivity() {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
+            minimumHeight = dp(120)
             setPadding(dp(11), dp(12), dp(12), dp(12))
             background = roundedBackground(
                 Color.WHITE,

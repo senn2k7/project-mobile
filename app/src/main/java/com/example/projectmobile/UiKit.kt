@@ -194,11 +194,11 @@ object UiKit {
     /** Ikon menu bawah (menggantikan emoji), diwarnai biru bila aktif. */
     fun navIcon(ctx: Context, key: String, selected: Boolean): ImageView {
         val res = when (key) {
-            "🏠" -> R.drawable.ic_home
-            "📚" -> R.drawable.ic_book
-            "📋" -> R.drawable.ic_assignment_check
-            "🤖" -> R.drawable.ic_bot
-            else -> R.drawable.ic_person
+            "🏠" -> R.drawable.ic_nav_home
+            "📚" -> R.drawable.ic_nav_book
+            "📋" -> R.drawable.ic_nav_clipboard
+            "🤖" -> R.drawable.ic_nav_robot
+            else -> R.drawable.ic_nav_person
         }
         return icon(ctx, res, 24, if (selected) PRIMARY else MUTED)
     }
@@ -602,21 +602,20 @@ object UiKit {
         } else {
             listOf("🏠" to "Beranda", "📚" to "Kelas", "🤖" to "AI", "📋" to "Aktivitas", "👤" to "Profil")
         }
-        return LinearLayout(activity).apply {
+        val row = LinearLayout(activity).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(activity.px(16), activity.px(8), activity.px(16), activity.px(8))
+            setPadding(activity.px(8), activity.px(8), activity.px(8), activity.px(8))
             setBackgroundColor(Color.WHITE)
-            elevation = activity.px(8).toFloat()
             for ((emoji, label) in items) {
+                val isSel = label == selected
                 val item = LinearLayout(activity).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.CENTER
                     setPadding(activity.px(4), activity.px(6), activity.px(4), activity.px(6))
                     isClickable = true
                     isFocusable = true
-                    setOnClickListener { navigate(activity, label, role, mode) }
-                    val isSel = label == selected
+                    setOnClickListener { if (!isSel) navigate(activity, label, role, mode) }
                     addView(navIcon(activity, emoji, isSel))
                     addView(
                         tv(activity, label, 11f, if (isSel) PRIMARY else MUTED, isSel),
@@ -626,65 +625,44 @@ object UiKit {
                 addView(item, LinearLayout.LayoutParams(0, WRAP, 1f))
             }
         }
+        return LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Color.WHITE)
+            addView(View(activity).apply { setBackgroundColor(BORDER) }, LinearLayout.LayoutParams(MATCH, activity.px(1)))
+            addView(row, LinearLayout.LayoutParams(MATCH, WRAP))
+        }
     }
 
     private fun navigate(activity: Activity, label: String, role: String, mode: String) {
-        when (label) {
-            "Beranda" -> {
-                val intent = withProfile(Intent(activity, HomeActivity::class.java), role, mode).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-                activity.startActivity(intent)
+        val teacher = ProfileStore.isTeacher(role)
+        val mandiri = mode == ModePembelajaranActivity.MODE_MANDIRI
+        val target: Class<*> = when (label) {
+            "Beranda" -> HomeActivity::class.java
+            "Kelas" -> when {
+                teacher && mandiri -> KelasMandiriPengajarActivity::class.java
+                !teacher && mandiri -> DaftarKelasActivity::class.java
+                else -> KelasSayaActivity::class.java
             }
-            "Kelas" -> {
-                if (ProfileStore.isTeacher(role) && mode == ModePembelajaranActivity.MODE_MANDIRI) {
-                    val intent = withProfile(Intent(activity, KelasMandiriPengajarActivity::class.java), role, mode).apply {
-                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    }
-                    activity.startActivity(intent)
-                } else if (!ProfileStore.isTeacher(role) && mode == ModePembelajaranActivity.MODE_MANDIRI) {
-                    val intent = withProfile(Intent(activity, DaftarKelasActivity::class.java), role, mode).apply {
-                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    }
-                    activity.startActivity(intent)
-                } else {
-                    activity.startActivity(
-                        Intent(activity, KelasSayaActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        }
-                    )
-                }
+            "Tugas", "Aktivitas" -> when {
+                teacher && mandiri -> TugasMandiriPengajarActivity::class.java
+                !teacher && mandiri -> TugasPelajarActivity::class.java
+                else -> TugasActivity::class.java
             }
-            "Tugas", "Aktivitas" -> {
-                if (ProfileStore.isTeacher(role) && mode == ModePembelajaranActivity.MODE_MANDIRI) {
-                    val intent = withProfile(Intent(activity, TugasMandiriPengajarActivity::class.java), role, mode).apply {
-                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    }
-                    activity.startActivity(intent)
-                } else if (!ProfileStore.isTeacher(role) && mode == ModePembelajaranActivity.MODE_MANDIRI) {
-                    activity.startActivity(withProfile(Intent(activity, TugasPelajarActivity::class.java), role, mode))
-                } else {
-                    activity.startActivity(
-                        Intent(activity, TugasActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        }
-                    )
-                }
-            }
-            "AI" -> activity.startActivity(
-                withProfile(
-                    Intent(
-                        activity,
-                        if (mode == ModePembelajaranActivity.MODE_MANDIRI) AiAsistenMandiriActivity::class.java
-                        else AiAssistantActivity::class.java
-                    ),
-                    role, mode
-                ).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-            )
-            "Profil" -> openProfile(activity, role, mode)
+            "AI" -> if (mandiri) AiAsistenMandiriActivity::class.java else AiAssistantActivity::class.java
+            "Profil" -> ProfilMenuActivity::class.java
+            else -> return
         }
+        openTab(activity, target, role, mode)
+    }
+
+    /** Pindah tab: tidak menumpuk layar yang sama dan tanpa animasi geser. */
+    fun openTab(from: Activity, target: Class<*>, role: String, mode: String) {
+        val intent = withProfile(Intent(from, target), role, mode).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                Intent.FLAG_ACTIVITY_NO_ANIMATION
+        }
+        from.startActivity(intent)
     }
 
     // ------------------------------------------------------------------

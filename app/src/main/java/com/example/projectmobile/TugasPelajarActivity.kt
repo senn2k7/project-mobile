@@ -44,6 +44,8 @@ class TugasPelajarActivity : AppCompatActivity() {
         for (label in listOf(FILTER_SEMUA, FILTER_BELUM, FILTER_SELESAI)) {
             val chip = UiKit.tv(this, label, 13f, UiKit.MUTED, true).apply {
                 gravity = Gravity.CENTER
+                minHeight = px(40)
+                setPadding(px(6), px(10), px(6), px(10))
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
@@ -53,7 +55,7 @@ class TugasPelajarActivity : AppCompatActivity() {
                 }
             }
             chipViews[label] = chip
-            chips.addView(chip, UiKit.params(this, 0, px(40), end = 8, weight = 1f))
+            chips.addView(chip, UiKit.params(this, 0, UiKit.WRAP, end = 8, weight = 1f))
         }
         content.addView(chips)
         refreshChips()
@@ -62,6 +64,7 @@ class TugasPelajarActivity : AppCompatActivity() {
         content.addView(listContainer, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 16))
 
         root.addView(scroll, UiKit.scrollParams())
+        if (classCode == null) root.addView(UiKit.bottomNav(this, "Tugas", role, mode))
         return root
     }
 

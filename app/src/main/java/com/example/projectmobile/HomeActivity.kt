@@ -1239,7 +1239,7 @@ class HomeActivity : AppCompatActivity() {
                     }
                     "Kelas" -> {
                         if (navRole == PilihPeranActivity.ROLE_PELAJAR && navMode == ModePembelajaranActivity.MODE_MANDIRI) {
-                            UiKit.open(this@HomeActivity, DaftarKelasActivity::class.java, navRole, navMode)
+                            UiKit.openTab(this@HomeActivity, DaftarKelasActivity::class.java, navRole, navMode)
                             return@setOnClickListener
                         }
                         if (navRole == PilihPeranActivity.ROLE_PENGAJAR && navMode == ModePembelajaranActivity.MODE_MANDIRI) {
@@ -1255,11 +1255,11 @@ class HomeActivity : AppCompatActivity() {
                     }
                     "Tugas", "Aktivitas" -> {
                         if (navRole == PilihPeranActivity.ROLE_PELAJAR && navMode == ModePembelajaranActivity.MODE_MANDIRI) {
-                            UiKit.open(this@HomeActivity, TugasPelajarActivity::class.java, navRole, navMode)
+                            UiKit.openTab(this@HomeActivity, TugasPelajarActivity::class.java, navRole, navMode)
                             return@setOnClickListener
                         }
                         if (navRole == PilihPeranActivity.ROLE_PENGAJAR && navMode == ModePembelajaranActivity.MODE_MANDIRI) {
-                            UiKit.open(this@HomeActivity, TugasMandiriPengajarActivity::class.java, navRole, navMode)
+                            UiKit.openTab(this@HomeActivity, TugasMandiriPengajarActivity::class.java, navRole, navMode)
                             return@setOnClickListener
                         }
                         val intent = Intent(this@HomeActivity, TugasActivity::class.java).apply {
@@ -1271,7 +1271,7 @@ class HomeActivity : AppCompatActivity() {
                     }
                     "AI" -> {
                         if (navMode == ModePembelajaranActivity.MODE_MANDIRI) {
-                            UiKit.open(this@HomeActivity, AiAsistenMandiriActivity::class.java, navRole, navMode)
+                            UiKit.openTab(this@HomeActivity, AiAsistenMandiriActivity::class.java, navRole, navMode)
                             return@setOnClickListener
                         }
                         val intent = Intent(this@HomeActivity, AiAssistantActivity::class.java).apply {

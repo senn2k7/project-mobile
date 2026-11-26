@@ -146,7 +146,7 @@ class TambahKontenActivity : AppCompatActivity() {
 
     private fun pickDate() {
         val cal = Calendar.getInstance().apply { timeInMillis = deadline }
-        DatePickerDialog(
+        val dialog = DatePickerDialog(
             this,
             { _, y, mo, d ->
                 val picked = Calendar.getInstance()
@@ -156,7 +156,9 @@ class TambahKontenActivity : AppCompatActivity() {
                 tvDeadline?.text = TaskStore.format(deadline)
             },
             cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        )
+        dialog.datePicker.minDate = System.currentTimeMillis() - 1000
+        dialog.show()
     }
 
     private fun submit() {
