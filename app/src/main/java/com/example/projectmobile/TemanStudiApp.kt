@@ -38,39 +38,29 @@ class TemanStudiApp : Application() {
  */
 object InsetsFixer {
 
-    /** Tanda pada view yang sudah mengatur jaraknya sendiri (lihat UiKit.root). */
+    /** Tanda lama, dibiarkan supaya UiKit.root() tidak error. */
     const val HANDLED = "insets_handled"
 
     private val SKIP = setOf("OnboardingActivity", "ModePembelajaranActivity")
+    private val BG = android.graphics.Color.parseColor("#F5FAFF")
 
     fun attach(activity: Activity) {
         if (!activity.javaClass.name.startsWith("com.example.projectmobile")) return
         if (activity.javaClass.simpleName in SKIP) return
         val content = activity.findViewById<ViewGroup>(android.R.id.content) ?: return
-        content.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-            override fun onChildViewAdded(parent: View?, child: View?) {
-                if (child != null) fix(child)
-            }
 
-            override fun onChildViewRemoved(parent: View?, child: View?) {}
-        })
-        for (i in 0 until content.childCount) fix(content.getChildAt(i))
-    }
+        // Warna di belakang status bar dan tombol navigasi.
+        content.setBackgroundColor(BG)
 
-    private fun fix(view: View) {
-        if (view.tag == HANDLED) return
-        // Padding bawaan layar dipertahankan, jarak status bar dan navigasi ditambahkan di atasnya.
-        val left = view.paddingLeft
-        val top = view.paddingTop
-        val right = view.paddingRight
-        val bottom = view.paddingBottom
-        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
             val bars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
+                WindowInsetsCompat.Type.systemBars() or
+                    WindowInsetsCompat.Type.displayCutout() or
+                    WindowInsetsCompat.Type.ime()
             )
-            v.setPadding(left + bars.left, top + bars.top, right + bars.right, bottom + bars.bottom)
-            insets
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            WindowInsetsCompat.CONSUMED
         }
-        ViewCompat.requestApplyInsets(view)
+        ViewCompat.requestApplyInsets(content)
     }
 }

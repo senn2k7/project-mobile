@@ -270,13 +270,6 @@ object UiKit {
             setBackgroundColor(BG)
             tag = InsetsFixer.HANDLED
         }
-        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
-            val bars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
-            )
-            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
-            insets
-        }
         return root
     }
 
