@@ -2,10 +2,14 @@ package com.example.projectmobile
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -55,83 +59,283 @@ class KelolaKelasActivity : AppCompatActivity() {
             setOnClickListener { onClick() }
         }
 
+    /** Bar atas: kembali, judul "Detail Kelas", dan menu titik tiga. */
+    private fun topBarWithMenu(c: TeacherClass): View {
+        val bar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(px(20), px(16), px(12), px(8))
+        }
+        bar.addView(
+            ImageView(this).apply {
+                setImageResource(R.drawable.ic_back)
+                contentDescription = "Kembali"
+                isClickable = true
+                isFocusable = true
+                setOnClickListener { finish() }
+            },
+            LinearLayout.LayoutParams(px(32), px(32))
+        )
+        bar.addView(UiKit.tv(this, "Detail Kelas", 20f, UiKit.NAVY, true), UiKit.params(this, 0, UiKit.WRAP, start = 16, weight = 1f))
+        bar.addView(
+            ImageView(this).apply {
+                setImageResource(R.drawable.ic_more_vert)
+                setColorFilter(UiKit.NAVY)
+                setPadding(px(8), px(8), px(8), px(8))
+                contentDescription = "Menu kelas"
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    ClassActionSheet.show(
+                        this@KelolaKelasActivity,
+                        "Aksi Kelas ${c.name}",
+                        listOf(
+                            ClassActionSheet.Row(R.drawable.ic_info, "Info Kelas") {
+                                val next = UiKit.withProfile(Intent(this@KelolaKelasActivity, KelasBerhasilActivity::class.java), role, mode)
+                                next.putExtra(KelasBerhasilActivity.EXTRA_CODE, c.code)
+                                startActivity(next)
+                            },
+                            ClassActionSheet.Row(R.drawable.ic_copy, "Salin Kode", c.code) { TeacherClassStore.copyCode(this@KelolaKelasActivity, c) },
+                            ClassActionSheet.Row(R.drawable.ic_share, "Bagikan Kode") { TeacherClassStore.share(this@KelolaKelasActivity, c) }
+                        )
+                    )
+                }
+            },
+            LinearLayout.LayoutParams(px(40), px(40))
+        )
+        return bar
+    }
+
+    /** Kartu kapasitas terisi (bar) bila kapasitas dibatasi. */
+    private fun capacityBlock(c: TeacherClass): View {
+        val n = TeacherClassStore.participantCount(this, c.code)
+        val unlimited = TeacherClassStore.isUnlimited(c.capacity)
+        val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        row.addView(UiKit.tv(this, "Kapasitas terisi", 12f, UiKit.MUTED), UiKit.params(this, 0, UiKit.WRAP, weight = 1f))
+        row.addView(
+            UiKit.tv(this, if (unlimited) "$n peserta • Tanpa batas" else "$n/${c.capacity}", 12f, UiKit.NAVY, true)
+        )
+        box.addView(row)
+        if (!unlimited && c.capacity > 0) {
+            val track = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                weightSum = c.capacity.toFloat()
+                background = UiKit.rounded(this@KelolaKelasActivity, Color.rgb(226, 236, 252), 4)
+            }
+            val filled = n.coerceAtMost(c.capacity)
+            if (filled > 0) {
+                track.addView(
+                    View(this).apply { background = UiKit.rounded(this@KelolaKelasActivity, UiKit.PRIMARY, 4) },
+                    LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, filled.toFloat())
+                )
+            }
+            box.addView(track, UiKit.params(this, UiKit.MATCH, px(8), top = 8))
+        }
+        return box
+    }
+
+    private fun squareButton(iconRes: Int, desc: String, onClick: () -> Unit): View =
+        FrameLayout(this).apply {
+            background = UiKit.rounded(this@KelolaKelasActivity, UiKit.SOFT, 12)
+            contentDescription = desc
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { onClick() }
+            addView(
+                ImageView(this@KelolaKelasActivity).apply {
+                    setImageResource(iconRes)
+                    setColorFilter(UiKit.PRIMARY)
+                },
+                FrameLayout.LayoutParams(px(20), px(20), Gravity.CENTER)
+            )
+        }
+
     private fun build(c: TeacherClass): View {
         val materials = TeacherClassStore.materials(this, c.code)
         val tasks = TeacherClassStore.tasks(this, c.code)
         val quizzes = QuizStore.quizzes(this, c.code)
 
         val root = UiKit.root(this)
-        root.addView(UiKit.topBar(this, "Kelola Kelas") { finish() })
+        root.addView(topBarWithMenu(c))
         val (scroll, content) = UiKit.scroll(this)
 
-        // Header kelas
-        val header = UiKit.card(this).apply { setPadding(px(16), px(16), px(16), px(16)) }
+        val white45 = Color.argb(45, 255, 255, 255)
+
+        // ---------------- Banner kelas (senada dengan banner beranda) ----------------
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(px(18), px(18), px(18), px(18))
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                intArrayOf(Color.rgb(24, 48, 92), Color.rgb(38, 78, 150))
+            ).apply {
+                cornerRadius = px(20).toFloat()
+                setStroke(px(1), Color.argb(40, 255, 255, 255))
+            }
+            elevation = px(3).toFloat()
+        }
         val top = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
-        top.addView(UiKit.badge(this, TeacherClassStore.iconFor(c.topic), Color.WHITE, UiKit.PRIMARY, 52, 14, 26))
+        top.addView(UiKit.badge(this, TeacherClassStore.iconFor(c.topic), Color.WHITE, white45, 56, 16, 28))
         val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        col.addView(UiKit.tv(this, c.name, 17f, UiKit.NAVY, true))
-        col.addView(ClassUi.chip(this, "Kode: ${c.code}"), UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 6))
+        col.addView(UiKit.tv(this, c.name, 20f, Color.WHITE, true))
+        col.addView(
+            UiKit.tv(this, "Kelas Mandiri", 11.5f, Color.WHITE, true).apply {
+                background = UiKit.rounded(this@KelolaKelasActivity, white45, 8)
+                setPadding(px(10), px(3), px(10), px(3))
+            },
+            UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 6)
+        )
         top.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 14, weight = 1f))
         header.addView(top)
-        header.addView(
-            UiKit.tv(this, "${materials.size} materi  •  ${tasks.size} tugas  •  ${quizzes.size} kuis", 12.5f, UiKit.MUTED),
-            UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12)
-        )
-        val actions = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        actions.addView(
-            pill("Info Kelas") {
-                val next = UiKit.withProfile(Intent(this, KelasBerhasilActivity::class.java), role, mode)
-                next.putExtra(KelasBerhasilActivity.EXTRA_CODE, c.code)
-                startActivity(next)
+
+        val ownerName = ProfileStore.get(this, role, mode, ProfileStore.NAMA).ifBlank { "Pengajar" }
+        val owner = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        owner.addView(
+            TextView(this).apply {
+                text = ownerName.take(1).uppercase()
+                gravity = Gravity.CENTER
+                textSize = 14f
+                setTextColor(Color.WHITE)
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                background = UiKit.oval(white45)
             },
-            UiKit.params(this, 0, px(38), end = 4, weight = 1f)
+            LinearLayout.LayoutParams(px(36), px(36))
         )
-        actions.addView(
-            pill("Bagikan Kode") { TeacherClassStore.share(this, c) },
-            UiKit.params(this, 0, px(38), start = 4, end = 4, weight = 1f)
-        )
-        actions.addView(
-            pill("Diskusi") {
-                val next = UiKit.withProfile(Intent(this, DiskusiKelasActivity::class.java), role, mode)
-                next.putExtra(DiskusiKelasActivity.EXTRA_CODE, c.code)
-                startActivity(next)
-            },
-            UiKit.params(this, 0, px(38), start = 4, weight = 1f)
-        )
-        header.addView(actions, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 14))
+        val ownerCol = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        ownerCol.addView(UiKit.tv(this, ownerName, 13f, Color.WHITE, true))
+        ownerCol.addView(UiKit.tv(this, "Pengajar kelas", 11.5f, Color.argb(200, 255, 255, 255)))
+        owner.addView(ownerCol, UiKit.params(this, 0, UiKit.WRAP, start = 10, weight = 1f))
+        header.addView(owner, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 16))
         content.addView(header)
 
-        // Tab Materi / Tugas
+        // ---------------- Ringkasan angka ----------------
+        val statsCard = UiKit.card(this).apply { setPadding(px(12), px(14), px(12), px(14)) }
+        statsCard.addView(
+            ClassCards.statsRow(this, TeacherClassStore.participantCount(this, c.code), materials.size, tasks.size, quizzes.size)
+        )
+        content.addView(statsCard, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12))
+
+        // ---------------- Tentang kelas ----------------
+        val about = UiKit.card(this).apply { setPadding(px(16), px(14), px(16), px(16)) }
+        about.addView(UiKit.tv(this, "Tentang Kelas", 14f, UiKit.NAVY, true))
+        about.addView(
+            UiKit.tv(
+                this,
+                c.description.ifBlank { "Belum ada deskripsi kelas." },
+                13f, UiKit.MUTED
+            ).apply { setLineSpacing(px(2).toFloat(), 1f) },
+            UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 6)
+        )
+        val metaChips = listOf(c.topic, c.category, c.level).filter { it.isNotBlank() }
+        if (metaChips.isNotEmpty()) {
+            val chipRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+            metaChips.forEach { chipRow.addView(ClassUi.chip(this, it), UiKit.params(this, UiKit.WRAP, UiKit.WRAP, end = 6)) }
+            val chipScroll = HorizontalScrollView(this).apply {
+                isHorizontalScrollBarEnabled = false
+                addView(chipRow)
+            }
+            about.addView(chipScroll, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12))
+        }
+        content.addView(about, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12))
+
+        // ---------------- Kode kelas + kapasitas ----------------
+        val codeCard = UiKit.card(this).apply { setPadding(px(16), px(14), px(16), px(16)) }
+        codeCard.addView(UiKit.tv(this, "Kode Kelas", 12f, UiKit.MUTED))
+        val codeRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        codeRow.addView(
+            UiKit.tv(this, c.code, 24f, UiKit.NAVY, true).apply { letterSpacing = 0.1f },
+            UiKit.params(this, 0, UiKit.WRAP, weight = 1f)
+        )
+        codeRow.addView(
+            squareButton(R.drawable.ic_copy, "Salin kode") { TeacherClassStore.copyCode(this, c) },
+            UiKit.params(this, px(42), px(42))
+        )
+        codeRow.addView(
+            squareButton(R.drawable.ic_share, "Bagikan kode") { TeacherClassStore.share(this, c) },
+            UiKit.params(this, px(42), px(42), start = 8)
+        )
+        codeCard.addView(codeRow, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 6))
+        codeCard.addView(capacityBlock(c), UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 14))
+        content.addView(codeCard, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12))
+
+        // ---------------- Tab segmen (lebar sama, semua terlihat) ----------------
         val tabs = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            background = UiKit.rounded(this@KelolaKelasActivity, UiKit.SOFT, 12)
+            background = UiKit.rounded(this@KelolaKelasActivity, Color.WHITE, 16, UiKit.BORDER)
             setPadding(px(4), px(4), px(4), px(4))
         }
-        for (label in listOf(TAB_MATERI, TAB_TUGAS, TAB_KUIS)) {
+        for (label in listOf(TAB_MATERI, TAB_TUGAS, TAB_KUIS, TAB_DISKUSI)) {
             val on = label == tab
             val count = when (label) {
                 TAB_MATERI -> materials.size
                 TAB_TUGAS -> tasks.size
-                else -> quizzes.size
+                TAB_KUIS -> quizzes.size
+                else -> -1
             }
-            val t = UiKit.tv(this, "$label ($count)", 13f, if (on) Color.WHITE else UiKit.MUTED, on).apply {
+            val text = if (count >= 0) "$label $count" else label
+            val t = UiKit.tv(this, text, 13f, if (on) Color.WHITE else UiKit.MUTED, on).apply {
                 gravity = Gravity.CENTER
-                if (on) background = UiKit.rounded(this@KelolaKelasActivity, UiKit.PRIMARY, 10)
+                maxLines = 1
+                if (on) background = UiKit.rounded(this@KelolaKelasActivity, UiKit.PRIMARY, 12)
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
-                    if (tab != label) {
+                    if (label == TAB_DISKUSI) {
+                        val next = UiKit.withProfile(Intent(this@KelolaKelasActivity, DiskusiKelasActivity::class.java), role, mode)
+                        next.putExtra(DiskusiKelasActivity.EXTRA_CODE, c.code)
+                        startActivity(next)
+                    } else if (tab != label) {
                         tab = label
                         render()
                     }
                 }
             }
-            tabs.addView(t, UiKit.params(this, 0, px(38), weight = 1f))
+            tabs.addView(t, UiKit.params(this, 0, px(40), weight = 1f))
         }
-        content.addView(tabs, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 16, bottom = 4))
+        content.addView(tabs, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 16))
+
+        // Judul daftar + jumlah
+        val listHeader = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        listHeader.addView(
+            UiKit.tv(
+                this,
+                when (tab) {
+                    TAB_MATERI -> "Daftar Pertemuan"
+                    TAB_TUGAS -> "Daftar Tugas"
+                    else -> "Daftar Kuis"
+                },
+                16f, UiKit.NAVY, true
+            ),
+            UiKit.params(this, 0, UiKit.WRAP, weight = 1f)
+        )
+        listHeader.addView(
+            UiKit.tv(
+                this,
+                when (tab) {
+                    TAB_MATERI -> "${materials.size} pertemuan"
+                    TAB_TUGAS -> "${tasks.size} tugas"
+                    else -> "${quizzes.size} kuis"
+                },
+                12f, UiKit.MUTED
+            )
+        )
+        content.addView(listHeader, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 20))
 
         // Daftar
         if (tab == TAB_MATERI) {
@@ -212,12 +416,27 @@ class KelolaKelasActivity : AppCompatActivity() {
         return card
     }
 
-    private fun deleteLabel(onClick: () -> Unit): TextView =
-        UiKit.tv(this, "Hapus", 12f, UiKit.DANGER, true).apply {
-            setPadding(px(12), px(12), px(8), px(12))
+    /** Menu titik tiga pada kartu konten; hapus dipilih lewat bottom sheet, lalu dikonfirmasi. */
+    private fun moreMenu(kind: String, title: String, onDelete: () -> Unit): View =
+        ImageView(this).apply {
+            setImageResource(R.drawable.ic_more_vert)
+            setColorFilter(UiKit.MUTED)
+            setPadding(px(8), px(8), px(8), px(8))
+            contentDescription = "Menu $kind"
             isClickable = true
             isFocusable = true
-            setOnClickListener { onClick() }
+            setOnClickListener {
+                ClassActionSheet.show(
+                    this@KelolaKelasActivity,
+                    title,
+                    listOf(
+                        ClassActionSheet.Row(R.drawable.ic_delete, "Hapus ${kind.replaceFirstChar { it.uppercase() }}", danger = true) {
+                            confirmDelete(kind, title, onDelete)
+                        }
+                    )
+                )
+            }
+            layoutParams = LinearLayout.LayoutParams(px(36), px(36))
         }
 
     private fun confirmDelete(kind: String, title: String, action: () -> Unit) {
@@ -243,7 +462,7 @@ class KelolaKelasActivity : AppCompatActivity() {
         col.addView(UiKit.tv(this, "Pertemuan $number", 12f, UiKit.MUTED))
         col.addView(UiKit.tv(this, m.title, 15f, UiKit.NAVY, true), UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 2))
         head.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 12, weight = 1f))
-        head.addView(deleteLabel { confirmDelete("materi", m.title) { TeacherClassStore.deleteMaterial(this, m.id) } })
+        head.addView(moreMenu("materi", m.title) { TeacherClassStore.deleteMaterial(this, m.id) })
         card.addView(head)
         if (m.description.isNotBlank()) {
             card.addView(
@@ -302,7 +521,7 @@ class KelolaKelasActivity : AppCompatActivity() {
             UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 3)
         )
         head.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 12, weight = 1f))
-        head.addView(deleteLabel { confirmDelete("kuis", z.title) { QuizStore.delete(this, z.id) } })
+        head.addView(moreMenu("kuis", z.title) { QuizStore.delete(this, z.id) })
         card.addView(head)
         card.addView(
             UiKit.tv(
@@ -339,7 +558,7 @@ class KelolaKelasActivity : AppCompatActivity() {
             UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 3)
         )
         head.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 12, weight = 1f))
-        head.addView(deleteLabel { confirmDelete("tugas", t.title) { TeacherClassStore.deleteTask(this, t.id) } })
+        head.addView(moreMenu("tugas", t.title) { TeacherClassStore.deleteTask(this, t.id) })
         card.addView(head)
         if (t.instructions.isNotBlank()) {
             card.addView(
@@ -370,8 +589,9 @@ class KelolaKelasActivity : AppCompatActivity() {
         const val EXTRA_CODE = "extra_kelola_kelas_code"
         const val EXTRA_TAB = "extra_kelola_kelas_tab"
         private const val STATE_TAB = "state_kelola_tab"
-        private const val TAB_MATERI = "Materi"
-        private const val TAB_TUGAS = "Tugas"
-        private const val TAB_KUIS = "Kuis"
+        const val TAB_MATERI = "Materi"
+        const val TAB_TUGAS = "Tugas"
+        const val TAB_KUIS = "Kuis"
+        const val TAB_DISKUSI = "Diskusi"
     }
 }

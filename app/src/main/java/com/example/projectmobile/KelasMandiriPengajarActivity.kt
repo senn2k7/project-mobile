@@ -67,11 +67,20 @@ class KelasMandiriPengajarActivity : AppCompatActivity() {
             isClickable = true
             isFocusable = true
         }
-        more.setOnClickListener { anchor ->
-            val popup = PopupMenu(this, anchor)
-            popup.menu.add(0, 1, 0, "Buat kelas baru")
-            popup.setOnMenuItemClickListener { openBuatKelas(); true }
-            popup.show()
+        more.setOnClickListener {
+            val rows = mutableListOf(
+                ClassActionSheet.Row(R.drawable.ic_add_circle_outline, "Buat Kelas Baru") { openBuatKelas() }
+            )
+            val list = TeacherClassStore.all(this)
+            if (list.isNotEmpty()) {
+                rows.add(
+                    ClassActionSheet.Row(R.drawable.ic_share, "Bagikan Kode Kelas") {
+                        if (list.size == 1) TeacherClassStore.share(this, list[0])
+                        else ClassActionSheet.pickClass(this, "Bagikan kode kelas", list) { TeacherClassStore.share(this, it) }
+                    }
+                )
+            }
+            ClassActionSheet.show(this, "Menu Kelas Saya", rows)
         }
         bar.addView(more, LinearLayout.LayoutParams(px(24), px(24)))
         root.addView(bar)
@@ -98,12 +107,20 @@ class KelasMandiriPengajarActivity : AppCompatActivity() {
             isClickable = true
             isFocusable = true
             setOnClickListener {
-                newestFirst = !newestFirst
-                UiKit.toast(
+                ClassActionSheet.show(
                     this@KelasMandiriPengajarActivity,
-                    if (newestFirst) "Urutan: terbaru" else "Urutan: A–Z"
+                    "Urutkan Kelas",
+                    listOf(
+                        ClassActionSheet.Row(R.drawable.ic_calendar, "Terbaru", checked = newestFirst) {
+                            newestFirst = true
+                            renderList()
+                        },
+                        ClassActionSheet.Row(R.drawable.ic_filter, "Nama A–Z", checked = !newestFirst) {
+                            newestFirst = false
+                            renderList()
+                        }
+                    )
                 )
-                renderList()
             }
             addView(
                 UiKit.icon(this@KelasMandiriPengajarActivity, R.drawable.ic_filter, 24, UiKit.PRIMARY),
@@ -184,60 +201,8 @@ class KelasMandiriPengajarActivity : AppCompatActivity() {
         startActivity(next)
     }
 
-    private fun classCard(c: TeacherClass): View {
-        val card = UiKit.card(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(px(14), px(14), px(8), px(14))
-            isClickable = true
-            isFocusable = true
-            setOnClickListener { openKelola(c) }
-        }
-        card.addView(UiKit.badge(this, TeacherClassStore.iconFor(c.topic), Color.WHITE, UiKit.PRIMARY, 48, 12, 26))
-
-        val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        col.addView(UiKit.tv(this, c.name, 15f, UiKit.NAVY, true).apply {
-            maxLines = 2
-            ellipsize = TextUtils.TruncateAt.END
+    private fun classCard(c: TeacherClass): View =
+        ClassCards.teacherClassCard(this, c, { openKelola(c) }, {
+            ClassActionSheet.showForClass(this, c) { openKelola(c) }
         })
-        col.addView(
-            UiKit.tv(this, "Kode: ${c.code} • ${c.topic}", 12f, UiKit.MUTED).apply {
-                maxLines = 1
-                ellipsize = TextUtils.TruncateAt.END
-            },
-            UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 3)
-        )
-        col.addView(
-            UiKit.tv(this, "${TeacherClassStore.participantCount(this, c.code)} pelajar", 12f, UiKit.MUTED),
-            UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 3)
-        )
-        card.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 12, weight = 1f))
-
-        // Menu titik tiga (area sentuh 40dp supaya mudah ditekan)
-        val menu = FrameLayout(this).apply {
-            isClickable = true
-            isFocusable = true
-            setOnClickListener { anchor ->
-                val popup = PopupMenu(this@KelasMandiriPengajarActivity, anchor)
-                popup.menu.add(0, 1, 0, "Kelola kelas")
-                popup.menu.add(0, 2, 1, "Bagikan kode")
-                popup.menu.add(0, 3, 2, "Salin kode")
-                popup.setOnMenuItemClickListener { item ->
-                    when (item.itemId) {
-                        1 -> openKelola(c)
-                        2 -> TeacherClassStore.share(this@KelasMandiriPengajarActivity, c)
-                        3 -> TeacherClassStore.copyCode(this@KelasMandiriPengajarActivity, c)
-                    }
-                    true
-                }
-                popup.show()
-            }
-            addView(
-                UiKit.icon(this@KelasMandiriPengajarActivity, R.drawable.ic_more_vert, 22, UiKit.MUTED),
-                FrameLayout.LayoutParams(px(22), px(22), Gravity.CENTER)
-            )
-        }
-        card.addView(menu, LinearLayout.LayoutParams(px(40), px(40)))
-        return card
-    }
 }
