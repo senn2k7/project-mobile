@@ -5,6 +5,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import java.security.SecureRandom
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -120,19 +121,28 @@ object TeacherClassStore {
     fun byCode(ctx: Context, code: String): TeacherClass? =
         read(ctx).firstOrNull { it.code.equals(code, ignoreCase = true) }
 
+    /**
+     * Huruf dan angka yang mudah dibedakan: tanpa I, L, O, 0, 1 supaya tidak salah baca
+     * saat kode diketik ulang oleh pelajar.
+     */
+    private const val CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+    private const val CODE_LENGTH = 6
+    private val codeRandom = SecureRandom()
+
+    /**
+     * Kode kelas acak 6 karakter (sekitar 887 juta kemungkinan), tidak lagi berasal dari
+     * nama kelas dan tahun, jadi tidak mudah ditebak dan jarang bentrok antar pengajar.
+     * Parameter [name] dipertahankan agar pemanggil lama tidak perlu diubah.
+     */
+    @Suppress("UNUSED_PARAMETER")
     private fun generateCode(ctx: Context, name: String): String {
-        val initials = name.split(" ")
-            .mapNotNull { w -> w.firstOrNull { it.isLetter() } }
-            .take(2)
-            .joinToString("")
-            .uppercase()
-        val prefix = if (initials.length >= 2) initials else (initials + "KM").take(2)
-        val year = Calendar.getInstance().get(Calendar.YEAR)
-        val existing = read(ctx).map { it.code }.toSet()
-        var code = "$prefix$year"
-        while (code in existing) {
-            code = "$prefix$year${('A'..'Z').random()}"
-        }
+        val existing = read(ctx).map { it.code.uppercase() }.toSet()
+        var code: String
+        do {
+            code = buildString(CODE_LENGTH) {
+                repeat(CODE_LENGTH) { append(CODE_ALPHABET[codeRandom.nextInt(CODE_ALPHABET.length)]) }
+            }
+        } while (code in existing)
         return code
     }
 
@@ -230,6 +240,14 @@ object TeacherClassStore {
         }
         activity.startActivity(Intent.createChooser(send, "Bagikan kode kelas"))
     }
+
+    /** Nilai kapasitas khusus: 0 berarti jumlah peserta tidak dibatasi. */
+    const val CAPACITY_UNLIMITED = 0
+
+    fun isUnlimited(capacity: Int): Boolean = capacity == CAPACITY_UNLIMITED
+
+    fun capacityLabel(capacity: Int): String =
+        if (isUnlimited(capacity)) "Tanpa Batas" else "$capacity"
 
     // ------------------------------------------------------------ Materi & Tugas
 

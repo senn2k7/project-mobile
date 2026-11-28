@@ -871,7 +871,9 @@ class HomeActivity : AppCompatActivity() {
         info.addView(
             UiKit.tv(
                 this,
-                "${TeacherClassStore.participantCount(this, c.code)}/${c.capacity} peserta",
+                TeacherClassStore.participantCount(this, c.code).let { n ->
+                    if (TeacherClassStore.isUnlimited(c.capacity)) "$n peserta" else "$n/${c.capacity} peserta"
+                },
                 12f,
                 UiKit.MUTED
             ).apply { maxLines = 1 },

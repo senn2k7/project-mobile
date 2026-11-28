@@ -171,7 +171,7 @@ object LocalAiEngine : AiEngine {
         val subs = tasks.mapNotNull { TaskStore.submission(ctx, it.id) }
         val graded = subs.count { it.score != null }
         val attempts = quizzes.count { QuizStore.attempt(ctx, it.id) != null }
-        return "Ringkasan ${cls.name}:\n• Peserta: ${TeacherClassStore.participantCount(ctx, code)} dari ${cls.capacity}\n• Materi: ${materials.size} pertemuan\n• Tugas: ${tasks.size} (${subs.size} terkumpul, $graded sudah dinilai)\n• Kuis: ${quizzes.size} ($attempts sudah dikerjakan)" +
+        return "Ringkasan ${cls.name}:\n• Peserta: ${TeacherClassStore.participantCount(ctx, code)} ${if (TeacherClassStore.isUnlimited(cls.capacity)) "(tanpa batas)" else "dari ${cls.capacity}"}\n• Materi: ${materials.size} pertemuan\n• Tugas: ${tasks.size} (${subs.size} terkumpul, $graded sudah dinilai)\n• Kuis: ${quizzes.size} ($attempts sudah dikerjakan)" +
             (if (subs.size > graded) "\n\nAda ${subs.size - graded} pengumpulan yang menunggu penilaian." else "")
     }
 

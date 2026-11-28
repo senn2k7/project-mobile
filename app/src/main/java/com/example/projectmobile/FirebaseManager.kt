@@ -409,8 +409,10 @@ object FirebaseManager {
             teacherClass.topic.isBlank() ||
             teacherClass.category.isBlank() ||
             teacherClass.level.isBlank() ||
-            teacherClass.capacity !in 5..200 ||
-            teacherClass.capacity % 5 != 0
+            (
+                teacherClass.capacity != TeacherClassStore.CAPACITY_UNLIMITED &&
+                    (teacherClass.capacity !in 5..200 || teacherClass.capacity % 5 != 0)
+            )
         ) {
             onFailure("Data kelas tidak valid. Periksa kembali informasi kelas.")
             return
@@ -577,10 +579,12 @@ object FirebaseManager {
                 )
             }
 
+            val unlimited = capacity == TeacherClassStore.CAPACITY_UNLIMITED.toLong()
+
             if (
-                capacity <= 0 ||
+                capacity < 0 ||
                 participantCount < 0 ||
-                participantCount > capacity
+                (!unlimited && participantCount > capacity)
             ) {
                 throw IllegalStateException(
                     "Data kapasitas kelas tidak valid. Hubungi pengajar."
@@ -590,7 +594,7 @@ object FirebaseManager {
             val updatedCount = if (memberSnapshot.exists()) {
                 participantCount
             } else {
-                if (participantCount >= capacity) {
+                if (!unlimited && participantCount >= capacity) {
                     throw IllegalStateException(
                         "Kelas sudah penuh. Tidak dapat bergabung."
                     )

@@ -112,6 +112,10 @@ class KelasBerhasilActivity : AppCompatActivity() {
         codeBox.addView(salin, LinearLayout.LayoutParams(UiKit.WRAP, UiKit.WRAP))
         codeCard.addView(codeBox, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12))
         codeCard.addView(
+            UiKit.primaryButton(this, "Bagikan Kode") { TeacherClassStore.share(this, c) },
+            UiKit.params(this, UiKit.MATCH, px(52), top = 12)
+        )
+        codeCard.addView(
             UiKit.tv(this, "Kode kelas ini dapat digunakan oleh pelajar untuk bergabung ke kelas Anda.", 12f, UiKit.MUTED)
                 .apply { gravity = Gravity.CENTER },
             UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 10)
@@ -160,7 +164,7 @@ class KelasBerhasilActivity : AppCompatActivity() {
         title.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 12, weight = 1f))
         infoCard.addView(title, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 14))
         infoCard.addView(UiKit.divider(this), UiKit.params(this, UiKit.MATCH, px(1), top = 12, bottom = 4))
-        infoCard.addView(detailRow(R.drawable.ic_people, "Kapasitas Peserta", "${c.capacity}"))
+        infoCard.addView(detailRow(R.drawable.ic_people, "Kapasitas Peserta", TeacherClassStore.capacityLabel(c.capacity)))
         infoCard.addView(detailRow(R.drawable.ic_book, "Mata Pelajaran", c.topic))
         infoCard.addView(detailRow(R.drawable.ic_flag, "Tingkat", c.level))
         infoCard.addView(detailRow(R.drawable.ic_lock, "Visibilitas", "Dengan Kode"))
@@ -182,16 +186,8 @@ class KelasBerhasilActivity : AppCompatActivity() {
         root.addView(scroll, UiKit.scrollParams())
 
         // Tombol bawah
-        val share = UiKit.outlineButton(this, "Bagikan Kode") { TeacherClassStore.share(this, c) }
-        if (created) {
-            val start = UiKit.primaryButton(this, "Mulai Kelola Kelas") { openKelola(c) }
-            share.layoutParams = UiKit.params(this, UiKit.MATCH, px(52), top = 10)
-            root.addView(UiKit.bottomBar(this, start, share))
-        } else {
-            val kelola = UiKit.primaryButton(this, "Kelola Materi & Tugas") { openKelola(c) }
-            share.layoutParams = UiKit.params(this, UiKit.MATCH, px(52), top = 10)
-            root.addView(UiKit.bottomBar(this, kelola, share))
-        }
+        val mainLabel = if (created) "Mulai Kelola Kelas" else "Kelola Materi & Tugas"
+        root.addView(UiKit.bottomBar(this, UiKit.primaryButton(this, mainLabel) { openKelola(c) }))
         return root
     }
 
