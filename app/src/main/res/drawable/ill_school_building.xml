@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <!-- tanah -->
+    <path android:fillColor="#6F95E6" android:fillAlpha="0.55" android:pathData="M10,104h100v4h-100z" />
+    <!-- sayap kiri dan kanan -->
+    <path android:fillColor="#B9D0FF" android:pathData="M12,68h24v36h-24z" />
+    <path android:fillColor="#B9D0FF" android:pathData="M84,68h24v36h-24z" />
+    <path android:fillColor="#5B8CFF" android:pathData="M8,70l16,-12l16,12z" />
+    <path android:fillColor="#5B8CFF" android:pathData="M80,70l16,-12l16,12z" />
+    <!-- bangunan utama -->
+    <path android:fillColor="#EAF1FF" android:pathData="M32,58h56v46h-56z" />
+    <path android:fillColor="#4F7FF0" android:pathData="M26,60l34,-28l34,28z" />
+    <!-- jam -->
+    <path android:fillColor="#FFFFFF" android:strokeColor="#3B6FE0" android:strokeWidth="2"
+        android:pathData="M54,50a6,6 0,1 0,12 0a6,6 0,1 0,-12 0z" />
+    <path android:strokeColor="#3B6FE0" android:strokeWidth="1.5" android:strokeLineCap="round"
+        android:pathData="M60,50v-3M60,50l2.5,1.5" />
+    <!-- pintu -->
+    <path android:fillColor="#3B6FE0" android:pathData="M52,104v-16a8,8 0,0 1,16 0v16z" />
+    <!-- jendela -->
+    <path android:fillColor="#7FA6F0" android:pathData="M37,72h9v8h-9z" />
+    <path android:fillColor="#7FA6F0" android:pathData="M37,88h9v8h-9z" />
+    <path android:fillColor="#7FA6F0" android:pathData="M74,72h9v8h-9z" />
+    <path android:fillColor="#7FA6F0" android:pathData="M74,88h9v8h-9z" />
+    <path android:fillColor="#9DBBF5" android:pathData="M17,80h6v8h-6z" />
+    <path android:fillColor="#9DBBF5" android:pathData="M97,80h6v8h-6z" />
+    <!-- bendera -->
+    <path android:strokeColor="#EAF1FF" android:strokeWidth="1.5" android:pathData="M60,32v-13" />
+    <path android:fillColor="#FFD166" android:pathData="M60,19l10,3.5l-10,3.5z" />
+    <!-- kilau -->
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.75"
+        android:pathData="M16,28l1.6,4.4l4.4,1.6l-4.4,1.6l-1.6,4.4l-1.6,-4.4l-4.4,-1.6l4.4,-1.6z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.55"
+        android:pathData="M102,36l1.2,3.2l3.2,1.2l-3.2,1.2l-1.2,3.2l-1.2,-3.2l-3.2,-1.2l3.2,-1.2z" />
+</vector>
