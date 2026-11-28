@@ -460,134 +460,105 @@ class HomeActivity : AppCompatActivity() {
 
         contentLayout.addView(headerLayout)
 
-        // ---------------- Banner Kelas Mandiri (biru tua yang tenang) ----------------
-        val banner = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(18), dp(18), dp(18), dp(18))
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                intArrayOf(Color.rgb(24, 48, 92), Color.rgb(38, 78, 150))
-            ).apply {
-                cornerRadius = dp(20).toFloat()
-                setStroke(dp(1), Color.argb(40, 255, 255, 255))
-            }
-            elevation = dp(3).toFloat()
-        }
-
-        banner.addView(
-            ImageView(this).apply { setImageResource(R.drawable.ill_school_building) },
-            LinearLayout.LayoutParams(dp(84), dp(84))
-        )
-
-        val bannerText = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(14), 0, 0, 0)
-        }
-        bannerText.addView(
-            TextView(this).apply {
-                text = "Kelas Mandiri"
-                textSize = 18f
-                setTextColor(Color.WHITE)
-                setTypeface(null, Typeface.BOLD)
-            }
-        )
-        bannerText.addView(
-            TextView(this).apply {
-                text = "Kelola pembelajaran, bagikan kode, dan pantau aktivitas belajar pelajar dengan mudah."
-                textSize = 13f
-                setTextColor(Color.argb(215, 255, 255, 255))
-                setLineSpacing(dp(2).toFloat(), 1f)
-            },
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = dp(4)
-            }
-        )
         if (hasClasses) {
-            val totalPeserta = myClasses.sumOf { TeacherClassStore.participantCount(this, it.code) }
+            addTeacherDashboardWithClasses(contentLayout, myClasses)
+        } else {
+            // ---------------- Banner Kelas Mandiri (biru tua yang tenang) ----------------
+            val banner = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(dp(18), dp(18), dp(18), dp(18))
+                background = GradientDrawable(
+                    GradientDrawable.Orientation.TL_BR,
+                    intArrayOf(Color.rgb(24, 48, 92), Color.rgb(38, 78, 150))
+                ).apply {
+                    cornerRadius = dp(20).toFloat()
+                    setStroke(dp(1), Color.argb(40, 255, 255, 255))
+                }
+                elevation = dp(3).toFloat()
+            }
+
+            banner.addView(
+                ImageView(this).apply { setImageResource(R.drawable.ill_school_building) },
+                LinearLayout.LayoutParams(dp(84), dp(84))
+            )
+
+            val bannerText = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(14), 0, 0, 0)
+            }
             bannerText.addView(
                 TextView(this).apply {
-                    text = "${myClasses.size} Kelas  •  $totalPeserta Peserta"
-                    textSize = 12f
+                    text = "Kelas Mandiri"
+                    textSize = 18f
                     setTextColor(Color.WHITE)
                     setTypeface(null, Typeface.BOLD)
-                    setPadding(dp(10), dp(4), dp(10), dp(4))
-                    background = roundedBackground(Color.argb(45, 255, 255, 255), 12)
-                },
-                LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                    topMargin = dp(10)
                 }
             )
-        }
-        banner.addView(bannerText, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-
-        contentLayout.addView(
-            banner,
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = dp(20)
+            bannerText.addView(
+                TextView(this).apply {
+                    text = "Kelola pembelajaran, bagikan kode, dan pantau aktivitas belajar pelajar dengan mudah."
+                    textSize = 13f
+                    setTextColor(Color.argb(215, 255, 255, 255))
+                    setLineSpacing(dp(2).toFloat(), 1f)
+                },
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    topMargin = dp(4)
+                }
+            )
+            if (hasClasses) {
+                val totalPeserta = myClasses.sumOf { TeacherClassStore.participantCount(this, it.code) }
+                bannerText.addView(
+                    TextView(this).apply {
+                        text = "${myClasses.size} Kelas  •  $totalPeserta Peserta"
+                        textSize = 12f
+                        setTextColor(Color.WHITE)
+                        setTypeface(null, Typeface.BOLD)
+                        setPadding(dp(10), dp(4), dp(10), dp(4))
+                        background = roundedBackground(Color.argb(45, 255, 255, 255), 12)
+                    },
+                    LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        topMargin = dp(10)
+                    }
+                )
             }
-        )
+            banner.addView(bannerText, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
-        // ---------------- Akses Cepat ----------------
-        contentLayout.addView(
-            createSectionHeader("Akses Cepat", showAction = false),
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = dp(24)
+            contentLayout.addView(
+                banner,
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    topMargin = dp(20)
+                }
+            )
+
+            // ---------------- Akses Cepat ----------------
+            contentLayout.addView(
+                createSectionHeader("Akses Cepat", showAction = false),
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    topMargin = dp(24)
+                }
+            )
+
+            contentLayout.addView(
+                createTeacherAksesRow(hasClasses),
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    topMargin = dp(12)
+                }
+            )
+
+            // ---------------- Kelas yang Anda Kelola ----------------
+            contentLayout.addView(
+                createTeacherSectionHeader("Kelas yang Anda Kelola", hasClasses) { openKelasMandiri() },
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    topMargin = dp(24)
+                }
+            )
+            if (!hasClasses) {
+                contentLayout.addView(createMandiriTeacherEmptyClassCard())
+            } else {
+                myClasses.take(3).forEach { contentLayout.addView(createTeacherClassCard(it)) }
             }
-        )
 
-        val aksesContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-        }
-
-        fun aksesItemParams(last: Boolean) =
-            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                if (!last) marginEnd = dp(10)
-            }
-
-        aksesContainer.addView(
-            createAksesCepatCard(
-                R.drawable.ic_add_circle_outline,
-                Color.rgb(33, 96, 245), Color.rgb(96, 145, 255), Color.rgb(234, 242, 255),
-                "Buat Kelas", true
-            ) { openBuatKelas() },
-            aksesItemParams(false)
-        )
-        aksesContainer.addView(
-            createAksesCepatCard(
-                R.drawable.ic_share,
-                Color.rgb(124, 77, 230), Color.rgb(170, 132, 255), Color.rgb(243, 237, 255),
-                "Bagikan Kode", hasClasses
-            ) { bagikanKode() },
-            aksesItemParams(false)
-        )
-        aksesContainer.addView(
-            createAksesCepatCard(
-                R.drawable.ic_description,
-                Color.rgb(22, 163, 74), Color.rgb(78, 205, 128), Color.rgb(232, 248, 238),
-                "Kelola Materi", hasClasses
-            ) { kelolaMateri() },
-            aksesItemParams(true)
-        )
-
-        contentLayout.addView(
-            aksesContainer,
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = dp(12)
-            }
-        )
-
-        // ---------------- Kelas yang Anda Kelola ----------------
-        contentLayout.addView(
-            createTeacherSectionHeader("Kelas yang Anda Kelola", hasClasses) { openKelasMandiri() },
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = dp(24)
-            }
-        )
-        if (!hasClasses) {
-            contentLayout.addView(createMandiriTeacherEmptyClassCard())
-        } else {
-            myClasses.take(3).forEach { contentLayout.addView(createTeacherClassCard(it)) }
         }
 
         scrollView.addView(contentLayout)
@@ -716,6 +687,437 @@ class HomeActivity : AppCompatActivity() {
         return header
     }
 
+    /** Tiga kartu Akses Cepat (Buat Kelas, Bagikan Kode, Kelola Materi). */
+    private fun createTeacherAksesRow(hasClasses: Boolean): View {
+        val aksesContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+
+        fun aksesItemParams(last: Boolean) =
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                if (!last) marginEnd = dp(10)
+            }
+
+        aksesContainer.addView(
+            createAksesCepatCard(
+                R.drawable.ic_add_circle_outline,
+                Color.rgb(33, 96, 245), Color.rgb(96, 145, 255), Color.rgb(234, 242, 255),
+                "Buat Kelas", true
+            ) { openBuatKelas() },
+            aksesItemParams(false)
+        )
+        aksesContainer.addView(
+            createAksesCepatCard(
+                R.drawable.ic_share,
+                Color.rgb(124, 77, 230), Color.rgb(170, 132, 255), Color.rgb(243, 237, 255),
+                "Bagikan Kode", hasClasses
+            ) { bagikanKode() },
+            aksesItemParams(false)
+        )
+        aksesContainer.addView(
+            createAksesCepatCard(
+                R.drawable.ic_description,
+                Color.rgb(22, 163, 74), Color.rgb(78, 205, 128), Color.rgb(232, 248, 238),
+                "Kelola Materi", hasClasses
+            ) { kelolaMateri() },
+            aksesItemParams(true)
+        )
+
+        return aksesContainer
+    }
+
+    /** Dasbor pengajar mandiri setelah punya kelas (mengikuti Figma "Dashboard pengajar"). */
+    private fun addTeacherDashboardWithClasses(content: LinearLayout, allClasses: List<TeacherClass>) {
+        val border = Color.rgb(220, 231, 244)
+        val navy = Color.rgb(25, 54, 95)
+        val muted = Color.rgb(117, 139, 169)
+        val blue = Color.rgb(33, 96, 245)
+
+        fun lp(top: Int) = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { topMargin = dp(top) }
+
+        // Ringkasan dari data asli di perangkat
+        val totalPeserta = allClasses.sumOf { TeacherClassStore.participantCount(this, it.code) }
+        val totalMateri = allClasses.sumOf { TeacherClassStore.materials(this, it.code).size }
+        val perluDinilai = allClasses.sumOf { c ->
+            TeacherClassStore.tasks(this, c.code).count { t ->
+                val sub = TaskStore.submission(this, t.id)
+                sub != null && sub.score == null
+            }
+        }
+
+        // Cegah kolom pencarian langsung fokus saat layar dibuka
+        content.isFocusableInTouchMode = true
+        content.requestFocus()
+
+        var query = ""
+        var sortMode = 0 // 0 = terbaru, 1 = terlama, 2 = nama A-Z
+
+        // ---------------- Pencarian + urutkan ----------------
+        val searchRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        val searchBox = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(14), 0, dp(14), 0)
+            background = roundedBackground(Color.WHITE, 14, border, 1)
+            elevation = dp(1).toFloat()
+        }
+        searchBox.addView(
+            ImageView(this).apply {
+                setImageResource(R.drawable.ic_search)
+                setColorFilter(muted)
+            },
+            LinearLayout.LayoutParams(dp(18), dp(18))
+        )
+        val searchInput = android.widget.EditText(this).apply {
+            hint = "Cari kelas, materi, atau topik..."
+            textSize = 13f
+            setTextColor(navy)
+            setHintTextColor(Color.rgb(150, 166, 190))
+            background = null
+            setSingleLine()
+            imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
+            setPadding(dp(10), dp(12), 0, dp(12))
+        }
+        searchBox.addView(searchInput, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        searchRow.addView(searchBox, LinearLayout.LayoutParams(0, dp(48), 1f))
+
+        val filterBtn = vectorBox(R.drawable.ic_filter, navy, 20, roundedBackground(Color.WHITE, 14, border, 1))
+        filterBtn.contentDescription = "Urutkan kelas"
+        filterBtn.isClickable = true
+        filterBtn.isFocusable = true
+        filterBtn.elevation = dp(1).toFloat()
+        applyRipple(filterBtn, 14, Color.argb(40, 29, 94, 255))
+        searchRow.addView(
+            filterBtn,
+            LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginStart = dp(10) }
+        )
+        content.addView(searchRow, lp(16))
+
+        // ---------------- Kartu ringkasan ----------------
+        val statsRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        fun tileParams(last: Boolean) =
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                if (!last) marginEnd = dp(8)
+            }
+        statsRow.addView(
+            createTeacherStatTile(R.drawable.ic_book, blue, Color.rgb(232, 242, 255), "${allClasses.size}", "Kelas Aktif"),
+            tileParams(false)
+        )
+        statsRow.addView(
+            createTeacherStatTile(R.drawable.ic_assignment_check, Color.rgb(245, 124, 0), Color.rgb(255, 241, 224), "$perluDinilai", "Tugas Perlu Dinilai"),
+            tileParams(false)
+        )
+        statsRow.addView(
+            createTeacherStatTile(R.drawable.ic_people, Color.rgb(124, 77, 230), Color.rgb(243, 237, 255), "$totalPeserta", "Peserta"),
+            tileParams(false)
+        )
+        statsRow.addView(
+            createTeacherStatTile(R.drawable.ic_description, Color.rgb(22, 163, 74), Color.rgb(232, 248, 238), "$totalMateri", "Materi"),
+            tileParams(true)
+        )
+        content.addView(statsRow, lp(16))
+
+        // ---------------- Kelas Saya ----------------
+        content.addView(createTeacherSectionHeader("Kelas Saya", true) { openKelasMandiri() }, lp(24))
+
+        val listBox = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        fun render() {
+            listBox.removeAllViews()
+            val q = query.trim().lowercase()
+            var shown = allClasses.filter { c ->
+                q.isEmpty() ||
+                    c.name.lowercase().contains(q) ||
+                    c.code.lowercase().contains(q) ||
+                    c.topic.lowercase().contains(q) ||
+                    c.category.lowercase().contains(q) ||
+                    TeacherClassStore.materials(this, c.code).any { it.title.lowercase().contains(q) }
+            }
+            shown = when (sortMode) {
+                1 -> shown.sortedBy { it.createdAt }
+                2 -> shown.sortedBy { it.name.lowercase() }
+                else -> shown.sortedByDescending { it.createdAt }
+            }
+            if (shown.isEmpty()) {
+                listBox.addView(
+                    TextView(this).apply {
+                        text = "Kelas tidak ditemukan"
+                        textSize = 13f
+                        setTextColor(muted)
+                        gravity = Gravity.CENTER
+                        setPadding(0, dp(24), 0, dp(24))
+                    }
+                )
+            } else {
+                (if (q.isEmpty()) shown.take(3) else shown).forEach { listBox.addView(createTeacherClassCard(it)) }
+            }
+        }
+        render()
+        content.addView(listBox)
+
+        searchInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                query = s?.toString().orEmpty()
+                render()
+            }
+        })
+        filterBtn.setOnClickListener {
+            val menu = android.widget.PopupMenu(this, filterBtn)
+            menu.menu.add(0, 0, 0, "Terbaru")
+            menu.menu.add(0, 1, 1, "Terlama")
+            menu.menu.add(0, 2, 2, "Nama A–Z")
+            menu.setOnMenuItemClickListener {
+                sortMode = it.itemId
+                render()
+                true
+            }
+            menu.show()
+        }
+
+        // ---------------- Akses Cepat ----------------
+        content.addView(createSectionHeader("Akses Cepat", showAction = false), lp(24))
+        content.addView(createTeacherAksesRow(true), lp(12))
+
+        // ---------------- Agenda Mendatang ----------------
+        content.addView(createSectionHeader("Agenda Mendatang", showAction = false), lp(24))
+        val now = System.currentTimeMillis()
+        val agenda = allClasses
+            .flatMap { c -> TeacherClassStore.tasks(this, c.code).filter { it.deadlineMillis >= now }.map { c to it } }
+            .sortedBy { it.second.deadlineMillis }
+            .take(3)
+
+        if (agenda.isEmpty()) {
+            val empty = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(dp(16), dp(16), dp(16), dp(16))
+                background = roundedBackground(Color.rgb(232, 242, 255), 16)
+            }
+            empty.addView(
+                vectorBox(R.drawable.ic_calendar, blue, 22, roundedBackground(Color.WHITE, 12)),
+                LinearLayout.LayoutParams(dp(44), dp(44))
+            )
+            val col = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(14), 0, 0, 0)
+            }
+            col.addView(
+                TextView(this).apply {
+                    text = "Belum ada agenda"
+                    textSize = 14f
+                    setTextColor(navy)
+                    setTypeface(null, Typeface.BOLD)
+                }
+            )
+            col.addView(
+                TextView(this).apply {
+                    text = "Jadwal pertemuan, tugas, atau kuis akan tampil di sini."
+                    textSize = 12f
+                    setTextColor(muted)
+                    setLineSpacing(dp(2).toFloat(), 1f)
+                },
+                lp(2)
+            )
+            empty.addView(col, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            content.addView(empty, lp(12))
+        } else {
+            agenda.forEach { (c, t) ->
+                val row = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(dp(14), dp(12), dp(14), dp(12))
+                    background = roundedBackground(Color.WHITE, 16, border, 1)
+                    elevation = dp(1).toFloat()
+                    isClickable = true
+                    isFocusable = true
+                    setOnClickListener { openKelasDetail(c) }
+                }
+                applyRipple(row, 16, Color.argb(30, 29, 94, 255))
+                row.addView(
+                    vectorBox(R.drawable.ic_assignment_check, Color.rgb(245, 124, 0), 20, roundedBackground(Color.rgb(255, 241, 224), 12)),
+                    LinearLayout.LayoutParams(dp(40), dp(40))
+                )
+                val col = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(12), 0, 0, 0)
+                }
+                col.addView(
+                    TextView(this).apply {
+                        text = "Tugas: ${t.title}"
+                        textSize = 14f
+                        setTextColor(navy)
+                        setTypeface(null, Typeface.BOLD)
+                        maxLines = 1
+                        ellipsize = android.text.TextUtils.TruncateAt.END
+                    }
+                )
+                col.addView(
+                    TextView(this).apply {
+                        text = "${c.name} • Tenggat ${TaskStore.format(t.deadlineMillis)}"
+                        textSize = 12f
+                        setTextColor(muted)
+                        maxLines = 1
+                        ellipsize = android.text.TextUtils.TruncateAt.END
+                    },
+                    lp(2)
+                )
+                row.addView(col, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                content.addView(row, lp(8))
+            }
+        }
+    }
+
+    /** Kartu ringkasan kecil: ikon, angka, label. */
+    private fun createTeacherStatTile(iconRes: Int, accent: Int, pastel: Int, value: String, label: String): View {
+        val tile = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(10), dp(10), dp(8), dp(10))
+            background = roundedBackground(Color.WHITE, 14, Color.rgb(220, 231, 244), 1)
+            elevation = dp(2).toFloat()
+        }
+        tile.addView(
+            vectorBox(iconRes, accent, 16, roundedBackground(pastel, 8)),
+            LinearLayout.LayoutParams(dp(28), dp(28))
+        )
+        tile.addView(
+            TextView(this).apply {
+                text = value
+                textSize = 18f
+                setTextColor(Color.rgb(25, 54, 95))
+                setTypeface(null, Typeface.BOLD)
+                includeFontPadding = false
+            },
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dp(8)
+            }
+        )
+        tile.addView(
+            TextView(this).apply {
+                text = label
+                textSize = 10f
+                setTextColor(Color.rgb(117, 139, 169))
+                minLines = 2
+                maxLines = 2
+            },
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dp(2)
+            }
+        )
+        return tile
+    }
+
+    /** Menu aksi kelas (titik tiga) berupa bottom sheet: judul kelas, tiga aksi besar yang mudah dijangkau. */
+    private fun showClassActionSheet(c: TeacherClass) {
+        val navy = Color.rgb(25, 54, 95)
+        val muted = Color.rgb(117, 139, 169)
+        val blue = Color.rgb(33, 96, 245)
+
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+
+        val sheet = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(10), dp(20), dp(24))
+            background = GradientDrawable().apply {
+                setColor(Color.WHITE)
+                cornerRadii = floatArrayOf(
+                    dp(24).toFloat(), dp(24).toFloat(), dp(24).toFloat(), dp(24).toFloat(), 0f, 0f, 0f, 0f
+                )
+            }
+        }
+
+        // Pegangan kecil di atas
+        sheet.addView(
+            View(this).apply { background = roundedBackground(Color.rgb(205, 214, 228), 2) },
+            LinearLayout.LayoutParams(dp(40), dp(4)).apply { gravity = Gravity.CENTER_HORIZONTAL }
+        )
+
+        sheet.addView(
+            TextView(this).apply {
+                text = "Aksi Kelas ${c.name}"
+                textSize = 18f
+                setTextColor(navy)
+                setTypeface(null, Typeface.BOLD)
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+            },
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dp(18)
+                bottomMargin = dp(8)
+            }
+        )
+
+        fun addRow(iconRes: Int, label: String, trailing: String?, showDivider: Boolean, onClick: () -> Unit) {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(dp(4), dp(12), dp(4), dp(12))
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    dialog.dismiss()
+                    onClick()
+                }
+            }
+            applyRipple(row, 12, Color.argb(30, 29, 94, 255))
+            row.addView(
+                vectorBox(iconRes, blue, 20, roundedBackground(Color.rgb(232, 242, 255), 12)),
+                LinearLayout.LayoutParams(dp(44), dp(44))
+            )
+            row.addView(
+                TextView(this).apply {
+                    text = label
+                    textSize = 16f
+                    setTextColor(navy)
+                    setPadding(dp(14), 0, 0, 0)
+                },
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            )
+            if (trailing != null) {
+                row.addView(
+                    TextView(this).apply {
+                        text = trailing
+                        textSize = 14f
+                        setTextColor(muted)
+                        setPadding(0, 0, dp(6), 0)
+                    }
+                )
+            }
+            row.addView(
+                ImageView(this).apply {
+                    setImageResource(R.drawable.ic_chevron_right)
+                    setColorFilter(muted)
+                },
+                LinearLayout.LayoutParams(dp(20), dp(20))
+            )
+            sheet.addView(row)
+            if (showDivider) {
+                sheet.addView(
+                    View(this).apply { setBackgroundColor(Color.rgb(232, 238, 247)) },
+                    LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(1)).apply {
+                        marginStart = dp(62)
+                    }
+                )
+            }
+        }
+
+        addRow(R.drawable.ic_login, "Buka Kelas", null, true) { openKelasDetail(c) }
+        addRow(R.drawable.ic_copy, "Salin Kode", c.code, true) { TeacherClassStore.copyCode(this, c) }
+        addRow(R.drawable.ic_share, "Bagikan Kode", null, false) { TeacherClassStore.share(this, c) }
+
+        dialog.setContentView(sheet)
+        // Latar bawaan dibuat transparan agar sudut atas yang membulat terlihat
+        (sheet.parent as? View)?.setBackgroundColor(Color.TRANSPARENT)
+        dialog.behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+        dialog.behavior.skipCollapsed = true
+        dialog.show()
+    }
+
     /** Efek riak sentuhan dengan sudut membulat (khusus dasbor pengajar mandiri). */
     private fun applyRipple(view: View, radiusDp: Int, rippleColor: Int) {
         val mask = GradientDrawable().apply {
@@ -816,29 +1218,36 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun createTeacherClassCard(c: TeacherClass): View {
+        val navy = Color.rgb(25, 54, 95)
+        val muted = Color.rgb(117, 139, 169)
+        val blue = Color.rgb(33, 96, 245)
+
+        val nPeserta = TeacherClassStore.participantCount(this, c.code)
+        val nMateri = TeacherClassStore.materials(this, c.code).size
+        val nTugas = TeacherClassStore.tasks(this, c.code).size
+        val nKuis = QuizStore.quizzes(this, c.code).size
+
         val card = UiKit.card(this).apply {
-            setPadding(dp(16), dp(14), dp(16), dp(14))
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(14), dp(14), dp(14), dp(14))
             isClickable = true
             isFocusable = true
             setOnClickListener { openKelasDetail(c) }
         }
         applyRipple(card, 16, Color.argb(30, 29, 94, 255))
 
+        // Baris atas: ikon, nama + kode, menu titik tiga
         val head = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
-        head.addView(UiKit.badge(this, TeacherClassStore.iconFor(c.topic), Color.WHITE, UiKit.PRIMARY, 48, 12, 24))
+        head.addView(UiKit.badge(this, TeacherClassStore.iconFor(c.topic), Color.WHITE, UiKit.PRIMARY, 44, 12, 22))
 
         val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        col.addView(UiKit.tv(this, c.name, 15f, UiKit.NAVY, true))
-
-        val info = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-
-        // Chip kode kelas: ketuk untuk menyalin
+        col.addView(UiKit.tv(this, c.name, 15f, UiKit.NAVY, true).apply {
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
+        })
         val chip = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -858,33 +1267,115 @@ class HomeActivity : AppCompatActivity() {
             },
             UiKit.params(this, dp(14), dp(14), start = 6)
         )
-        info.addView(chip)
-
-        // Jumlah peserta
-        info.addView(
-            ImageView(this).apply {
-                setImageResource(R.drawable.ic_people)
-                setColorFilter(UiKit.MUTED)
-            },
-            UiKit.params(this, dp(16), dp(16), start = 12)
-        )
-        info.addView(
-            UiKit.tv(
-                this,
-                TeacherClassStore.participantCount(this, c.code).let { n ->
-                    if (TeacherClassStore.isUnlimited(c.capacity)) "$n peserta" else "$n/${c.capacity} peserta"
-                },
-                12f,
-                UiKit.MUTED
-            ).apply { maxLines = 1 },
-            UiKit.params(this, UiKit.WRAP, UiKit.WRAP, start = 4)
-        )
-
-        col.addView(info, UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 8))
-
+        col.addView(chip, UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 6))
         head.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 12, weight = 1f))
-        head.addView(UiKit.icon(this, R.drawable.ic_chevron_right, 22, UiKit.MUTED), LinearLayout.LayoutParams(dp(22), dp(22)))
+
+        val more = ImageView(this).apply {
+            setImageResource(R.drawable.ic_more_vert)
+            setColorFilter(muted)
+            setPadding(dp(6), dp(6), dp(6), dp(6))
+            contentDescription = "Menu kelas"
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { showClassActionSheet(c) }
+        }
+        applyRipple(more, 18, Color.argb(40, 29, 94, 255))
+        head.addView(more, LinearLayout.LayoutParams(dp(36), dp(36)))
         card.addView(head)
+
+        // Bar kapasitas terisi (hanya bila kapasitas dibatasi)
+        val capRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        capRow.addView(
+            TextView(this).apply {
+                text = "Kapasitas terisi"
+                textSize = 11f
+                setTextColor(muted)
+            },
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        )
+        val unlimited = TeacherClassStore.isUnlimited(c.capacity)
+        capRow.addView(
+            TextView(this).apply {
+                text = if (unlimited) "$nPeserta peserta • Tanpa batas" else "$nPeserta/${c.capacity}"
+                textSize = 11f
+                setTextColor(navy)
+                setTypeface(null, Typeface.BOLD)
+            }
+        )
+        card.addView(capRow, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 14))
+
+        if (!unlimited && c.capacity > 0) {
+            val track = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                weightSum = c.capacity.toFloat()
+                background = roundedBackground(Color.rgb(226, 236, 252), 4)
+            }
+            val filled = nPeserta.coerceAtMost(c.capacity)
+            if (filled > 0) {
+                track.addView(
+                    View(this).apply { background = roundedBackground(blue, 4) },
+                    LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, filled.toFloat())
+                )
+            }
+            card.addView(track, UiKit.params(this, UiKit.MATCH, dp(8), top = 6))
+        }
+
+        // Garis pemisah tipis
+        card.addView(
+            View(this).apply { setBackgroundColor(Color.rgb(232, 238, 247)) },
+            UiKit.params(this, UiKit.MATCH, dp(1), top = 14)
+        )
+
+        // Empat angka ringkas
+        val stats = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        fun stat(icon: Int, value: Int, label: String): View {
+            val box = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER_HORIZONTAL
+            }
+            val top = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+            }
+            top.addView(
+                ImageView(this).apply {
+                    setImageResource(icon)
+                    setColorFilter(muted)
+                },
+                LinearLayout.LayoutParams(dp(14), dp(14))
+            )
+            top.addView(
+                TextView(this).apply {
+                    text = "$value"
+                    textSize = 14f
+                    setTextColor(navy)
+                    setTypeface(null, Typeface.BOLD)
+                    setPadding(dp(4), 0, 0, 0)
+                }
+            )
+            box.addView(top)
+            box.addView(
+                TextView(this).apply {
+                    text = label
+                    textSize = 11f
+                    setTextColor(muted)
+                },
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    topMargin = dp(2)
+                }
+            )
+            return box
+        }
+        val statParams = { LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f) }
+        stats.addView(stat(R.drawable.ic_people, nPeserta, "Peserta"), statParams())
+        stats.addView(stat(R.drawable.ic_description, nMateri, "Materi"), statParams())
+        stats.addView(stat(R.drawable.ic_assignment_check, nTugas, "Tugas"), statParams())
+        stats.addView(stat(R.drawable.ic_check_circle, nKuis, "Kuis"), statParams())
+        card.addView(stats, UiKit.params(this, UiKit.MATCH, UiKit.WRAP, top = 12))
+
         card.layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
         ).apply { topMargin = dp(12) }
