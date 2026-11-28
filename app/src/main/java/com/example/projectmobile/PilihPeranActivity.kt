@@ -154,9 +154,9 @@ class PilihPeranActivity : AppCompatActivity() {
         root.addView(studentCard, studentParams)
 
         // Informasi pilihan peran
-        val infoContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.TOP
+        // FrameLayout dipakai agar teks selalu mendapat lebar penuh dan tinggi kotak
+        // mengikuti jumlah baris teks (sebelumnya baris ke-2 terpotong).
+        val infoContainer = android.widget.FrameLayout(this).apply {
             setPadding(dp(16), dp(16), dp(16), dp(16))
             background = roundedBackground(
                 Color.rgb(232, 242, 255),
@@ -173,7 +173,7 @@ class PilihPeranActivity : AppCompatActivity() {
 
         infoContainer.addView(
             infoIcon,
-            LinearLayout.LayoutParams(dp(24), dp(32))
+            android.widget.FrameLayout.LayoutParams(dp(24), dp(32))
         )
 
         val infoText = TextView(this).apply {
@@ -181,15 +181,14 @@ class PilihPeranActivity : AppCompatActivity() {
             textSize = 13f
             setTextColor(Color.rgb(117, 139, 169))
             setLineSpacing(dp(3).toFloat(), 1f)
-            setPadding(dp(12), 0, 0, 0)
+            setPadding(dp(36), dp(2), 0, 0)
         }
 
         infoContainer.addView(
             infoText,
-            LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
+            android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
             )
         )
 

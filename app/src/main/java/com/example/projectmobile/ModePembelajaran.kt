@@ -3,6 +3,8 @@ package com.example.projectmobile
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -73,6 +75,10 @@ class ModePembelajaranActivity : AppCompatActivity() {
         val btnLanjutkan =
             findViewById<TextView>(R.id.btnLanjutkan)
 
+        // Tanda centang pada kartu yang dipilih
+        val checkInstitusi = findViewById<ImageView>(R.id.checkInstitusi)
+        val checkMandiri = findViewById<ImageView>(R.id.checkMandiri)
+
         // Fungsi memperbarui tampilan pilihan
         fun refreshSelection() {
 
@@ -96,6 +102,11 @@ class ModePembelajaranActivity : AppCompatActivity() {
                     R.drawable.bg_mode_selected
                 )
             }
+
+            checkInstitusi.visibility =
+                if (selectedMode == MODE_INSTITUSI) View.VISIBLE else View.GONE
+            checkMandiri.visibility =
+                if (selectedMode == MODE_MANDIRI) View.VISIBLE else View.GONE
         }
 
         // Klik Mode Institusi
