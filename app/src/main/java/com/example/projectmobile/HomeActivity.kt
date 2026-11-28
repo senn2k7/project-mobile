@@ -448,7 +448,7 @@ class HomeActivity : AppCompatActivity() {
         greetingTextLayout.addView(greetingTitle)
 
         val greetingSubtitle = TextView(this).apply {
-            text = "Kelola kelas mandiri Anda"
+            text = "${greetingByTime()} • Kelola kelas Anda"
             textSize = 13f
             setTextColor(Color.rgb(117, 139, 169))
             includeFontPadding = false
@@ -461,6 +461,13 @@ class HomeActivity : AppCompatActivity() {
         headerLayout.addView(greetingTextLayout, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
         val bellView = vectorBox(R.drawable.ic_bell, Color.rgb(25, 54, 95), 22, roundedBackground(Color.WHITE, 22, Color.rgb(220, 231, 244), 1))
+        bellView.contentDescription = "Notifikasi"
+        bellView.isClickable = true
+        bellView.isFocusable = true
+        bellView.setOnClickListener {
+            startActivity(Intent(this, NotifikasiActivity::class.java))
+        }
+        applyRipple(bellView, 22, Color.argb(40, 29, 94, 255))
         headerLayout.addView(bellView, LinearLayout.LayoutParams(dp(44), dp(44)))
 
         contentLayout.addView(headerLayout)
@@ -469,7 +476,7 @@ class HomeActivity : AppCompatActivity() {
         val heroCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(16), dp(16), dp(16))
-            background = roundedBackground(Color.WHITE, 16, Color.rgb(220, 231, 244), 1)
+            background = roundedBackground(Color.rgb(235, 243, 255), 16, Color.rgb(200, 220, 252), 1)
             elevation = dp(1).toFloat()
         }
 
@@ -506,18 +513,7 @@ class HomeActivity : AppCompatActivity() {
         heroTop.addView(heroTextCol, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         heroCard.addView(heroTop)
 
-        val btnBuatKelasBaru = TextView(this).apply {
-            text = "+ Buat Kelas Baru"
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            setTypeface(null, Typeface.BOLD)
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(29, 94, 255), 12)
-            setPadding(dp(16), dp(12), dp(16), dp(12))
-            isClickable = true
-            isFocusable = true
-        }
-        btnBuatKelasBaru.setOnClickListener { openBuatKelas() }
+        val btnBuatKelasBaru = createTeacherPrimaryButton("Buat Kelas Baru") { openBuatKelas() }
         val bcnParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(16)
         }
@@ -543,9 +539,23 @@ class HomeActivity : AppCompatActivity() {
             topMargin = dp(12)
         }
 
-        aksesContainer.addView(createAksesCepatCard("➕", "Buat Kelas") { openBuatKelas() }, createStatCardParams())
-        aksesContainer.addView(createAksesCepatCard("🔗", "Bagikan Kode") { bagikanKode() }, createStatCardParams())
-        aksesContainer.addView(createAksesCepatCard("📄", "Kelola Materi") { kelolaMateri() }, createStatCardParams())
+        fun aksesItemParams(last: Boolean) =
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                if (!last) marginEnd = dp(8)
+            }
+
+        aksesContainer.addView(
+            createAksesCepatCard(R.drawable.ic_add_circle_outline, Color.rgb(33, 96, 245), "Buat Kelas") { openBuatKelas() },
+            aksesItemParams(false)
+        )
+        aksesContainer.addView(
+            createAksesCepatCard(R.drawable.ic_share, Color.rgb(124, 77, 230), "Bagikan Kode") { bagikanKode() },
+            aksesItemParams(false)
+        )
+        aksesContainer.addView(
+            createAksesCepatCard(R.drawable.ic_description, Color.rgb(22, 163, 74), "Kelola Materi") { kelolaMateri() },
+            aksesItemParams(true)
+        )
 
         contentLayout.addView(aksesContainer, aksesParams)
 
@@ -574,7 +584,7 @@ class HomeActivity : AppCompatActivity() {
         return rootLayout
     }
 
-    private fun createAksesCepatCard(icon: String, label: String, onClick: (() -> Unit)? = null): View {
+    private fun createAksesCepatCard(iconRes: Int, boxColor: Int, label: String, onClick: (() -> Unit)? = null): View {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(12), dp(14), dp(12), dp(14))
@@ -587,7 +597,7 @@ class HomeActivity : AppCompatActivity() {
             gravity = Gravity.CENTER_VERTICAL
         }
 
-        val iconTv = vectorBox(emojiRes(icon), Color.rgb(33, 96, 245), 20, roundedBackground(Color.rgb(232, 242, 255), 8))
+        val iconTv = vectorBox(iconRes, Color.WHITE, 20, roundedBackground(boxColor, 10))
         topRow.addView(iconTv, LinearLayout.LayoutParams(dp(36), dp(36)))
 
         val arrowTv = TextView(this).apply {
@@ -615,9 +625,65 @@ class HomeActivity : AppCompatActivity() {
             card.isClickable = true
             card.isFocusable = true
             card.setOnClickListener { onClick() }
+            applyRipple(card, 12, Color.argb(40, 29, 94, 255))
         }
 
         return card
+    }
+
+    /** Efek riak sentuhan dengan sudut membulat (khusus dasbor pengajar mandiri). */
+    private fun applyRipple(view: View, radiusDp: Int, rippleColor: Int) {
+        val mask = GradientDrawable().apply {
+            setColor(Color.WHITE)
+            cornerRadius = dp(radiusDp).toFloat()
+        }
+        view.foreground = android.graphics.drawable.RippleDrawable(
+            android.content.res.ColorStateList.valueOf(rippleColor),
+            null,
+            mask
+        )
+    }
+
+    /** Sapaan sesuai jam perangkat. */
+    private fun greetingByTime(): String {
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        return when (hour) {
+            in 4..10 -> "Selamat pagi"
+            in 11..14 -> "Selamat siang"
+            in 15..17 -> "Selamat sore"
+            else -> "Selamat malam"
+        }
+    }
+
+    /** Tombol biru dengan ikon plus-lingkaran di kiri teks (khusus dasbor pengajar mandiri). */
+    private fun createTeacherPrimaryButton(label: String, onClick: () -> Unit): View {
+        val button = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            background = roundedBackground(Color.rgb(29, 94, 255), 12)
+            setPadding(dp(16), dp(12), dp(16), dp(12))
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { onClick() }
+        }
+        applyRipple(button, 12, Color.argb(70, 255, 255, 255))
+        button.addView(
+            ImageView(this).apply {
+                setImageResource(R.drawable.ic_add_circle_outline)
+                setColorFilter(Color.WHITE)
+            },
+            LinearLayout.LayoutParams(dp(20), dp(20))
+        )
+        button.addView(
+            TextView(this).apply {
+                text = label
+                textSize = 15f
+                setTextColor(Color.WHITE)
+                setTypeface(null, Typeface.BOLD)
+                setPadding(dp(8), 0, 0, 0)
+            }
+        )
+        return button
     }
 
     private fun openBuatKelas() {
@@ -671,17 +737,64 @@ class HomeActivity : AppCompatActivity() {
             isFocusable = true
             setOnClickListener { openKelasDetail(c) }
         }
+        applyRipple(card, 16, Color.argb(30, 29, 94, 255))
+
         val head = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
         head.addView(UiKit.badge(this, TeacherClassStore.iconFor(c.topic), Color.WHITE, UiKit.PRIMARY, 48, 12, 24))
+
         val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         col.addView(UiKit.tv(this, c.name, 15f, UiKit.NAVY, true))
-        col.addView(
-            UiKit.tv(this, "Kode: ${c.code}  •  ${TeacherClassStore.participantCount(this, c.code)}/${c.capacity} peserta", 12.5f, UiKit.MUTED),
-            UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 4)
+
+        val info = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        // Chip kode kelas: ketuk untuk menyalin
+        val chip = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(8), dp(4), dp(8), dp(4))
+            background = roundedBackground(Color.rgb(232, 242, 255), 8)
+            isClickable = true
+            isFocusable = true
+            contentDescription = "Salin kode kelas"
+            setOnClickListener { TeacherClassStore.copyCode(this@HomeActivity, c) }
+        }
+        applyRipple(chip, 8, Color.argb(40, 29, 94, 255))
+        chip.addView(UiKit.tv(this, "Kode: ${c.code}", 12f, UiKit.PRIMARY, true).apply { maxLines = 1 })
+        chip.addView(
+            ImageView(this).apply {
+                setImageResource(R.drawable.ic_copy)
+                setColorFilter(UiKit.PRIMARY)
+            },
+            UiKit.params(this, dp(14), dp(14), start = 6)
         )
+        info.addView(chip)
+
+        // Jumlah peserta
+        info.addView(
+            ImageView(this).apply {
+                setImageResource(R.drawable.ic_people)
+                setColorFilter(UiKit.MUTED)
+            },
+            UiKit.params(this, dp(16), dp(16), start = 12)
+        )
+        info.addView(
+            UiKit.tv(
+                this,
+                "${TeacherClassStore.participantCount(this, c.code)}/${c.capacity} peserta",
+                12f,
+                UiKit.MUTED
+            ).apply { maxLines = 1 },
+            UiKit.params(this, UiKit.WRAP, UiKit.WRAP, start = 4)
+        )
+
+        col.addView(info, UiKit.params(this, UiKit.WRAP, UiKit.WRAP, top = 8))
+
         head.addView(col, UiKit.params(this, 0, UiKit.WRAP, start = 12, weight = 1f))
         head.addView(UiKit.icon(this, R.drawable.ic_chevron_right, 22, UiKit.MUTED), LinearLayout.LayoutParams(dp(22), dp(22)))
         card.addView(head)
@@ -700,8 +813,8 @@ class HomeActivity : AppCompatActivity() {
             elevation = dp(1).toFloat()
         }
 
-        val iconBox = vectorBox(R.drawable.ic_book, Color.rgb(33, 96, 245), 30, roundedBackground(Color.rgb(232, 242, 255), 32))
-        card.addView(iconBox, LinearLayout.LayoutParams(dp(64), dp(64)))
+        val iconBox = vectorBox(R.drawable.ic_institution, Color.rgb(33, 96, 245), 28, roundedBackground(Color.rgb(232, 242, 255), 16))
+        card.addView(iconBox, LinearLayout.LayoutParams(dp(56), dp(56)))
 
         val titleTv = TextView(this).apply {
             text = "Belum Ada Kelas"
@@ -726,21 +839,10 @@ class HomeActivity : AppCompatActivity() {
         }
         card.addView(subTv, sParams)
 
-        val btnBuat = TextView(this).apply {
-            text = "+ Buat Kelas"
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            setTypeface(null, Typeface.BOLD)
-            gravity = Gravity.CENTER
-            background = roundedBackground(Color.rgb(29, 94, 255), 12)
-            setPadding(dp(24), dp(14), dp(24), dp(14))
-            isClickable = true
-            isFocusable = true
-        }
+        val btnBuat = createTeacherPrimaryButton("Buat Kelas") { openBuatKelas() }
         val bParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(20)
         }
-        btnBuat.setOnClickListener { openBuatKelas() }
         card.addView(btnBuat, bParams)
 
         val wrapper = LinearLayout(this).apply {
